@@ -1,6 +1,6 @@
 {
     "adminHeader": {
-        "db_getQuery": "SELECT * FROM user_inf WHERE id = 'user_key'",
+        "db_getQuery": "CALL getSelfUserInfo(@result, 'user_key'); SELECT @result AS 'result';",
         "user_key": {
             "value": "1"
         },
@@ -27,7 +27,11 @@
         }
     },
     "returnTopPosition":{
-    	"text":"トップ",
-    	"href":"#top"
+    	"href":"#top",
+    	"returnTopPositionImg":{
+	    	"alt":"トップ",
+   		 	"href":"#top",
+   	 		"src":"image/icon_to_top.png"
+    	}
     }
 }

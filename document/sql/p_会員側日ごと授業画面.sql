@@ -1,3 +1,11 @@
+DELIMITER $$
+DROP PROCEDURE IF EXISTS p_user_classwork_a_day $$
+CREATE PROCEDURE p_user_classwork_a_day(
+	IN in_date INT
+	,IN in_user_key INT
+)
+BEGIN
+
 SELECT 
 	user_classwork_cost
 	,user_classwork_cost_aj
@@ -38,13 +46,13 @@ INNER JOIN
 ON
 	time_table_day.id = classwork.time_table_day_key
 AND
-	time_table_day.lesson_date = {{日付}}
+	time_table_day.lesson_date = in_date
 LEFT JOIN
 	user_classwork
 ON
 	classwork.id = user_classwork.classwork_key
 AND	
-	user_classwork.user_key = {{user_key}}
+	user_classwork.user_key = in_user_key
 INNER JOIN 
 	lesson_inf
 ON
@@ -60,7 +68,7 @@ ON
 LEFT JOIN
 	user_lesson
 ON
-	user_lesson.user_key = {{user_key}}
+	user_lesson.user_key = in_user_key
 AND
 	user_lesson.lesson_key = lesson_inf.id
 LEFT JOIN
@@ -78,4 +86,7 @@ ON
 LEFT JOIN
 	stage_inf AS uc_stage_inf
 ON
-	uc_stage_inf.id = user_classwork.stage_key
+	uc_stage_inf.id = user_classwork.stage_key;
+
+END$$
+DELIMITER ;

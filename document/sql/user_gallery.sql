@@ -7,6 +7,8 @@
 -- サーバのバージョン： 5.6.20
 -- PHP Version: 5.5.15
 
+#ギャラリー
+
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
 
@@ -94,4 +96,105 @@ WHERE
 AND
 	ug.user_key=uin.id
 AND
-	ug.image_id=ui.id;	
+	ug.image_id=ui.id;
+	
+
+#ギャラリー記事取得
+delimiter $$
+CREATE PROCEDURE getGalleryContents(out result text)
+BEGIN
+SELECT 
+	ui.id
+	,ui.photo_title AS myPhotoImage
+	,Date(ui.update_timestamp) AS date
+	,ui.article_title AS myPhotoTitle
+	,uin.user_name AS myPhotoUser
+	,ui.photo_summary AS myPhotoComment 
+FROM 
+	user_image AS ui
+	,user_inf AS uin 
+WHERE 
+	ui.user_key=uin.id 
+ORDER BY 
+	ui.update_timestamp DESC;
+END$$
+delimiter ;
+
+CALL getGalleryContents(@result); SELECT @result AS 'result';
+
+#マイギャラリー記事取得1
+delimiter $$
+CREATE PROCEDURE getMyGalleryContents1(out result text)
+BEGIN
+SELECT 
+	ui.id
+	,ui.photo_title AS myPhotoImage
+	,Date(ui.update_timestamp) AS date
+	,ui.article_title AS myPhotoTitle
+	,uin.user_name AS myPhotoUser
+	,ui.photo_summary AS myPhotoComment 
+FROM 
+	user_image AS ui
+	,user_inf AS uin 
+ORDER BY 
+	ui.update_timestamp 
+DESC 
+LIMIT 300;
+END$$
+delimiter ;
+
+CALL getMyGalleryContents(@result);  SELECT @result AS 'result';
+
+##マイギャラリー記事取得2
+delimiter $$
+CREATE PROCEDURE getMyGalleryContents2(out result text, in userKey int)
+BEGIN
+SELECT 
+	ui.id, ui.photo_title AS myPhotoImage
+	,Date(ui.update_timestamp) AS date
+	,ui.article_title AS myPhotoTitle
+	,uin.user_name AS myPhotoUser
+	,ui.photo_summary AS myPhotoComment 
+FROM 
+	user_image AS ui
+	,user_inf AS uin 
+WHERE 
+	ui.user_key=userKey 
+	AND ui.user_key=uin.id 
+ORDER BY 
+	ui.update_timestamp DESC;
+END$$
+delimiter ;
+
+CALL getMyGalleryContents2(@result, 'user_key'); SELECT @result AS 'result';
+
+#マイギャラリー記事作成
+delimiter $$
+CREATE PROCEDURE insertGalleryContent(in userKey int, photoTitle varchar(200))
+BEGIN
+INSERT INTO user_image(user_key, photo_title, update_timestamp) VALUES (userKey, photoTitle, NOW());
+END$$
+delimiter ;
+
+CALL insertGalleryContent('id', 'photo_title');
+
+#マイギャラリー記事更新
+delimiter $$
+CREATE PROCEDURE updateGalleryContent(in photoSummary varchar(210), articleTitle varchar(100), articleId int)
+BEGIN
+UPDATE user_image SET photo_summary = photoSummary, article_title = articleTitle WHERE id = articleId;
+END$$
+delimiter ;
+
+CALL updateGalleryContent('photo_summary', 'article_title', 'id');
+
+#マイギャラリー記事削除
+delimiter $$
+CREATE PROCEDURE deleteGalleryContent(in articleId int)
+BEGIN
+DELETE FROM user_image WHERE id IN (articleId);
+END$$
+delimiter ;
+
+CALL deleteGalleryContent('id');
+

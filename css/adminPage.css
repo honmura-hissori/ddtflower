@@ -1,6 +1,16 @@
 @CHARSET "UTF-8";
 
 /* 
+ * セレクタ :.window[name="admin"] .main
+ * 概要   :ページ全体の囲む領域
+ * 作成者 :T.Masuda
+ * 作成日 :2016.05.03
+ */
+.window[name="admin"] .main {
+	margin-top: 5px;	/* 上に少々空白をつける */
+}
+
+/* 
  * セレクタ :.adminHeader
  * 概要   :ヘッダのメニューそれぞれの項目の領域
  * 作成者 :T.Yamamoto
@@ -31,6 +41,18 @@
 	width : 100%;		/* 幅を親要素に合わせる */
 	display : table;	/* テーブル扱いにする。タブインデックスにvertical-alignを効かせるための処置 */
 }
+
+/* 
+ * セレクタ :#adminTab > .tabContentArea
+ * 概要   :管理者画面、タブ領域全体部分
+ * 作成者 :T.Masuda
+ * 作成日 :2016.04.30
+ */
+#adminTab > .tabContentArea {
+    border : solid 1px #AAA;		/* グレーの枠で囲む */
+    border-top : none;				/* 上の罫線はなくし、アクティブのタブインデックスと繋がっているように見せる */
+}
+
 /* 
  * セレクタ :#adminTab .tab
  * 概要   :管理者画面、タブ領域
@@ -42,9 +64,9 @@
 	width: 20%;					/* 幅を20%にする */
 	display: table-cell;		/* テーブルセルとして扱う。vertical-alignを効かせるための処置 */
 	background: #ce6;			/* 背景を黄緑にする */
-	border: none;				/* 線をなくす */
-	border-radius: 0;			/* 角丸をなくす */
-	vertical-align: middle;		/* 縦位置を中心に合わせる */
+	border: 0.5px solid #AAA;	/* 線をで囲む */
+    border-radius: 10px 10px 0px 0px;	/* 角丸を付ける */
+    vertical-align: middle;		/* 縦位置を中心に合わせる */
 }
 
 /* 
@@ -57,7 +79,8 @@
 	padding-top: 0px;			/* 上向きに0px要素の幅を広げる */
 	position: static;			/* ポジションを静的にする */
 	font-weight: normal;		/* 文字の太さを普通にする */
-	background: #cedc3a;			/* 背景を薄い緑にする */
+	background: #FFF;			/* 背景を内部と繋がっているように見せる */
+	border-bottom: none;		/* アクティブタブの下線をなくす */
 }
 
 /* 
@@ -126,6 +149,37 @@
 	padding: 5px 2em ;			/* 要素の幅を5px広げる */
 	cursor: pointer;		/* マウスオーバー時に指にする */
 }
+
+/* 
+ * セレクタ :.dateBelt button 
+ * 概要   :日ごと予約者一覧タブの日付選択のボタン
+ * 作成者 :T.Masuda
+ * 作成日 :2015.04.17
+ */
+.dateBelt button {
+	background: transparent;	/* ボタンの色を透過色にする */
+}
+
+/* 
+ * セレクタ :.dateBelt button:hover
+ * 概要   :日ごと予約者一覧タブの日付選択のボタンマウスオーバー時
+ * 作成者 :T.Masuda
+ * 作成日 :2015.05.05
+ */
+.dateBelt button:hover {
+	background: transparent;	/* ボタンの色を透過色にする */
+}
+
+/* 
+ * セレクタ :.dateBelt button:active
+ * 概要   :日ごと予約者一覧タブの日付選択のボタンアクティブ時
+ * 作成者 :T.Masuda
+ * 作成日 :2015.05.05
+ */
+.dateBelt button:active {
+	background: transparent;	/* ボタンの色を透過色にする */
+}
+
 /* タイトルの日付領域終わり */
 
 /* 日付選択領域 */
@@ -137,6 +191,7 @@
  */
 .dateSelect {
 	margin-top: 10px;		/* 上から10pxの余白をとる */
+	margin-bottom: 15px;
 }
 
 /* 
@@ -156,7 +211,6 @@
  * 作成日 :2015.06.19
  */
 .searchButton {
-	float: right;			/* 右側に回り込みする */
 }
 /* 日付選択領域終わり */
 
@@ -169,8 +223,8 @@
  */
 .returnTopPosition {
 	position: fixed;		/* 表示位置を固定にする */
-	right: 15px;			/* 右から15pxの場所に表示する */
-	bottom: 15px;			/* 下から15pxの場所に表示する */
+	right: 5px;				/* 右から5pxの場所に表示する */
+	bottom: 5px;			/* 下から5pxの場所に表示する */
 }
 /* スクロールボタン領域終わり */
 
@@ -181,9 +235,9 @@
  * 作成日 :2015.06.04
  */
 #lecturePermit .tab {
-	border: none;			/* 実線をなくす */
 	width: 50%;				/* 幅を50%にする */
 	display: inline-block;	/* インラインブロック要素にする */
+	box-sizing: border-box;	/* 線をサイズに含める */
 }
 
 /* 
@@ -228,6 +282,74 @@
 	width: 100%;			/* 幅を100%にして備品名が入るところまでを入れる */
 }
 
+
+/* 
+ * セレクタ :#doLecturePermit .normalButton,#sellCommodityPermit .normalButton
+ * 概要   :承認画面 各ボタン
+ * 作成者 :T.Masuda
+ * 作成日 :2016.04.09
+ */
+#doLecturePermit .normalButton,
+#sellCommodityPermit .normalButton {
+	float : right;	/* ボタンを右に寄せる */
+	margin : 5px;	/* ボタンそれぞれにmarginを持たせて間を取る */
+}
+
+/* 
+ * セレクタ :#permitTab .selectAllRow
+ * 概要   :承認画面 全選択ボタン領域
+ * 作成者 :T.Masuda
+ * 作成日 :2016.04.17
+ */
+#permitTab .selectAllRow {
+	margin-top : 10px;		/* 上marginを付けて隣り合うボタンたちと高さを合わせる */
+	margin-bottom : 5px;	/* 下marginでテーブルとの間隔を調整する */
+	display: inline-block;	/* spanタグ想定のため、marginを有効にするためinline-blockにする */
+	float : left;			/* 左に寄せる */
+}
+
+/* 
+ * セレクタ :.searchInputArea
+ * 概要   :検索要素領域
+ * 作成者 :T.Masuda
+ * 作成日 :2016.04.30
+ */
+.searchInputArea {
+    display: inline-block;	/* inline-blockにして横並べができるようにする */
+}
+
+/* 
+ * セレクタ :.fromTextbox, .toTextbox
+ * 概要   :日時範囲検索テキストボックス
+ * 作成者 :T.Masuda
+ * 作成日 :2016.04.09
+ */
+.fromTextbox, .toTextbox {
+    width: 125px;	/* 規定の幅を指定する。極力余白が出ない幅にする */
+}
+
+/* 
+ * セレクタ :.permitListSearch
+ * 概要   :承認一覧画面 検索フォーム領域
+ * 作成者 :T.Masuda	
+ * 作成日 :2016.04.09
+ */
+.permitListSearch {
+    display: inline-block;	/* インラインブロックにしてmargin、幅調整等が効くようにする */
+    margin: 5px 5px 0;		/* 下以外marginを取って適切な間隔を取る */
+}
+
+/* 
+ * セレクタ :.lecturePermitListInfoTable .user_name,.sellCommodityPermitListInfoTable .user_name
+ * 概要   :承認一覧画面 リスト 名前列
+ * 作成者 :T.Masuda	
+ * 作成日 :2016.04.09
+ */
+.lecturePermitListInfoTable .user_name,
+.sellCommodityPermitListInfoTable .user_name {
+	min-width : 90px;	/* 名前列の幅を最低限確保する */
+}
+
 /* 
  * セレクタ :.firstRow
  * 概要   :ユーザ一覧　ページング領域
@@ -247,6 +369,26 @@
  */
 .records {
 	margin: 0 1em;			/* 左右に1文字分の余白をとる */
+}
+
+/* 
+ * セレクタ:#userList .searchUserList
+ * 概要   :ユーザ一覧 検索領域
+ * 作成者 :T.Masuda
+ * 作成日 :2016.05.06
+ */
+#userList .searchUserList {
+    padding-left: 5px;	/* 左に適切な空白を付ける */
+}
+
+/* 
+ * セレクタ:#userList .numberingOuter
+ * 概要   :ユーザ一覧ナンバリング領域
+ * 作成者 :T.Masuda
+ * 作成日 :2016.04.07
+ */
+#userList .numberingOuter {
+    margin-bottom: 5px;	/* 下に来るボタンと間隔を取る */
 }
 
 /* 管理者　カレンダー領域 */
@@ -310,7 +452,7 @@
  */
 .lessonData li label {
 	display: inline-block;	/* インラインブロック要素にする */
-	width: 30%;				/* 幅を30%で統一する */
+	width: 32%;				/* 幅を30%で統一する */
 }
 
 /* 
@@ -330,7 +472,7 @@
  * 作成日 :2015.06.30
  */
 .memoTextarea {
-	width: 65%;				/* 幅を65%にする */
+	width: 62%;				/* 幅を65%にする */
 	height: 60px;			/* 縦幅を60pxにする */
 }
 
@@ -352,6 +494,26 @@
  */
 .memberClassListButton {
 	float: right;			/* 右側に回り込みする */
+}
+
+/* 
+ * セレクタ:.timetableListTable input[type="number"]
+ * 概要   :授業時間帯一覧の人数テキストボックス
+ * 作成者 :T.Masuda
+ * 作成日 :2015.05.05
+ */
+.timetableListTable input[type="number"]{
+	width : 100%;	/* セルの幅に合わせる */
+}
+
+/* 
+ * セレクタ:td.time_table
+ * 概要   :授業時間帯列
+ * 作成者 :T.Masuda
+ * 作成日 :2015.05.05
+ */
+td.time_table {
+    white-space: pre;	/* 内容を改行せず表示する */
 }
 /* 管理者　授業詳細領域終わり */
 
@@ -388,8 +550,8 @@
  * 作成日 :2015.07.29
  */
 .searchUserArea {
-	width: 32%;			/* PCでは3つのラベルテキストボックスを入れたいので32%にする */
-	text-align: center;	/* テキストを中央揃えにする */
+	width: 31%;			/* PCでは3つのラベルテキストボックスを入れたいので31%にする */
+	text-align: left;	/* テキストを中央揃えにする */
 	margin-bottom: 5px;	/* 下に5pxの余白をとる */
 }
 
@@ -400,7 +562,8 @@
  * 作成日 :2015.07.29
  */
 .searchLabel {
-	width: 32%;			/* テキストボックスのスペースを広めにとるためにラベルを32%(最小値)に設定する */
+	width: 40%;			/* テキストボックスのスペースを広めにとるためにラベルを40%に設定する */
+	font-size: 14px;
 }
 
 /* 
@@ -410,7 +573,7 @@
  * 作成日 :2015.07.29
  */
 .searchUserArea input[type="text"] {
-	width: 64%;			/* テキストボックスのスペースを広めにとるため64%(最大値)に設定する */
+	width: 50%;			/* テキストボックスのスペースを広めにとるため50%に設定する */
 }
 
 /* 
@@ -481,6 +644,47 @@ ul.mailSendContent {
 	height: 200px;			/* 高さを200pxにする */
 }
 
+/* 
+ * セレクタ :.dialog .searchUserList
+ * 概要   :ユーザ検索ダイアログ フォーム領域
+ * 作成者 :T.Masuda
+ * 作成日 :2016.04.10
+ */
+.dialog .searchUserList {
+    width: 280px;	/* 固定幅を設定する。iPhoneで使いやすいサイズを想定 */
+}
+
+/* 
+ * セレクタ :.dialog .searchUserList .searchUserArea
+ * 概要   :ユーザ検索ダイアログ フォーム領域 ラベルとテキストボックスのセット
+ * 作成者 :T.Masuda
+ * 作成日 :2016.04.10
+ */
+.dialog .searchUserList .searchUserArea {
+    width: 100%;		/* 幅を一杯にとり、1項目1行とする */
+    font-size: 14px;	/* 適切なフォントサイズを取る */
+}
+
+/* 
+ * セレクタ :.searchIconButtons
+ * 概要   :検索、絞込ボタン
+ * 作成者 :T.Masuda
+ * 作成日 :2016.04.10
+ */
+.searchIconButtons {
+    float: right;			/* 右に寄せる */
+    margin: 0 5px 5px 0;	/* 右、下にmarginを持たせる */
+}
+
+/* 
+ * セレクタ :.cancelUser
+ * 概要   :ユーザキャンセルボタン
+ * 作成者 :T.Masuda
+ * 作成日 :2016.05.05
+ */
+.cancelUser {
+    margin-right: 55px;	/* TOPボタンと被るので右marginを設定する */
+}
 /* 受講者一覧の検索領域 */
 /* 
  * セレクタ :.fromArea, .toArea
@@ -489,19 +693,9 @@ ul.mailSendContent {
  * 作成日 :2015.06.30
  */
 .fromArea, .toArea {
-	margin-top: 5px;		/* 上から5pxの余白をとる */
-	width: 35%;				/* 幅を35%で設定する */
+	/* margin-top: 5px; */		/* 上から5pxの余白をとる */
 }
 
-/* 
- * セレクタ :.permitListSearch label span
- * 概要   :受講者一覧のラベルテキスト領域
- * 作成者 :T.Yamamoto
- * 作成日 :2015.06.30
- */
-.permitListSearch label span {
-	width: 31%;				/* 幅を12%にする */
-}
 
 /* 受講者一覧の検索領域終わり */
 
@@ -517,13 +711,24 @@ ul.mailSendContent {
 }
 
 /* 
+ * セレクタ :#mailMagaAndAnnounce .normalButton
+ * 概要   :メルマガタブの汎用ボタン
+ * 作成者 :T.Masuda
+ * 作成日 :2015.04.10
+ */
+#mailMagaAndAnnounce .normalButton {
+	margin : 5px;	/* 一律でmarginを設定する */
+}
+
+
+/* 
  * セレクタ :.messageTitleLabel
  * 概要   :送信するメッセージのタイトルのラベル領域
  * 作成者 :T.Yamamoto
  * 作成日 :2015.07.09
  */
 .messageTitleLabel {
-	width: 15%;			/* 幅を15%にする */
+	margin-right: 5px;	/* テキストボックスとの間に間隔を取る */
 }
 
 /* 
@@ -553,8 +758,19 @@ ul.mailSendContent {
  * 作成日 :2015.07.09
  */
 .mailMagaContentSearchLabel {
-	width: 60%;		/* 幅を60%にする */
+	width: auto;		/* 幅を60%にする */
 }
+
+/* 
+ * セレクタ :.mailMagaSearchArea *
+ * 概要   :検索領域の全要素
+ * 作成者 :T.Masuda
+ * 作成日 :2016.05.05
+ */
+.mailMagaSearchArea * {
+    vertical-align: baseline;	/* 高さを中心に揃える */
+}
+
 
 /* 
  * セレクタ :.mailMagaContentSearchTextbox
@@ -563,16 +779,16 @@ ul.mailSendContent {
  * 作成日 :2015.07.09
  */
 .mailMagaContentSearchTextbox {
-	width: 88%;		/* 幅を80%にする */
+	width: 200px;		/* 幅を80%にする */
 }
 
 /* 
- * セレクタ :.mailMagaAndAnnounce input[type="text"], .mailMagaAndAnnounce select
- * 概要   :メルマガ＆アナウンスの中のテキストボックス領域とセレクトボックス領域
+ * セレクタ :.mailMagaAndAnnounce select
+ * 概要   :メルマガ＆アナウンスの中のセレクトボックス領域
  * 作成者 :T.Yamamoto
  * 作成日 :2015.07.09
  */
-.mailMagaAndAnnounce input[type="text"], .mailMagaAndAnnounce select {
+.mailMagaAndAnnounce select {
 	margin-right: 1em;		/* 右に1文字分の余白をとる */
 }
 
@@ -638,10 +854,74 @@ ul.mailSendContent {
 	width: 43px;		/* 幅を6桁の数字が入る幅にする */
 }
 
+/* 
+ * セレクタ :.doLecturePermitInfoTable tbody, .sellCommodityPermitInfoTable tbody
+ * 概要   :受講承認、商品購入テーブルのデータ行領域
+ * 作成者 :T.Masuda
+ * 作成日 :2016.05.06
+ */
+.doLecturePermitInfoTable tbody, .sellCommodityPermitInfoTable tbody {
+    overflow-y : auto;	/* フロー時に縦スクロールするようにする */
+    height : 400px;		/* 高さを固定にすることでスクロールを有効にする */
+}
+
+/* 
+ * セレクタ :.doLecturePermitInfoTable td, .sellCommodityPermitInfoTable td
+ * 概要   :受講承認、商品購入テーブルのセル
+ * 作成者 :T.Masuda
+ * 作成日 :2016.05.06
+ */
+.doLecturePermitInfoTable td, .sellCommodityPermitInfoTable td {
+	white-space : pre;	/* 改行が起こらないようにする */
+}
+
+/* 
+ * セレクタ :.sellCommodityPermitInfoTable td input[type="numer"]
+ * 概要   :商品購入テーブルのセル内数値入力ボックス
+ * 作成者 :T.Masuda
+ * 作成日 :2016.03.26
+ */
+.sellCommodityPermitInfoTable td input[type="number"] {
+	width : 70px ;	/* 幅を固定にする */
+}
+
+/* 
+ * セレクタ :.messageInfo .NoLabel,.messageInfo .numberTextox,.sendmessageDate
+ * 概要   :メルマガ編集ダイアログの項目
+ * 作成者 :T.Masuda
+ * 作成日 :2016.04.10
+ */
+.messageInfo .NoLabel,
+.messageInfo .numberTextox,
+.sendmessageDate {
+	display : none;	/* 現状使わないので非表示 */
+}
+
+/* 
+ * セレクタ :.mailMagaAndAnnounceArea
+ * 概要   :メルマガ編集ダイアログ入力フォーム
+ * 作成者 :T.Masuda
+ * 作成日 :2016.04.10
+ */
+.mailMagaAndAnnounceArea {
+    width: 500px;	/* 幅を指定する */
+}
+
 /* メルマガ・アナウンス画面領域終わり */
 
 /* スマホ・タブレットレイアウト */
 @media(max-width:680px){
+	
+	/* 
+	 * セレクタ :#adminTab > ul
+	 * 概要   :管理者画面 タブインデックス枠
+	 * 作成者 :T.Masuda
+	 * 作成日 :2015.11.23
+	 */
+	#adminTab > ul {
+		width : 97.5%;		/* ぴったりなりすぎないように多少マージン分として調整する */
+	}
+	
 	/* 
 	 * セレクタ :.dateBelt a
 	 * 概要   :日ごと予約者一覧タブのタイトルの領域
@@ -652,15 +932,14 @@ ul.mailSendContent {
 		padding: 5px .5em ;			/* 要素の幅を5px広げる */
 	}
 
-	/* 受講者一覧の検索領域 */
 	/* 
-	 * セレクタ :.fromArea, .toArea
-	 * 概要   :受講者一覧のfromとtoの領域
-	 * 作成者 :T.Yamamoto
-	 * 作成日 :2015.06.30
+	 * セレクタ :.mailMagaSearchArea . schoolNameLabel, .mailMagaSearchArea .typeLabel
+	 * 概要   :メルマガ検索領域のスマホレイアウト時に1段目に来るラベル
+	 * 作成者 :T.Masuda
+	 * 作成日 :2016.05.05
 	 */
-	.fromArea, .toArea {
-		width: 70%;				/* 幅を70%で設定する */
+	.mailMagaSearchArea .schoolNameLabel, .mailMagaSearchArea .typeLabel {
+	    margin-bottom : 2.5px;  /* 下にmarginを挿入し、selectメニューと高さを合わせる */
 	}
 
 	/* 
@@ -670,7 +949,8 @@ ul.mailSendContent {
 	 * 作成日 :2015.07.09
 	 */
 	.mailMagaContentSearchLabel {
-		width: 77%;		/* 幅を77%にする */
+		width: auto;		/* 幅を77%にする */
+		margin-bottom: 5px;	/* ボタン群と段が変わったときに間隔が必要になるのでつける */
 	}
 
 	/* 
@@ -680,12 +960,54 @@ ul.mailSendContent {
 	 * 作成日 :2015.07.09
 	 */
 	.mailMagaContentSearchTextbox {
-		width: 80%;		/* 幅を80%にする */
+		width: 110px;		/* 幅を50%にする */
 	}
 }
 
 /* スマホ用微調整 */
-@media(max-width:400px){
+@media(max-width:415px){
+
+	/* ユーザ一覧 */
+	/* 
+	 * セレクタ :#adminTab .searchLabel
+	 * 概要   :ユーザ検索フォーム フォーム領域 ラベル
+	 * 作成者 :T.Masuda
+	 * 作成日 :2016.04.10
+	 */
+	#adminTab .searchLabel {
+	    width: 100%;		/* 幅が足りなくなってくるので段組みをやめる */
+	}
+
+	/* 
+	 * セレクタ :.dialog .searchLabel
+	 * 概要   :ユーザ検索ダイアログ フォーム領域 ラベル
+	 * 作成者 :T.Masuda
+	 * 作成日 :2016.04.10
+	 */
+	.dialog .searchLabel {
+	    width: 100%;		/* 幅を十分に取る */
+	}
+	
+	/* 
+	 * セレクタ :.searchUserArea input[type="text"]
+	 * 概要   :会員一覧検索のテキストボックス領域
+	 * 作成者 :T.Yamamoto
+	 * 作成日 :2015.07.29
+	 */
+	.searchUserArea input[type="text"]
+	,.searchUserArea input[type="date"] {
+		width: 85%;			/* 段組みをやめたので大きめに幅を取る */
+	}
+
+	/* 
+	 * セレクタ :.searchUserArea
+	 * 概要   :会員一覧検索の検索テキストボックス、ラベルを囲む領域
+	 * 作成者 :T.Masuda
+	 * 作成日 :2016.04.17
+	 */
+	.searchUserArea {
+		width: 29%;	/* 右端にあるボタンの領域確保のため幅を狭める */
+	}
 
 	/* 受講承認領域 */
 	/* 
@@ -697,7 +1019,96 @@ ul.mailSendContent {
 	.accordionContent input {
 		width: 32px;			/* 幅を4桁の数字が入るぐらいの幅にする */
 	}
-	/* 受講承認領域 */
+
+	/* 
+	 * セレクタ :.permitListSearch
+	 * 概要   :承認一覧 検索領域
+	 * 作成者 :T.Masuda
+	 * 作成日 :2016.04.09
+	 */
+	.permitListSearch {
+	    display: block;	/* 更新ボタンと必ず横並びにならないようにする */
+	    margin-bottom : 5px; /* 下にあるボタンと最低限間隔を取る */
+	}
+	
+	/* 
+	 * セレクタ :.permitListSearch .searchButton , .permitListSearch .sellCommodityPermitListUpdateButton
+	 * 概要   :承認一覧 検索ボタン、更新ボタン
+	 * 作成者 :T.Masuda
+	 * 作成日 :2016.04.09
+	 */
+	.permitListSearch .searchButton , .permitListSearch .sellCommodityPermitListUpdateButton, .permitListSearch .lecturePermitListUpdateButton {
+		float : right; /* 右に寄せる */
+	}
+
+	/* 
+	 * セレクタ :.permitListSearch .lecturePermitListUpdateButton, .permitListSearch .sellCommodityPermitListUpdateButton
+	 * 概要   :承認一覧 更新ボタン
+	 * 作成者 :T.Masuda
+	 * 作成日 :2016.05.05
+	 */
+	.permitListSearch .lecturePermitListUpdateButton, .permitListSearch .sellCommodityPermitListUpdateButton {
+		margin : 5px 0 0;
+	}
+	
+	/* 
+	 * セレクタ :.permitListUpdateButton
+	 * 概要   :承認一覧 更新ボタン
+	 * 作成者 :T.Masuda
+	 * 作成日 :2016.04.09
+	 */
+	.permitListUpdateButton {
+		float : right;	/* スマホレイアウト時には右に寄せる */
+		margin-bottom : 10px;	/* 直下に来る一覧と間隔を取る */
+		clear : both;			/* 上のボタンの横に回り込まない様にする */
+	}
+
+	/* 
+	 * セレクタ :.fromArea, .toArea
+	 * 概要   :受講者一覧のfromとtoの領域
+	 * 作成者 :T.Masuda
+	 * 作成日 :2016.04.09
+	 */
+	.fromArea, .toArea {
+		width: 100%;			/* 幅を親要素の幅に合わせる */
+	}
+	
+	/* 
+	 * セレクタ :.sellCommodityPermitListInfoTable .contentSelect
+	 * 概要   :承認一覧 商品選択のセレクトメニュー
+	 * 作成者 :T.Masuda
+	 * 作成日 :2016.04.09
+	 */
+	.sellCommodityPermitListInfoTable .contentSelect {
+	    width: 120px;
+	}
+
+	/* 
+	 * セレクタ :.lecturePermitListInfoTable .user_name,.sellCommodityPermitListInfoTable .user_name
+	 * 概要   :承認一覧画面 リスト 名前列
+	 * 作成者 :T.Masuda	
+	 * 作成日 :2016.04.09
+	 */
+	.lecturePermitListInfoTable .user_name,
+	.sellCommodityPermitListInfoTable .user_name {
+		min-width : 70px;	/* 名前列の幅を最低限確保する */
+		max-width : 90px	/* 最大幅をセットする */
+	}
+	
+	/* 
+	 * セレクタ :.lecturePermitListInfoTable .user_name,.sellCommodityPermitListInfoTable .user_name
+	 * 概要   :承認一覧画面 リスト テキストボックス
+	 * 作成者 :T.Masuda	
+	 * 作成日 :2016.04.09
+	 */
+	.lecturePermitListInfoTable .cost input,
+	.lecturePermitListInfoTable .use_point input,
+	.sellCommodityPermitListInfoTable .cost input, 
+	.sellCommodityPermitListInfoTable .use_point input {
+		width : 50px;	/* 最低限の幅を取る */
+	}
+	
+	/* 受講承認領域終わり */
 
 	/* 会員一覧の検索領域 */
 
@@ -715,13 +1126,47 @@ ul.mailSendContent {
 	}
 
 	/* 
-	 * セレクタ :.messageTitleLabel
-	 * 概要   :送信するメッセージのタイトルのラベル領域
+	 * セレクタ :.mailMagaAndAnnounce select
+	 * 概要   :メルマガタブ内セレクトボックス
 	 * 作成者 :T.Yamamoto
 	 * 作成日 :2015.07.09
 	 */
-	.messageTitleLabel {
-		width: 19%;			/* 幅を19%にする */
+	.mailMagaAndAnnounce select {
+		margin-bottom : 5px;	/* 下marginを独自につけないと間隔がおかしくなるのでつける */
 	}
+
+
+	/* 
+	 * セレクタ :.mailMagaContentSearchTextbox
+	 * 概要   :検索領域のテキストボックス領域
+	 * 作成者 :T.Yamamoto
+	 * 作成日 :2015.07.09
+	 */
+	.mailMagaContentSearchTextbox {
+		width: 200px;		/* 幅を50%にする */
+	}
+	
+	/* 
+	 * セレクタ :#mailMagaAndAnnounce .buttonArea
+	 * 概要   :メルマガの新規ボタン、削除ボタン領域
+	 * 作成者 :T.Masuda
+	 * 作成日 :2016.04.10
+	 */
+	#mailMagaAndAnnounce .buttonArea {
+	    float: right;		/* スマホレイアウト時には段組み解除となっているため右に寄せる */
+	    width: auto;		/* 幅を中身に合わせる */
+	    margin-bottom: 5px;	/* 一覧とくっつくので下marginを入れる */
+	}
+	
+	/* 
+	 * セレクタ :.mailMagaAndAnnounceArea
+	 * 概要   :メルマガ編集ダイアログ入力フォーム
+	 * 作成者 :T.Masuda
+	 * 作成日 :2016.04.10
+	 */
+	.mailMagaAndAnnounceArea {
+	    width: 270px;	/* 幅を指定する */
+	}
+	
 	/* メルマガ・アナウンス画面領域終わり */
 }

@@ -360,13 +360,13 @@
 }
 
  /* 
- * セレクタ:.galleryTable tr:first-child
- * 概要   :ギャラリーの写真1枚目
+ * セレクタ:.galleryTable thead
+ * 概要   :ギャラリーの見出し行
  * 作成者 :T.Masuda
  * 作成日 :2015.12.27
  */
-.galleryTable tr:first-child {
-	display: none;	/* 見せるべきものではないので隠す */
+.galleryTable thead{
+	display: none;	/* 見出しは存在しない(DOMはある) */
 }
 /* 画面伸縮時の設定 */
 @media screen and (max-width: 679px) {

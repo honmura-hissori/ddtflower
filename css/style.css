@@ -139,7 +139,18 @@ input, select {
 /* ここまでclearfix */
 
 /* 各タグの基本設定 */
-/* 
+
+/*
+ * セレクタ:*
+ * 概要   :全要素共通の設定
+ * 作成者 :T.Masuda
+ * 作成日 :2016.05.01
+ */
+* {
+	outline: none;	/* フォーカス時にアウトラインを出さない */
+}
+
+/*
  * セレクタ:span,label,h1,h2,h3,h4,h5
  * 概要   :見出しタグとラベルのタグ
  * 作成者 :T.Masuda
@@ -148,6 +159,216 @@ input, select {
 span,label,h1,h2,h3,h4,h5,th{
     font-weight: normal;   	 /* 個別に指定しなければフォントを太字にしない。 */
 	vertical-align: middle;	/* 高さを中心に合わせる */
+}
+
+/*
+ * セレクタ:input,textarea,select
+ * 概要   :inputタグ、テキストエリア、selectタグ
+ * 作成者 :T.Masuda
+ * 作成日 :2016.05.01
+ */
+input,textarea,select {
+    box-sizing : border-box;	/* 一律でサイズに指定に罫線を含むように設定する */
+}
+
+/*
+ * セレクタ:input[type="text"]
+ *        ,input[type="date"]
+ *        ,input[type="number"]
+ *        ,input[type="password"]
+ *        ,input[type="search"]
+ *        ,input[type="tel"]
+ *        ,input[type="email"]
+ *        ,input[type="url"]
+ *        ,input[type="range"]
+ *        ,input[type="color"]
+ * 概要   :テキストボックス
+ * 作成者 :T.Masuda
+ * 作成日 :2016.05.03
+ */
+input[type="text"]
+,input[type="date"]
+,input[type="number"]
+,input[type="password"]
+,input[type="search"]
+,input[type="tel"]
+,input[type="email"]
+,input[type="url"]
+,input[type="range"]
+,input[type="color"] {
+	height : 30px;	/* デフォルトの高さを指定する。ボタンのサイズと合わせておくことが望ましい */
+}
+
+/*
+ * セレクタ:input[type="date"]
+ * 概要   :日付テキストボックス
+ * 作成者 :T.Masuda
+ * 作成日 :2016.04.30
+ */
+input[type="date"] {
+    width: 120px;	/* 最低限の幅を取る */
+}
+
+/*
+ * セレクタ:input[type="number"]
+ * 概要   :数値テキストボックス
+ * 作成者 :T.Masuda
+ * 作成日 :2016.05.05
+ */
+input[type="number"] {
+	text-align : right;	/* 数値は右寄せにする */
+}
+
+/* 
+ * セレクタ:.fixedTable
+ * 概要   :テーブルで固定幅を利用するためのCSSを追加するクラス
+ * 作成者 :T.Masuda
+ * 作成日 :2016.05.05
+ */
+.fixedTable {
+	table-layout : fixed;	/* 固定幅を利用できるようにする */
+}
+
+/* 
+ * セレクタ:.inline
+ * 概要   :このクラスを持つ要素をインラインにする
+ * 作成者 :T.Masuda
+ * 作成日 :2016.04.30
+ */
+.inline {
+	display: inline;	/* インライン要素にする */
+}
+
+/* 
+ * セレクタ:.block
+ * 概要   :このクラスを持つ要素をブロックにする
+ * 作成者 :T.Masuda
+ * 作成日 :2016.04.30
+ */
+.block {
+	display : block;	/* ブロック要素にする */
+}
+
+/* 
+ * セレクタ:.floatLeft
+ * 概要   :このクラスを持つ要素を左に寄せる
+ * 作成者 :T.Masuda
+ * 作成日 :2016.04.30
+ */
+.floatLeft {
+	float : left;	/* 左に寄せる */
+}
+
+/* 
+ * セレクタ:.scrollXAuto
+ * 概要   :内容が横にオーバーフローしたらスクロールするようにするクラス
+ * 作成者 :T.Masuda
+ * 作成日 :2016.05.01
+ */
+.scrollXAuto {
+	overflow-x : auto;	/* 横にオーバーフローしたらスクロールさせる */
+}
+
+/* 
+ * セレクタ:.window
+ * 概要   :個々のウィンドウ
+ * 作成者 :T.Masuda
+ * 作成日 :2015.09.21
+ */
+.window {
+	position: absolute;	/* 絶対位置を指定する */
+	top:0px;			/* 画面上上から0pxの位置に固定する */
+	display:none; 		/* 初期状態では非表示にしておき、全部のロードが終わったときに表示する */
+}
+
+
+/* 
+ * セレクタ:.ui-button.ui-widget.ui-corner-all
+ * 概要   :jquery uiのボタン
+ * 作成者 :T.Masuda
+ * 作成日 :2016.05.03
+ */
+.ui-button.ui-widget.ui-corner-all {
+    font-size: 14px;	/* デフォルトのサイズが大きいので小さく + デフォルト値設定 */
+}
+
+/* 
+ * セレクタ:.commonButton
+ * 概要   :ボタン作成関数で作ったボタン
+ * 作成者 :T.Masuda
+ * 作成日 :2016.05.01
+ */
+.commonButton {
+    background: #EEE;		/* 背景色を薄いグレーにする */
+    border: 1px solid #AAA;	/* グレーの線で囲む */
+    border-radius: 5px;		/* 角丸にする */
+    box-sizing: border-box;	/* 罫線を幅計算に含める */
+    height : 30px;			/* デフォルトの高さを指定する。必要に応じて別セレクタで指定する */
+    margin : 0 2.5px;		/* デフォルトのマージンを指定する。必要に応じて別セレクタで指定する */
+}
+
+/* 
+ * セレクタ:.commonButton:hover
+ * 概要   :ボタン作成関数で作ったボタンがマウスオーバーされたとき
+ * 作成者 :T.Masuda
+ * 作成日 :2016.05.01
+ */
+.commonButton:hover {
+    background: #EFEEFE;		/* 薄いグレーをもっとうすくする */
+}
+
+/* 
+ * セレクタ:.commonButton:active
+ * 概要   :ボタン作成関数で作ったボタンが押された時
+ * 作成者 :T.Masuda
+ * 作成日 :2016.05.01
+ */
+.commonButton:active {
+    background: #FFE;		/* 更に薄いグレーにする */
+    position: relative;		/* 座標指定をするため相対位置を使う */
+    top : 2px;				/* 少し下にずらして押した感を出す */
+}
+
+/*
+ * セレクタ:.commonButton > img
+ * 概要   :ボタン作成関数で作ったボタンの画像部分
+ * 作成者 :T.Masuda
+ * 作成日 :2016.05.01
+ */
+.commonButton > img {
+    height: 84%;				/* ボタンの高さを大きさの基準にする */
+    vertical-align : sub;		/* アイコン、テキストの高さを中心に揃える */
+}
+
+/* 
+ * セレクタ:.commonButton > img.iconRight
+ * 概要   :ボタン作成関数で作ったボタンの画像部分。画像が右よりのとき
+ * 作成者 :T.Masuda
+ * 作成日 :2016.05.01
+ */
+.commonButton > img.iconRight {
+	margin-left : 0.1em;	/* 左に間を空ける */
+}
+
+/* 
+ * セレクタ:.commonButton > img.iconLeft
+ * 概要   :ボタン作成関数で作ったボタンの画像部分。画像が左よりのとき
+ * 作成者 :T.Masuda
+ * 作成日 :2016.05.01
+ */
+.commonButton > img.iconLeft {
+	margin-right : 0.1em;	/* 右に間を空ける */
+}
+
+/* 
+ * セレクタ:.messageDialog
+ * 概要   :メッセージダイアログ。jQuery UIのCSSが適用されるので独自に設定し直す
+ * 作成者 :T.Masuda
+ * 作成日 :2016.05.05
+ */
+.messageDialog {
+    white-space: pre-wrap;	/* 改行を有効にする */
+    font-size: 16px;		/* jQuery UIでデフォルトの書式が設定されているので設定し直す */
 }
 
 /* 
@@ -159,6 +380,46 @@ span,label,h1,h2,h3,h4,h5,th{
 .ui-datepicker-title span,.ui-datepicker-calendar thead span{
     font-weight: bold!important;   	 /* フォントを太字に戻す。 */
 	vertical-align: baseline!important;	/* 高さを下にあわせる。 */
+}
+
+/* 
+ * セレクタ:.dateHasClass a
+ * 概要   :カレンダー内の授業のある日付
+ * 作成者 :T.Masuda
+ * 作成日 :2016.04.19
+ */
+.dateHasClass a{
+	background : lawngreen!important;	/* 明るい緑にする */
+}
+
+/* 
+ * セレクタ:.dateHasLesson a
+ * 概要   :カレンダー内の予約した授業のある日付
+ * 作成者 :T.Masuda
+ * 作成日 :2016.05.03
+ */
+.dateHasLesson a{
+	background : LightCyan!important;	/* 薄い水色にする */
+}
+
+/* 
+ * セレクタ:.dateCancelLesson a
+ * 概要   :カレンダー内のキャンセルした授業のある日付
+ * 作成者 :T.Masuda
+ * 作成日 :2016.05.03
+ */
+.dateCancelLesson a{
+	background : Yellow!important;	/* 黄色くする */
+}
+
+/* 
+ * セレクタ:.dateStopLesson a
+ * 概要   :カレンダー内の中止した授業のある日付
+ * 作成者 :T.Masuda
+ * 作成日 :2016.05.03
+ */
+.dateStopLesson a{
+	background : OrangeRed!important;	/* 紅くする */
 }
 
 /* 
@@ -189,6 +450,45 @@ button.ui-button-text-only span.ui-button-text {
 }
 
 /* 
+ * セレクタ:.noArticle
+ * 概要   :ブログ、ギャラリーの記事がなかったときの表示
+ * 作成者 :T.Masuda
+ * 作成日 :2016.05.06
+ */
+.noArticle {
+    margin: 0 10px;			/* 通常の記事同様、ぴったりくっつかないようにする */
+    padding: 5px;			/* 内容の文字もぴったりくっつかないようにする */
+    border: solid 1px #CCC;	/* 枠で囲んだメッセージにする */
+    font-size : 16px;		/* ブログ記事はフォントサイズの指定があるので影響を受けない様にここでも設定する */
+}
+
+/* 
+ * セレクタ:.tableScrollXParent
+ * 概要   :内容を横スクロールさせるテーブルの親要素に付けるクラス
+ * 作成者 :T.Masuda
+ * 作成日 :2016.05.06
+ */
+.tableScrollXParent {
+    overflow-x: auto;		/* 中身が溢れたらスクロールする */
+    width: 99.5%;			/* テーブルに依らない幅を持たせる */
+    border: 1px solid #AAA;	/* 独自に罫線を持たせる */
+    margin: 0 auto;			/* 中央に寄せる */
+}
+
+/* 
+ * セレクタ:.tableScrollXParent table.scrollXAuto
+ * 概要   :内容を横スクロールさせるテーブル
+ * 作成者 :T.Masuda
+ * 作成日 :2016.05.06
+ */
+.tableScrollXParent table.scrollXAuto {
+	/* 左右罫線を消す */
+    border-left: none;	
+    border-right: none;
+    width : 100%;	/* 外枠一杯に幅を広げる */
+}
+
+/* 
  * セレクタ:#container
  * 概要   :画面の幅に合わせて伸縮する、最上階層のdivタグ
  * 作成者 :T.Masuda
@@ -197,7 +497,6 @@ button.ui-button-text-only span.ui-button-text {
 #container{
     width: 100%;            /* 横幅を画面一杯に広げる */
     background: inherit;    /* bodyの背景色を継承する。 */
-    overflow: hidden;
 }
 
 /* ヘッダー領域。 */
@@ -546,7 +845,7 @@ button.ui-button-text-only span.ui-button-text {
  */
 .main{
     width		: 800px;      		/* コンテンツ幅を800pxにする。 */
-    margin		: 5px auto 0 auto;  /* 横位置を中心に寄せる。 */
+    margin		: 0 auto 0 auto;  /* 横位置を中心に寄せる。 */
     background	: inherit;    		/* containerの背景色を継承する。 */
     position	: relative; 		/* 相対位置の要素にする。 */
     z-index		: 0;				/* 重なり順の優先順位を低くする。 */
@@ -641,7 +940,7 @@ footer{
  */
 .dialog .inputArea label {
 	display: inline-block;	/* インラインブロック要素に指定してテキストボックスと並べる。 */
-	width: 100px;			/* 幅を100pxに指定し、文字数が違うラベル同士の幅を合わせる。 */
+	width: 90px;			/* 幅を100pxに指定し、文字数が違うラベル同士の幅を合わせる。 */
 }
 
 /* 
@@ -1082,15 +1381,15 @@ form[target^="jquery_upload"]{
 }
 
 /* 
- * セレクタ:.window
- * 概要   :個々のウィンドウ
+ * セレクタ:.importantButton
+ * 概要   :重要なボタン。承認ボタン等
  * 作成者 :T.Masuda
- * 作成日 :2015.09.21
+ * 作成日 :2016.04.02
  */
-.window{
-	position: absolute;
-	top:0px;
-	display:none;
+.importantButton {
+	/* 赤字白抜きレイアウトにする */
+	background : RED!important;
+	color : WHITE!important;
 }
 
 /* スマホ・タブレットレイアウト */
@@ -1448,4 +1747,24 @@ form[target^="jquery_upload"]{
 	.main {
 	    min-width: 320px;  /* 画面を一定サイズ以上縮小しない。 */
 	}
+}
+
+/* 
+ * セレクタ:.commonTable
+ * 概要   :テーブルの共通レイアウトクラス
+ * 作成者 :T.Masuda
+ * 作成日 :2016.04.02
+ */
+.commonTable {
+	
+}
+
+/* 
+ * セレクタ:.commonTable tr
+ * 概要   :テーブルの共通レイアウトクラス 行
+ * 作成者 :T.Masuda
+ * 作成日 :2016.04.02
+ */
+.commonTable tr{
+	height : 25px;	/* 高さを共通して設定する */
 }

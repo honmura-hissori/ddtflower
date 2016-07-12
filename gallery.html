@@ -37,8 +37,8 @@
 					//ギャラリー全体の領域のDOMを配置する
 					create_tag.outputTag('memberMyGallery', 'memberMyGallery', $currentContent);
 					//ギャラリーの左右のエリアのDOMを作る
-					create_tag.outputTag('galleryRightSide', 'gallerySideArea', $currentContent);
-					create_tag.outputTag('galleryLeftSide', 'gallerySideArea', $currentContent);
+					create_tag.outputTag('galleryRightSide', 'gallerySideArea', '.memberMyGallery');
+					create_tag.outputTag('galleryLeftSide', 'gallerySideArea', '.memberMyGallery');
 					create_tag.outputTag('galleryArea', 'memberMyGallery', '.galleryRightSide');
 					
 					// ギャラリーページ用のギャラリーを作る。

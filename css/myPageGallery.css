@@ -33,12 +33,12 @@
 }
 
 /* 
- * セレクタ:.myGalleryTable tr:first-child
- * 概要   :マイギャラリーの1つ目の記事
+ * セレクタ:.myGalleryTable thead
+ * 概要   :マイギャラリーの見出し行
  * 作成者 :T.Masuda
  * 作成日 :2015.08.02
  */
-.myGalleryTable tr:first-child {
+.myGalleryTable thead {
 	display: none;	/* 見出し行なので消しておく */
 }
 

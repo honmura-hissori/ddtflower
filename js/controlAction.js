@@ -1,30 +1,6 @@
 /* アクションを制御するJSファイル。 */
 
 /*
- * 関数名:function checkIdentifier(fileName)
- * 引数  :String fileName:ファイル名。
- * 戻り値:boolean
- * 概要  :有効な拡張子かどうかをチェックする。
- * 作成日:2015.04.18
- * 作成者:T.M
- */
-function checkIdentifier(fileName){
-	var retBoo = false;	//返却するチェック結果を格納する変数を宣言、初期化する。
-	var listLength = VALID_IMAGE_IDENTIFIERS.length;	//有効な拡張子の配列の長さを取得する。
-	
-	//有効な拡張子のリストとfileNameを比較する
-	for(var i = 0; i < listLength; i++){
-		//有効な拡張子であったら
-		if(fileName.indexOf(VALID_IMAGE_IDENTIFIERS[i]) > -1 ){
-			retBoo = true;	//trueを返す
-			break;	//ループを抜ける
-		}
-	}
-	
-	return retBoo;	//判定結果を返す。
-}
-
-/*
  * 関数名:clickButtonToFile
  * 引数  :String parentClass:ボタンの親の要素のクラス名
  * 		:String button:ボタンのセレクタ文字列

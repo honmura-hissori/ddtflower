@@ -37,6 +37,7 @@ function dialogEx(url, argumentObj, returnObj){
 			//表示位置の指定。
 			position :POSITION_CENTER_TOP,
 			closeOnEscape : false,	//escキーを押して閉じるか
+			appendTo : $('body'),	//追加先
 			create:function(){	//ダイアログ作成時のイベント
 			},
 			open://基本的にopen時はdispContentsが実行されるようにする
@@ -88,7 +89,7 @@ function dialogEx(url, argumentObj, returnObj){
 			dom.instance = this;		//ダイアログのDOMにクラスインスタンスへの参照を持たせる。
 			this.dom = dom;				//クラスインスタンスにDOMへの参照を持たせる
 			
-			$(dom).dialog(this.argumentObj.config);	//configの設定を使ってダイアログを作成、表示する
+			$(dom).dialog(this.argumentObj.config).parent();	//configの設定を使ってダイアログを作成、表示する
 		//例外をキャッチしたら
 		} catch(e){
 			//通信が終了しているのでローディング画面を消す

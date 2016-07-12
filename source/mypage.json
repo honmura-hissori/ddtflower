@@ -31,23 +31,6 @@
         "text": "ブログ"
     },
     "myPageBlogButtons": {
-        "myPageBlogButton1": {
-            "class": "myPageBlogButton myPageButton",
-            "type": "submit",
-            "data-role": "0",
-            "value": "記事作成"
-        },
-        "myPageBlogButton2": {
-            "class": "myPageBlogButton myPageButton",
-            "type": "submit",
-            "data-role": "1",
-            "value": "記事編集"
-        },
-        "myPageBlogButton3": {
-            "class": "myPageBlogButton myPageButton deleteRecord",
-            "value": "記事削除",
-            "type": "button"
-        },
         "myPageBlogButtonHidden": {
             "class": "valueHolder myPageBlogButtonHidden",
             "type": "hidden",
@@ -105,7 +88,7 @@
         }
     },
     "deleteMyBlog":{
-        "db_setQuery":"DELETE FROM user_blog WHERE id IN ('id');",
+        "db_setQuery":"CALL deleteBlogArticle('id');",
         "id":{
             "value":""
         }
@@ -116,7 +99,7 @@
     },
     "myBlogTable":{
     	"class" : "blogTable myBlogTable",
-        "db_getQuery":"SELECT ub.id,ub.title,Date(ub.post_timestamp) AS date,uin.user_name AS userName, ub.image_1 AS image1, ub.image_2 AS image2,ub.image_3 AS image3, ub.content AS text, '' AS buttons FROM user_blog AS ub,user_inf AS uin WHERE ub.user_key='user_key' AND ub.user_key=uin.id ORDER BY post_timestamp DESC;",
+        "db_getQuery" : "CALL getMyBlogArticle(@result, 'user_key'); SELECT @result AS 'result';",
         "user_key":{
             "value":""
         },
@@ -157,10 +140,7 @@
     },
     "blogTable":{
     	"class" : "blogTable",
-        "db_getQuery":"SELECT ub.id,ub.title,Date(ub.post_timestamp) AS date, ub.post_timestamp AS post_date, uin.user_name AS userName, ub.image_1 AS image1, ub.image_2 AS image2,ub.image_3 AS image3, ub.content AS text, ub.disclosure_range, '' AS buttons FROM user_blog AS ub,user_inf AS uin WHERE ub.user_key=uin.id AND ub.disclosure_range = 0 ORDER BY post_date DESC;",
-        "user_key":{
-            "value":""
-        },
+        "db_getQuery" : "CALL getBlogArticle(@result); SELECT @result AS 'result';",
         "config": {
             "columns": {
                 "id":{

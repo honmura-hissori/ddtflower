@@ -46,21 +46,27 @@
 	
 	//予約済み授業の絞り込み領域を作る
 	create_tag.outputTag('selectTheme', 'selectTheme', '#alreadyReserved');
+	//絞り込みボタンを作る
+	commonFuncs.putCommonButton('#alreadyReserved', 'filterButton', 'filter', true, false, true, {}, false);
+	
 	//セレクトボックスのvalueを画面に表示されている値にする
 	create_tag.setSelectboxValueWithName('.selectThemebox');
 	//予約中授業の外枠領域を作る
 	create_tag.outputTag('reservedLessonTableOutsideArea', 'divArea', '#alreadyReserved');
+	// 予約中授業のテーブルを作る
+	create_tag.outputTagTable('reservedLessonTable','reservedLessonTable','.reservedLessonTableOutsideArea');
+	create_tag.tableReload('reservedLessonTable');
 	//予約中の授業データがあった時の予約中授業を表示するのに必要な処理をする
-	if(create_tag.json['reservedLessonTable'][TABLE_DATA_KEY][0]) {
+/* 	if(create_tag.json['reservedLessonTable'][TABLE_DATA_KEY][0]) {
 		// 予約中授業のテーブルを作る
 		create_tag.outputTagTable('reservedLessonTable','reservedLessonTable','.reservedLessonTableOutsideArea');
 		// 予約中テーブルのテーブルの値を置換する
 		commonFuncs.dbDataTableValueReplace(RESERVED_LESSON_TABLE, RESERVED_LESSON_TABLE_REPLACE_FUNC, false, create_tag, 10);
-		//予約確認ダイアログ、予約キャンセルののダイアログで加算ポイントと
-		//予約中授業テーブルのクリック範囲レコードにクラス属性を付ける
-		commonFuncs.setTableRecordClass('reservedLessonTable', 'targetCancelReservedLesson'); 
 	}
-	
+ */	
+	//予約確認ダイアログ、予約キャンセルののダイアログで加算ポイントと
+	//予約中授業テーブルのクリック範囲レコードにクラス属性を付ける
+	//commonFuncs.setTableRecordClass('reservedLessonTable', 'targetCancelReservedLesson'); 
 	//テーブルからキャンセルダイアログを開くクラスをインクルードする
 	commonFuncs.getScriptFile('js/reservedLessonTable.js');
 	//予約済み授業一覧テーブルのインスタンスを作り、テーブルの操作処理を使えるようにする
@@ -68,7 +74,10 @@
 	//キャンセルダイアログを予約中授業テーブルから開く処理
 	reservedLessonTableFuncs.cancelDialogOpenFromReservedTable(memberInfo, $('#alreadyReserved')[0].create_tag);
 	//予約中授業テーブル絞り込みボタン機能を実装する
-	create_tag.reloadTableTriggerEvent('#alreadyReserved .selectThemebox', CHANGE, 'reservedLessonTable');
+	create_tag.reloadTableTriggerEvent('#alreadyReserved .filterButton', CLICK, 'reservedLessonTable');
+
+	//テーマ選択セレクトメニューのクリックでの全表示をオンにする
+	commonFuncs.setTogglePosition('#alreadyReserved', '.selectThemebox', VALUE_ABSOLUTE, STR_AUTO);
 	
 </script>
 </body>

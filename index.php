@@ -77,7 +77,8 @@
 <!-- jQueryの本体を読み込む。 -->
 <script src="js/jquery-1.11.0.min.js"></script>
 <!-- jQueryUIを読み込む。 -->
-<script type="text/javascript" src="js/jquery-ui-1.9.2.custom.min.js"></script>
+<!-- <script type="text/javascript" src="js/jquery-ui-1.9.2.custom.min.js"></script> -->
+<script type="text/javascript" src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
 <!-- 共通関数クラスを読み込む。 -->
 <script src="js/common.js"></script>
 <!-- ユーティリティクラスのjsファイル。 -->
@@ -86,6 +87,8 @@
 <script src="js/flowersstylefix.js"></script>
 <!-- JSONとHTMLテンプレートから画面パーツを作るクラスのファイル -->
 <script type="text/javascript" src="js/createTag.js"></script>
+<!-- ログイン周りのjs -->
+<script type="text/javascript" src="js/login.js"></script>
 <!-- カルーセルのギャラリー生成プラグイン「Slick」の本体を読み込む。 -->
 <script type="text/javascript" src="js/slick.min.js" ></script>
 <!-- クリックした画像をピックアップ表示するためのjQueryプラグイン「fancybox」の本体を読み込む。 -->
@@ -97,7 +100,7 @@
 <!-- Smooth DIV Scrollの本体を読み込む。 -->
 <script type="text/javascript" src="js/jquery.smoothDivScroll-1.3.js"></script>
 <!-- easytabsの本体を読み込む。 -->
-<script type="text/javascript" src="js/jquery.easytabs.js"></script>
+<script type="text/javascript" src="js/jquery.easytabs.min.js"></script>
 <!-- アップロード機能を提供するjQueryプラグイン -->
 <script src="js/jquery.upload-1.0.2.min.js" type="text/javascript"></script>
 <!-- 入力チェック機能のjQueryプラグイン -->
@@ -112,6 +115,8 @@
 <script src="js/canvasResize.js"></script>
 <!-- タッチ操作のライブラリ。 -->
 <script src="js/jquery.finger.js"></script>
+<!-- 日付型フォーマット関数のライブラリ。 -->
+<script src="js/date.js"></script>
 
 <!-- 各ページ共通の関数ファイルを読み込む -->
 <script src="js/page/commonPage.js"></script>
@@ -142,6 +147,8 @@
 <script type="text/javascript" src="js/dialogExOptions.js"></script>
 <!-- ユーザのアクションに対応するイベントを定義したJSファイルを読み込む。 -->
 <script type="text/javascript" src="js/dailyClasses.js"></script>
+<!-- イベント管理マネージャクラスを読み込む。 -->
+<script type="text/javascript" src="js/eventHandleManager.js"></script>
 <script>
 	//トップページ用ウィンドウを準備する
 	windowElem = new windowEx(TOP_LOCATION, {config:{firstExec:true}});	//初回実行フラグオン

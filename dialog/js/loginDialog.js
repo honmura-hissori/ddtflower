@@ -76,6 +76,8 @@ function loginDialog(dialog){
 	this.dispContentsMain = function(){
 		//ログインに必要なテキストボックス、案内のラベルを出す
 		this.create_tag.outputTag(INPUT_AREA, INPUT_AREA, CURRENT_DIALOG);
+		//ログインダイアログ生成時にウィンドウが非表示になっているケースがあるため、最前のウィンドウを映す
+		commonFuncs.showCurrentWindow();
 	}
 	
 	/* 関数名:setConfig
@@ -88,7 +90,12 @@ function loginDialog(dialog){
 	 */
 	this.setConfig = function(){
 		//ログイン・閉じるボタンを配置する
-		this.setDialogButtons(this.login_close);		
+		this.setDialogButtons(this.login_close);
+		
+		//通常画面を見せたほうがいいときは(通常画面からログインダイアログを開いた時)
+		if ($('.window[name!="usuall"]').length && $('.window[name!="usuall"]').height() <= 10) {
+			$('.window[name="usuall"]').show();	//通常画面を見える様にする
+		}
 	}
 
 	/* 関数名:callbackClose
@@ -105,18 +112,33 @@ function loginDialog(dialog){
 		switch(this.dialogBuilder.dialogClass.getPushedButtonState()){
 			//ログインボタンが押されていたら
 			case LOGIN_NUM:
-				//ログインボタンのコールバックで処理が終わっているので何もしない
+				//管理者画面へのログインなら
+				if (history.state.url.indexOf('admin/') != -1) {
+					//先走って出てしまった会員ウィンドウを消しておく
+					$('.window[name="member"]').remove();
+				}
+
+				//ログインダイアログにチェック通過を表すクラスを追加する。
+				//クライアント上でログイン完了を表す要素として使える(ただし、生存期間が短いので補足的に)
+				$('.inputArea').addClass('valid');
+				//元々移動しようとしていた画面に遷移する
+				$(CURRENT_WINDOW)[0].instance.callPage(history.state.url);
 				break;
 			//閉じるボタン、クローズボックスが押されていたら
 			default:
-				//トップページに戻る
-				callPage(TOP_LOCATION);
+				//ログインが必要な画面のウィンドウが開いていたら
+				if ($('.window').filter('[name="member"],[name="admin"]').length) {
+					//消しておく
+					$('.window').filter('[name="member"],[name="admin"]').remove();
+					commonFuncs.showCurrentWindow();	//最前部のウィンドウのみ表示する
+				}
+
 				break;
 		}
+		
 		//ダイアログを完全に消す
 		this.dialogBuilder.dialogClass.destroy();
-		//画面をリロードする
-		location.reload();
+		
 	};
 	
 	/* 関数名:setCallback

@@ -20,9 +20,9 @@ function memberReserveListDialog(dialog){
 	
 	//予約、キャンセルを行ったときのお知らせのテキストの配列
 	this.noticeMessages = [
-	                       	LESSON_RESERVE_TEXT,
-	                       	LESSON_RESERVE_TEXT,
-	                       	LESSON_CANCEL_TEXT
+	                       	MESSAGE_FAILED_LESSON_RESERVE_TEXT,
+	                       	MESSAGE_FAILED_LESSON_RESERVE_TEXT,
+	                       	MESSAGE_FAILED_LESSON_CANCEL_TEXT
 	                       ];
 	
 
@@ -122,7 +122,7 @@ function memberReserveListDialog(dialog){
 		
 		//授業データを走査し、列データを追加していく
 		for(var i = 0; i < tableData.length; i++){
-			tableData[i].cost = replaceData.cost[i];
+			tableData[i].cost = replaceData.cost[i] ? replaceData.cost[i] : CHAR_HYPHEN;
 			tableData[i].start_and_end_time = replaceData.start_and_end_time[i];
 			tableData[i].rest = replaceData.rest[i];
 			tableData[i].lessonStatus = replaceData.lessonStatus[i];
@@ -207,8 +207,8 @@ function memberReserveListDialog(dialog){
 		$(DOT + LESSON_TABLE + TAG_CHILD_TR, $(this.dialog)).has("td:contains('✕')").css('background', '#EDEDED');
 		//料金欄が0の授業もグレーアウトする
 		$(DOT + LESSON_TABLE + TAG_CHILD_TR, $(this.dialog)).filter(function(){
-			//料金が0の行だけ抽出する
-			return parseInt($("td.cost", this).text()) <= 0? true : false;
+			//料金が-の行だけ抽出する
+			return parseInt($("td.cost", this).text()) <= CHAR_HYPHEN ? true : false;
 		}).css('background', '#EDEDED');
 	}
 	
@@ -261,7 +261,7 @@ function memberReserveListDialog(dialog){
 		//クリックした行の番号とデータを取得する。様々なところで使い回せるため、メンバに保存する
 		this.recordData = this.getClickTableRecordData(clicked, LESSON_TABLE, LESSON_TABLE_RECORD);
 		//無効な行(見出し)をクリックしていたら、または料金が0であれば
-		if(this.recordData.number < 0 || this.recordData.data.cost == 0){
+		if(this.recordData.number < 0 || this.recordData.data.cost == CHAR_HYPHEN){
 			return;	//何もせずに終える
 		}
 		
@@ -336,15 +336,20 @@ function memberReserveListDialog(dialog){
 		switch(this.manipulation){
 		//通常の予約
 		case PROCESSING_RESERVE:
+			//予約のクエリをオブジェクトにセットする
 			retObj[KEY_DB_SETQUERY] = this[VAR_CREATE_TAG].json.sendReservedData.db_setQuery;
 			break;
 		//再予約
 		case PROCESSING_RESERVE_AGAIN:
+			//再予約のクエリをオブジェクトにセットする
 			retObj[KEY_DB_SETQUERY] = this[VAR_CREATE_TAG].json.updateReservedData.db_setQuery;
 			break;
 		//キャンセル
 		case PROCESSING_CANCEL:
+			//キャンセルのクエリをオブジェクトにセットする
 			retObj[KEY_DB_SETQUERY] = this[VAR_CREATE_TAG].json.cancelReservedData.db_setQuery;
+			//キャンセルがユーザか管理者かの判定の値をセットする
+			retObj.cancel_user = !this.create_tag.isAdminLoginToMemberPage() ? VALUE_USER_CANCEL : VALUE_ADMIN_CANCEL;
 			//キャンセル料をセットする
 			retObj.cancel_charge = dialogBuilder.create_tag.cancel_charge;
 			break;
@@ -353,7 +358,6 @@ function memberReserveListDialog(dialog){
 			break;
 		}
 
-//		retObj[KEY_DB_SETQUERY] = this[VAR_CREATE_TAG].sendReservedData;	//クエリを追加する
 		//ダイアログ専用クラスインスタンスがdialogExクラスインスタンスを通じてデータを取り出す
 		return retObj;
 	};
@@ -378,19 +382,57 @@ function memberReserveListDialog(dialog){
 				var parentDialogBuilder = data.parentDialogEx.dom.dialogBuilder;
 				//親ダイアログでDB更新用JSONをまとめる
 				var sendObject = parentDialogBuilder.updateJson(this.dialogBuilder);
-				//クエリを発行してキャンセル処理を行う
-				parentDialogBuilder.sendQuery(URL_SAVE_JSON_DATA_PHP, sendObject);
 				console.log(sendObject);
+				//クエリを発行してキャンセル処理を行う
+				var sendResult = parentDialogBuilder.sendQuery(URL_SAVE_JSON_DATA_PHP, sendObject);
 				$(parentDialogBuilder.dialog).empty();	//ダイアログの中を一旦空にする
 				parentDialogBuilder.dispContents();		//予約一覧ダイアログの中身を更新する
-				
+
 				//予約中授業テーブルをリロードして予約状況を最新にする
-				data[VAR_CREATE_TAG].tableReload(RESERVED_LESSON_TABLE);
-				//予約中授業のセレクトメニューを「全て」に戻す
-				$('.selectThemebox').val('全て');
+				$('#alreadyReserved')[0].create_tag.tableReload(RESERVED_LESSON_TABLE);
+
+				//DBの更新に失敗していたら
+				if(parseInt(sendResult.message)) {
 				
-				//予約、キャンセルに応じた通知のアラートを出す
-				alert(parentDialogBuilder.noticeMessages[parentDialogBuilder.manipulation]);
+					//openイベントはsetArgumentObjでセットしておく
+					var confirmDialog = new dialogEx(CONFIRM_DIALOG_PATH,
+							//オブジェクトを結合して引数として渡す
+							$.extend({}, true
+									//デフォルトの入力オブジェクトを用意する
+									,commonFuncs.getDefaultArgumentObject()
+									,{
+										//ダイアログ用データ
+										data:{
+											//単なるメッセージのダイアログなのでコールバックなし
+							    			callback : commonFuncs.removeCurrentDialog		
+							    			//ダイアログのメッセージ
+							    			,message:parentDialogBuilder.noticeMessages[parentDialogBuilder.manipulation]			
+										},
+										//ダイアログ設定データ
+										config : {
+											//open時のコールバック
+											open://基本的にopen時はdispContentsが実行されるようにする
+												function(){
+												//dispContentsをコールしてダイアログの内容を作る
+												commonFuncs.setCallbackToEventObject(this, 'dialogBuilder', 'dispContents');
+												//ボタンを消す
+												commonFuncs.removeCurrentDialogButtons();
+											}
+											//モーダル表示にする
+											,modal : true
+										}
+									}
+							)
+					);
+					
+					//openイベントのコールバック関数をセットする
+					confirmDialog.run();	//ダイアログを開く
+				//更新に成功していたら
+				} else {
+					//カレンダーの授業がある日付を更新する
+					$('.lessonCalendar:last')[0].instance.changeExistLessonDate();
+				}
+				
 				break;	//switchを抜ける
 		default:break;	//switchを抜ける
 		}

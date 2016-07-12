@@ -3,7 +3,8 @@
         "class":"tableArea"
     },
     "lessonTable":{
-        "db_getQuery":"SELECT '' AS start_and_end_time, start_time ,school_name ,lesson_name ,classwork_note ,end_time ,classwork.lesson_key AS lesson_key ,time_table_day.lesson_date AS lesson_date ,order_students ,classwork.max_students AS max_students ,classwork.min_students AS min_students ,lesson_inf.min_students AS default_min_students ,time_table_day.max_num AS max_num ,time_table_day.min_num AS min_num ,classwork_status ,SUBSTRING(NOW(), 1,10) AS today ,classwork.id AS classwork_key ,classroom ,school_inf.id AS school_key ,time_table_day.id AS time_table_day_key ,timetable_inf.id AS timetable_key , '' AS rest, '' AS lessonStatus FROM  time_table_day LEFT JOIN classwork ON time_table_day.id = classwork.time_table_day_key AND time_table_day.lesson_date = 'lessonDate' INNER JOIN lesson_inf ON lesson_inf.id = classwork.lesson_key INNER JOIN school_inf  ON school_inf.id = lesson_inf.school_key RIGHT JOIN timetable_inf ON timetable_inf.id = time_table_day.timetable_key ORDER BY start_time ASC;",
+    	"class" : "lessonTable commonTable",
+        "db_getQuery":"CALL getAdminLessonList(@result, 'lessonDate'); SELECT @result AS 'result';",
         "lessonDate":{
             "value":""
         },
@@ -68,7 +69,8 @@
                     "style":"display:none;"
                 },
                 "classwork_key":{
-                    "style":"display:none;"
+                    "style":"display:none;",
+                    "className" : "id"
                 },
                 "classroom":{
                     "style":"display:none;"
@@ -93,5 +95,53 @@
             "△=残りわずか",
             "✕=満席"
         ]
+    },
+    "lessonDeleteQuery" : {
+    	"db_setQuery" : "CALL `p_delete_classwork`('id', @result); SELECT @result AS `result`;"
+    },
+    "timeTableListOuter" : {
+    },
+    "timetableListTable":{
+    	"class" : "timetableListTable commonTable",
+        "db_getQuery":" CALL `p_select_timetable_day`('lessonDate', @result); SELECT @result AS `result`;",
+        "lessonDate":{
+            "value":""
+        },
+         "config": {
+            "columns": {
+                "start_time": {
+                    "style": "display:none;"
+                    ,"className" : "start_time"
+                },
+                "end_time": {
+                    "style": "display:none;"
+                    ,"className" : "end_time"
+                },
+                "max_num":{
+                    "columnName" : "最大人数"
+                    ,"className" : "max_num"
+                },
+                "min_num":{
+                    "columnName" : "最小人数"
+                    ,"className" : "min_num"
+                },
+                "id":{
+                    "style":"display:none;"
+                    ,"className" : "id"
+                }
+            }
+        }
+    },
+    "updateTimeTable" : {
+        "db_setQuery" : "CALL p_update_capacity_time_table_day('id', 'min_num', 'max_num', @result); SELECT @result AS result;",
+        "id" : {
+            "value" : ""
+        },
+        "min_students" : {
+            "value" : ""
+        },
+        "max_students" : {
+            "value" : ""
+        }
     }
 }

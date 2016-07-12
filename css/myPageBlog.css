@@ -165,12 +165,12 @@ table.myBlogTable tr td:first-child {
 }
 
 /* 
- * セレクタ:.myBlogTable tbody tr:first-child
+ * セレクタ:.myBlogTable thead tr:first-child
  * 概要   :マイブログのテーブルの見出し行
  * 作成者 :T.Masuda
  * 作成日 :2015.08.02
  */
-.myBlogTable tbody tr:first-child{
+.myBlogTable thead tr:first-child{
 	display:none;	/* 見出し行は見せない */
 }
 

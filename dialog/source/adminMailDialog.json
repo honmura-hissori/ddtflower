@@ -47,11 +47,5 @@
                 "value": "リセット"
             }
         }
-    },
-    "insertMessageInf": {
-        "db_setQuery": "INSERT INTO message_inf(send_date,message_type,message_title,message_content,create_datetime,update_datetime) VALUES(DATE(NOW()), 0, 'message_title', 'message_content',NOW(),NOW())"
-    },
-    "insertMessageTo": {
-        "db_setQuery": "INSERT INTO message_to(message_key,user_key,create_datetime,update_datetime) VALUES((SELECT id FROM message_inf ORDER BY create_datetime DESC LIMIT 1), 'user_key', NOW(), NOW())"
     }
 }

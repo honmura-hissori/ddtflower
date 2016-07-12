@@ -81,16 +81,8 @@
             }
         }
     },
-    "buttonArea":{
-        "class":"fRight",
-        "button1":{
-            "type":"button",
-            "value":"送信"
-        },
-        "button2":{
-            "type":"reset",
-            "value":"リセット"
-        }
+    "buttonArea" : {
+        "class" : "mailButtonArea"
     },
     "insertSuggestionBox":{
         "db_setQuery":"INSERT INTO suggestion_box( user_key ,school_key ,suggest_type ,suggest_title ,suggest_content ,send_datetime,create_datetime,update_user,update_datetime) VALUES ('user_key','school_key','suggest_type','suggest_title','suggest_content',NOW(),NOW(),'user_key',NOW());"

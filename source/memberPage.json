@@ -1,6 +1,6 @@
-﻿{
+{
     "advertise": {
-        "db_getQuery": "SELECT message_title,message_content,send_date FROM message_inf WHERE id IN ( SELECT message_key FROM message_to WHERE user_key = 'user_key' AND check_datetime IS NULL) ORDER BY send_date DESC, id DESC",
+        "db_getQuery": "CALL getUserMessage(@result, 'user_key'); SELECT @result AS 'result';",
         "user_key": {
             "value": ""
         },
@@ -56,12 +56,12 @@
     },
     "selectTheme": {
         "themeText": {
-            "class":"themeText inlineBlock",
+            "class":"themeText inline notApplySmartphoneFontsize",
             "text": "テーマ"
         },
         "selectThemebox": {
-            "themeValue": [
-                "全て"
+        	"class" : "selectThemebox multipleSelect"
+            ,"themeValue": [
             ]
         }
     },
@@ -69,7 +69,8 @@
         "class":"reservedLessonTableOutsideArea"
     },
     "reservedLessonTable": {
-        "db_getQuery": "SELECT '' AS lessonDateTime, lesson_name, school_name,  '' AS sumCost, '' AS lessonPoint, start_time ,end_time ,user_classwork_cost ,MAX(point_rate) AS point_rate ,user_classwork_cost_aj ,get_point ,flower_cost ,flower_cost_aj ,extension_cost ,lesson_date ,today ,lesson_key ,id ,biggest_students ,students ,order_students ,user_work_status ,classwork_key, stop_order_date FROM ( SELECT  user_classwork_cost ,user_classwork_cost_aj ,user_classwork.get_point AS get_point ,flower_cost ,flower_cost_aj ,user_classwork.extension_cost AS extension_cost ,lesson_name ,school_name ,start_time ,end_time ,time_table_day.lesson_date AS lesson_date ,lesson_point_rate.point_rate AS point_rate ,students ,order_students ,SUBSTRING(NOW(), 1,10) AS today ,user_classwork.stage_no AS stage_no ,user_classwork.level_no AS level_no ,classwork.lesson_key AS lesson_key ,user_classwork.id as id ,biggest_students ,user_work_status,classwork.id AS classwork_key, stop_order_date FROM user_classwork INNER JOIN classwork ON classwork.id = user_classwork.classwork_key AND user_classwork.user_key = 'user_key' INNER JOIN  lesson_inf ON lesson_inf.id = classwork.lesson_key INNER JOIN school_inf ON school_inf.id = lesson_inf.school_key INNER JOIN time_table_day ON time_table_day.id = classwork.time_table_day_key INNER JOIN timetable_inf ON timetable_inf.id = time_table_day.timetable_key LEFT JOIN ( SELECT MAX(students) AS biggest_students ,lesson_key FROM lesson_point_rate GROUP BY lesson_key ) AS lsp ON lsp.lesson_key = lesson_inf.id AND  order_students > biggest_students INNER JOIN lesson_point_rate ON lesson_point_rate.lesson_key = lesson_inf.id AND( students <= order_students OR biggest_students IS NOT NULL )) AS student_class_rec WHERE user_work_status=1 AND lesson_date >= 'lesson_date' GROUP BY id ORDER BY lesson_date ASC;",
+    	"class" : "reservedLessonTable commonTable",
+        "db_getQuery": "SELECT '' AS lessonDateTime, lesson_name, school_name,  '' AS sumCost, '' AS lessonPoint, start_time ,end_time ,user_classwork_cost ,MAX(point_rate) AS point_rate ,user_classwork_cost_aj ,get_point ,flower_cost ,flower_cost_aj ,extension_cost ,lesson_date ,today ,lesson_key ,id ,biggest_students ,students ,order_students ,user_work_status ,classwork_key, stop_order_date FROM ( SELECT  user_classwork_cost ,user_classwork_cost_aj ,user_classwork.get_point AS get_point ,flower_cost ,flower_cost_aj ,user_classwork.extension_cost AS extension_cost ,lesson_name ,school_name ,start_time ,end_time ,time_table_day.lesson_date AS lesson_date ,lesson_point_rate.point_rate AS point_rate ,students ,order_students ,SUBSTRING(NOW(), 1,10) AS today ,user_classwork.stage_no AS stage_no ,user_classwork.level_no AS level_no ,classwork.lesson_key AS lesson_key ,user_classwork.id as id ,biggest_students ,user_work_status,classwork.id AS classwork_key, stop_order_date FROM user_classwork INNER JOIN classwork ON classwork.id = user_classwork.classwork_key AND user_classwork.user_key = 'user_key' INNER JOIN  lesson_inf ON lesson_inf.id = classwork.lesson_key INNER JOIN school_inf ON school_inf.id = lesson_inf.school_key INNER JOIN time_table_day ON time_table_day.id = classwork.time_table_day_key INNER JOIN timetable_inf ON timetable_inf.id = time_table_day.timetable_key LEFT JOIN ( SELECT MAX(students) AS biggest_students ,lesson_key FROM lesson_point_rate GROUP BY lesson_key ) AS lsp ON lsp.lesson_key = lesson_inf.id AND  order_students > biggest_students INNER JOIN lesson_point_rate ON lesson_point_rate.lesson_key = lesson_inf.id ) AS student_class_rec WHERE user_work_status=1 AND lesson_date >= 'lesson_date' GROUP BY id ORDER BY lesson_date ASC;",
         "user_key": {
             "value": ""
         },
@@ -79,8 +80,8 @@
         "lesson_name":{
             "value":""
         },
-        "replace_query":"SELECT '' AS lessonDateTime, lesson_name, school_name,  '' AS sumCost, '' AS lessonPoint, start_time ,end_time ,user_classwork_cost ,MAX(point_rate) AS point_rate ,user_classwork_cost_aj ,get_point ,flower_cost ,flower_cost_aj ,extension_cost ,lesson_date ,today ,lesson_key ,id ,biggest_students ,students ,order_students ,user_work_status,classwork_key, stop_order_date FROM ( SELECT  user_classwork_cost ,user_classwork_cost_aj ,user_classwork.get_point AS get_point ,flower_cost ,flower_cost_aj ,user_classwork.extension_cost AS extension_cost ,lesson_name ,school_name ,start_time ,end_time ,time_table_day.lesson_date AS lesson_date ,lesson_point_rate.point_rate AS point_rate ,students ,order_students ,SUBSTRING(NOW(), 1,10) AS today ,user_classwork.stage_no AS stage_no ,user_classwork.level_no AS level_no ,classwork.lesson_key AS lesson_key ,user_classwork.id as id ,biggest_students ,user_work_status,classwork.id AS classwork_key, stop_order_date FROM user_classwork INNER JOIN classwork ON classwork.id = user_classwork.classwork_key AND user_classwork.user_key = 'user_key' INNER JOIN  lesson_inf ON lesson_inf.id = classwork.lesson_key INNER JOIN school_inf ON school_inf.id = lesson_inf.school_key INNER JOIN time_table_day ON time_table_day.id = classwork.time_table_day_key INNER JOIN timetable_inf ON timetable_inf.id = time_table_day.timetable_key LEFT JOIN ( SELECT MAX(students) AS biggest_students ,lesson_key FROM lesson_point_rate GROUP BY lesson_key ) AS lsp ON lsp.lesson_key = lesson_inf.id AND  order_students > biggest_students INNER JOIN lesson_point_rate ON lesson_point_rate.lesson_key = lesson_inf.id AND( students <= order_students OR biggest_students IS NOT NULL )) AS student_class_rec WHERE user_work_status=1 AND lesson_date >= 'lesson_date' AND lesson_name='lesson_name' GROUP BY id ORDER BY lesson_date ASC;",
-        "allSearch_query":"SELECT '' AS lessonDateTime, lesson_name, school_name,  '' AS sumCost, '' AS lessonPoint, start_time ,end_time ,user_classwork_cost ,MAX(point_rate) AS point_rate ,user_classwork_cost_aj ,get_point ,flower_cost ,flower_cost_aj ,extension_cost ,lesson_date ,today ,lesson_key ,id ,biggest_students ,students ,order_students ,user_work_status ,classwork_key, stop_order_date FROM ( SELECT  user_classwork_cost ,user_classwork_cost_aj ,user_classwork.get_point AS get_point ,flower_cost ,flower_cost_aj ,user_classwork.extension_cost AS extension_cost ,lesson_name ,school_name ,start_time ,end_time ,time_table_day.lesson_date AS lesson_date ,lesson_point_rate.point_rate AS point_rate ,students ,order_students ,SUBSTRING(NOW(), 1,10) AS today ,user_classwork.stage_no AS stage_no ,user_classwork.level_no AS level_no ,classwork.lesson_key AS lesson_key ,user_classwork.id as id ,biggest_students ,user_work_status,classwork.id AS classwork_key, stop_order_date FROM user_classwork INNER JOIN classwork ON classwork.id = user_classwork.classwork_key AND user_classwork.user_key = 'user_key' INNER JOIN  lesson_inf ON lesson_inf.id = classwork.lesson_key INNER JOIN school_inf ON school_inf.id = lesson_inf.school_key INNER JOIN time_table_day ON time_table_day.id = classwork.time_table_day_key INNER JOIN timetable_inf ON timetable_inf.id = time_table_day.timetable_key LEFT JOIN ( SELECT MAX(students) AS biggest_students ,lesson_key FROM lesson_point_rate GROUP BY lesson_key ) AS lsp ON lsp.lesson_key = lesson_inf.id AND  order_students > biggest_students INNER JOIN lesson_point_rate ON lesson_point_rate.lesson_key = lesson_inf.id AND( students <= order_students OR biggest_students IS NOT NULL )) AS student_class_rec WHERE user_work_status=1 AND lesson_date >= 'lesson_date' GROUP BY id ORDER BY lesson_date ASC;",
+        "replace_query":"SELECT '' AS lessonDateTime, lesson_name, school_name,  '' AS sumCost, '' AS lessonPoint, start_time ,end_time ,user_classwork_cost ,MAX(point_rate) AS point_rate ,user_classwork_cost_aj ,get_point ,flower_cost ,flower_cost_aj ,extension_cost ,lesson_date ,today ,lesson_key ,id ,biggest_students ,students ,order_students ,user_work_status,classwork_key, stop_order_date FROM ( SELECT  user_classwork_cost ,user_classwork_cost_aj ,user_classwork.get_point AS get_point ,flower_cost ,flower_cost_aj ,user_classwork.extension_cost AS extension_cost ,lesson_name ,school_name ,start_time ,end_time ,time_table_day.lesson_date AS lesson_date ,lesson_point_rate.point_rate AS point_rate ,students ,order_students ,SUBSTRING(NOW(), 1,10) AS today ,user_classwork.stage_no AS stage_no ,user_classwork.level_no AS level_no ,classwork.lesson_key AS lesson_key ,user_classwork.id as id ,biggest_students ,user_work_status,classwork.id AS classwork_key, stop_order_date FROM user_classwork INNER JOIN classwork ON classwork.id = user_classwork.classwork_key AND user_classwork.user_key = 'user_key' INNER JOIN  lesson_inf ON lesson_inf.id = classwork.lesson_key INNER JOIN school_inf ON school_inf.id = lesson_inf.school_key INNER JOIN time_table_day ON time_table_day.id = classwork.time_table_day_key INNER JOIN timetable_inf ON timetable_inf.id = time_table_day.timetable_key LEFT JOIN ( SELECT MAX(students) AS biggest_students ,lesson_key FROM lesson_point_rate GROUP BY lesson_key ) AS lsp ON lsp.lesson_key = lesson_inf.id AND  order_students > biggest_students INNER JOIN lesson_point_rate ON lesson_point_rate.lesson_key = lesson_inf.id ) AS student_class_rec WHERE user_work_status=1 AND lesson_date >= 'lesson_date' AND  lesson_name IN ('lesson_name') GROUP BY id ORDER BY lesson_date ASC;",
+        "allSearch_query":"SELECT '' AS lessonDateTime, lesson_name, school_name,  '' AS sumCost, '' AS lessonPoint, start_time ,end_time ,user_classwork_cost ,MAX(point_rate) AS point_rate ,user_classwork_cost_aj ,get_point ,flower_cost ,flower_cost_aj ,extension_cost ,lesson_date ,today ,lesson_key ,id ,biggest_students ,students ,order_students ,user_work_status ,classwork_key, stop_order_date FROM ( SELECT  user_classwork_cost ,user_classwork_cost_aj ,user_classwork.get_point AS get_point ,flower_cost ,flower_cost_aj ,user_classwork.extension_cost AS extension_cost ,lesson_name ,school_name ,start_time ,end_time ,time_table_day.lesson_date AS lesson_date ,lesson_point_rate.point_rate AS point_rate ,students ,order_students ,SUBSTRING(NOW(), 1,10) AS today ,user_classwork.stage_no AS stage_no ,user_classwork.level_no AS level_no ,classwork.lesson_key AS lesson_key ,user_classwork.id as id ,biggest_students ,user_work_status,classwork.id AS classwork_key, stop_order_date FROM user_classwork INNER JOIN classwork ON classwork.id = user_classwork.classwork_key AND user_classwork.user_key = 'user_key' INNER JOIN  lesson_inf ON lesson_inf.id = classwork.lesson_key INNER JOIN school_inf ON school_inf.id = lesson_inf.school_key INNER JOIN time_table_day ON time_table_day.id = classwork.time_table_day_key INNER JOIN timetable_inf ON timetable_inf.id = time_table_day.timetable_key LEFT JOIN ( SELECT MAX(students) AS biggest_students ,lesson_key FROM lesson_point_rate GROUP BY lesson_key ) AS lsp ON lsp.lesson_key = lesson_inf.id AND  order_students > biggest_students INNER JOIN lesson_point_rate ON lesson_point_rate.lesson_key = lesson_inf.id) AS student_class_rec WHERE user_work_status=1 AND lesson_date >= 'lesson_date' GROUP BY id ORDER BY lesson_date ASC;",
         "config": {
             "columns": {
                 "lessonDateTime":{
@@ -175,15 +176,22 @@
         "class":"finishedLessonTableOutside"
     },
     "finishedLessonTable": {
-        "db_getQuery": "SELECT '' AS lessonDateTime, lesson_name, school_name, '' AS sumCost, '' AS lessonPoint, start_time ,end_time, user_classwork_cost ,MAX(point_rate) AS point_rate ,user_classwork_cost_aj ,get_point ,flower_cost ,flower_cost_aj ,extension_cost ,lesson_date ,today ,lesson_key ,id ,biggest_students ,students ,order_students ,user_work_status FROM ( SELECT  user_classwork_cost ,user_classwork_cost_aj ,user_classwork.get_point AS get_point ,flower_cost ,flower_cost_aj ,user_classwork.extension_cost AS extension_cost ,lesson_name ,school_name ,start_time ,end_time ,time_table_day.lesson_date AS lesson_date ,lesson_point_rate.point_rate AS point_rate ,students ,order_students ,SUBSTRING(NOW(), 1,10) AS today ,user_classwork.stage_no AS stage_no ,user_classwork.level_no AS level_no ,classwork.lesson_key AS lesson_key ,user_classwork.id as id ,biggest_students ,user_work_status FROM  user_classwork INNER JOIN classwork ON classwork.id = user_classwork.classwork_key AND user_classwork.user_key = 'user_key' INNER JOIN  lesson_inf ON lesson_inf.id = classwork.lesson_key INNER JOIN school_inf ON school_inf.id = lesson_inf.school_key INNER JOIN time_table_day ON time_table_day.id = classwork.time_table_day_key INNER JOIN timetable_inf ON timetable_inf.id = time_table_day.timetable_key LEFT JOIN ( SELECT MAX(students) AS biggest_students ,lesson_key FROM lesson_point_rate GROUP BY lesson_key ) AS lsp ON lsp.lesson_key = lesson_inf.id AND  order_students > biggest_students INNER JOIN lesson_point_rate ON lesson_point_rate.lesson_key = lesson_inf.id AND( students <= order_students OR biggest_students IS NOT NULL )) AS student_class_rec WHERE lesson_date <= NOW() GROUP BY id ORDER BY lesson_date DESC",
+    	"class" : "finishedLessonTable commonTable",
+        "db_getQuery": "SELECT '' AS lessonDateTime, lesson_name, school_name, '' AS sumCost, '' AS lessonPoint, start_time ,end_time, user_classwork_cost ,MAX(point_rate) AS point_rate ,user_classwork_cost_aj ,get_point ,flower_cost ,flower_cost_aj ,extension_cost ,lesson_date ,today ,lesson_key ,id ,biggest_students ,students ,order_students ,user_work_status FROM ( SELECT  user_classwork_cost ,user_classwork_cost_aj ,user_classwork.get_point AS get_point ,flower_cost ,flower_cost_aj ,user_classwork.extension_cost AS extension_cost ,lesson_name ,school_name ,start_time ,end_time ,time_table_day.lesson_date AS lesson_date ,lesson_point_rate.point_rate AS point_rate ,students ,order_students ,SUBSTRING(NOW(), 1,10) AS today ,user_classwork.stage_no AS stage_no ,user_classwork.level_no AS level_no ,classwork.lesson_key AS lesson_key ,user_classwork.id as id ,biggest_students ,user_work_status FROM  user_classwork INNER JOIN classwork ON classwork.id = user_classwork.classwork_key AND user_classwork.user_key = 'user_key' INNER JOIN  lesson_inf ON lesson_inf.id = classwork.lesson_key INNER JOIN school_inf ON school_inf.id = lesson_inf.school_key INNER JOIN time_table_day ON time_table_day.id = classwork.time_table_day_key INNER JOIN timetable_inf ON timetable_inf.id = time_table_day.timetable_key LEFT JOIN ( SELECT MAX(students) AS biggest_students ,lesson_key FROM lesson_point_rate GROUP BY lesson_key ) AS lsp ON lsp.lesson_key = lesson_inf.id AND  order_students > biggest_students INNER JOIN lesson_point_rate ON lesson_point_rate.lesson_key = lesson_inf.id AND( students <= order_students OR biggest_students IS NOT NULL )) AS student_class_rec WHERE lesson_date >= 'fromDate' AND lesson_date <= 'toDate' GROUP BY id ORDER BY lesson_date DESC",
         "user_key": {
             "value": ""
         },
         "lesson_name":{
             "value":""
         },
-        "replace_query":"SELECT '' AS lessonDateTime, lesson_name, school_name, '' AS sumCost, '' AS lessonPoint, start_time ,end_time, user_classwork_cost ,MAX(point_rate) AS point_rate ,user_classwork_cost_aj ,get_point ,flower_cost ,flower_cost_aj ,extension_cost ,lesson_date ,today ,lesson_key ,id ,biggest_students ,students ,order_students ,user_work_status FROM ( SELECT  user_classwork_cost ,user_classwork_cost_aj ,user_classwork.get_point AS get_point ,flower_cost ,flower_cost_aj ,user_classwork.extension_cost AS extension_cost ,lesson_name ,school_name ,start_time ,end_time ,time_table_day.lesson_date AS lesson_date ,lesson_point_rate.point_rate AS point_rate ,students ,order_students ,SUBSTRING(NOW(), 1,10) AS today ,user_classwork.stage_no AS stage_no ,user_classwork.level_no AS level_no ,classwork.lesson_key AS lesson_key ,user_classwork.id as id ,biggest_students ,user_work_status FROM  user_classwork INNER JOIN classwork ON classwork.id = user_classwork.classwork_key AND user_classwork.user_key = 'user_key' INNER JOIN  lesson_inf ON lesson_inf.id = classwork.lesson_key INNER JOIN school_inf ON school_inf.id = lesson_inf.school_key INNER JOIN time_table_day ON time_table_day.id = classwork.time_table_day_key INNER JOIN timetable_inf ON timetable_inf.id = time_table_day.timetable_key LEFT JOIN ( SELECT MAX(students) AS biggest_students ,lesson_key FROM lesson_point_rate GROUP BY lesson_key ) AS lsp ON lsp.lesson_key = lesson_inf.id AND  order_students > biggest_students INNER JOIN lesson_point_rate ON lesson_point_rate.lesson_key = lesson_inf.id AND( students <= order_students OR biggest_students IS NOT NULL )) AS student_class_rec WHERE lesson_date <= NOW() AND lesson_name='lesson_name' GROUP BY id ORDER BY lesson_date DESC",
-        "allSearch_query":"SELECT '' AS lessonDateTime, lesson_name, school_name, '' AS sumCost, '' AS lessonPoint, start_time ,end_time, user_classwork_cost ,MAX(point_rate) AS point_rate ,user_classwork_cost_aj ,get_point ,flower_cost ,flower_cost_aj ,extension_cost ,lesson_date ,today ,lesson_key ,id ,biggest_students ,students ,order_students ,user_work_status FROM ( SELECT  user_classwork_cost ,user_classwork_cost_aj ,user_classwork.get_point AS get_point ,flower_cost ,flower_cost_aj ,user_classwork.extension_cost AS extension_cost ,lesson_name ,school_name ,start_time ,end_time ,time_table_day.lesson_date AS lesson_date ,lesson_point_rate.point_rate AS point_rate ,students ,order_students ,SUBSTRING(NOW(), 1,10) AS today ,user_classwork.stage_no AS stage_no ,user_classwork.level_no AS level_no ,classwork.lesson_key AS lesson_key ,user_classwork.id as id ,biggest_students ,user_work_status FROM  user_classwork INNER JOIN classwork ON classwork.id = user_classwork.classwork_key AND user_classwork.user_key = 'user_key' INNER JOIN  lesson_inf ON lesson_inf.id = classwork.lesson_key INNER JOIN school_inf ON school_inf.id = lesson_inf.school_key INNER JOIN time_table_day ON time_table_day.id = classwork.time_table_day_key INNER JOIN timetable_inf ON timetable_inf.id = time_table_day.timetable_key LEFT JOIN ( SELECT MAX(students) AS biggest_students ,lesson_key FROM lesson_point_rate GROUP BY lesson_key ) AS lsp ON lsp.lesson_key = lesson_inf.id AND  order_students > biggest_students INNER JOIN lesson_point_rate ON lesson_point_rate.lesson_key = lesson_inf.id AND( students <= order_students OR biggest_students IS NOT NULL )) AS student_class_rec WHERE lesson_date <= NOW() GROUP BY id ORDER BY lesson_date DESC",
+        "fromDate" : {
+            "value": ""
+        },
+        "toDate" : {
+            "value": ""
+        },
+        "replace_query":"SELECT '' AS lessonDateTime, lesson_name, school_name, '' AS sumCost, '' AS lessonPoint, start_time ,end_time, user_classwork_cost ,MAX(point_rate) AS point_rate ,user_classwork_cost_aj ,get_point ,flower_cost ,flower_cost_aj ,extension_cost ,lesson_date ,today ,lesson_key ,id ,biggest_students ,students ,order_students ,user_work_status FROM ( SELECT  user_classwork_cost ,user_classwork_cost_aj ,user_classwork.get_point AS get_point ,flower_cost ,flower_cost_aj ,user_classwork.extension_cost AS extension_cost ,lesson_name ,school_name ,start_time ,end_time ,time_table_day.lesson_date AS lesson_date ,lesson_point_rate.point_rate AS point_rate ,students ,order_students ,SUBSTRING(NOW(), 1,10) AS today ,user_classwork.stage_no AS stage_no ,user_classwork.level_no AS level_no ,classwork.lesson_key AS lesson_key ,user_classwork.id as id ,biggest_students ,user_work_status FROM  user_classwork INNER JOIN classwork ON classwork.id = user_classwork.classwork_key AND user_classwork.user_key = 'user_key' INNER JOIN  lesson_inf ON lesson_inf.id = classwork.lesson_key INNER JOIN school_inf ON school_inf.id = lesson_inf.school_key INNER JOIN time_table_day ON time_table_day.id = classwork.time_table_day_key INNER JOIN timetable_inf ON timetable_inf.id = time_table_day.timetable_key LEFT JOIN ( SELECT MAX(students) AS biggest_students ,lesson_key FROM lesson_point_rate GROUP BY lesson_key ) AS lsp ON lsp.lesson_key = lesson_inf.id AND  order_students > biggest_students INNER JOIN lesson_point_rate ON lesson_point_rate.lesson_key = lesson_inf.id AND( students <= order_students OR biggest_students IS NOT NULL )) AS student_class_rec WHERE lesson_date >= 'fromDate' AND lesson_date <= 'toDate' AND lesson_name IN ('lesson_name') GROUP BY id ORDER BY lesson_date DESC",
+        "allSearch_query":"SELECT '' AS lessonDateTime, lesson_name, school_name, '' AS sumCost, '' AS lessonPoint, start_time ,end_time, user_classwork_cost ,MAX(point_rate) AS point_rate ,user_classwork_cost_aj ,get_point ,flower_cost ,flower_cost_aj ,extension_cost ,lesson_date ,today ,lesson_key ,id ,biggest_students ,students ,order_students ,user_work_status FROM ( SELECT  user_classwork_cost ,user_classwork_cost_aj ,user_classwork.get_point AS get_point ,flower_cost ,flower_cost_aj ,user_classwork.extension_cost AS extension_cost ,lesson_name ,school_name ,start_time ,end_time ,time_table_day.lesson_date AS lesson_date ,lesson_point_rate.point_rate AS point_rate ,students ,order_students ,SUBSTRING(NOW(), 1,10) AS today ,user_classwork.stage_no AS stage_no ,user_classwork.level_no AS level_no ,classwork.lesson_key AS lesson_key ,user_classwork.id as id ,biggest_students ,user_work_status FROM  user_classwork INNER JOIN classwork ON classwork.id = user_classwork.classwork_key AND user_classwork.user_key = 'user_key' INNER JOIN  lesson_inf ON lesson_inf.id = classwork.lesson_key INNER JOIN school_inf ON school_inf.id = lesson_inf.school_key INNER JOIN time_table_day ON time_table_day.id = classwork.time_table_day_key INNER JOIN timetable_inf ON timetable_inf.id = time_table_day.timetable_key LEFT JOIN ( SELECT MAX(students) AS biggest_students ,lesson_key FROM lesson_point_rate GROUP BY lesson_key ) AS lsp ON lsp.lesson_key = lesson_inf.id AND  order_students > biggest_students INNER JOIN lesson_point_rate ON lesson_point_rate.lesson_key = lesson_inf.id AND( students <= order_students OR biggest_students IS NOT NULL )) AS student_class_rec WHERE lesson_date >= 'fromDate' AND lesson_date <= 'toDate' GROUP BY id ORDER BY lesson_date DESC",
         "config": {
             "columns": {
                 "lessonDateTime":{
@@ -445,12 +453,12 @@
         }
     },
     "sendReservedData":{
-    	"db_setQuery":"INSERT INTO user_classwork (user_work_status,user_classwork_cost,flower_cost,user_key,classwork_key,stage_key,stage_no,level_key,level_no,order_datetime,create_datetime,update_datetime) VALUES (1,'default_user_classwork_cost','default_flower_cost','userId','classwork_key','stage_key','stage_no_present','level_key','level_no_present',NOW(),NOW(),NOW()); UPDATE classwork SET order_students = order_students+1 WHERE id = 'classwork_key';"
+    	"db_setQuery":"CALL book_classwork('default_user_classwork_cost','default_flower_cost','userId','classwork_key','stage_key','stage_no_present','level_key','level_no_present', -1);"
     },
     "updateReservedData":{
-        "db_setQuery":"UPDATE user_classwork SET user_work_status = 1, flower_cost = 'default_user_classwork_cost', user_classwork_cost = 'default_flower_cost', stage_key = 'stage_key', stage_no = 'stage_no_present', level_key = 'level_key', level_no = 'level_no_present', update_datetime = NOW(), order_datetime = NOW() WHERE id = 'id'; UPDATE classwork SET order_students = order_students+1, update_datetime = NOW() WHERE id = 'classwork_key';"
-    },
-    "cancelLessonDialog":{},
+        "db_setQuery":"CALL book_classwork('default_user_classwork_cost','default_flower_cost','userId','classwork_key','stage_key','stage_no_present','level_key','level_no_present', 'id');"
+	},
+	"cancelLessonDialog":{},
     "cancelLessonContent":{
         "lessonConfirm": {
             "lessonInfo": {
@@ -626,6 +634,60 @@
         }
     },
     "cancelReservedData":{
-        "db_setQuery":"UPDATE user_classwork SET user_work_status = 10,  update_datetime = NOW(), cancel_charge = 'cancel_charge'  WHERE id = 'id'; UPDATE classwork SET order_students = order_students-1, update_datetime = NOW() WHERE id = 'classwork_key';"
-    }
+        "db_setQuery":"CALL cancel_classwork('id', 'classwork_key', 'cancel_charge');"
+    },
+	"lessonListSearch": {
+		"class": "lessonListSearch cf inlineBlock floatLeft",
+		"searchInputArea": {
+			"class" : "searchInputArea cf block",
+			"fromArea": {
+				"fromLabel": {
+					"class": "fromLabel inlineBlock",
+					"text": ""
+				},
+				"finishedLessonFromDate": {
+					"type": "date",
+					"name": "fromSearach"
+				}
+			},
+			"toArea": {
+				"toLabel": {
+					"class": "toLabel inlineBlock",
+					"text": "〜"
+				},
+				"finishedLessonToDate": {
+					"type": "date",
+					"name": "toSearach"
+				}
+			}
+		}
+	},
+	"filterButton": {
+		"class" : "filterButton normalButton",
+		"type": "image",
+		"src": "image/icon_filter.png",
+		"name": "search",
+		"value": "絞込"
+	},
+	"searchClassworkExist" : {
+		"db_getQuery" : "SELECT distinct lesson_date FROM `time_table_day` WHERE lesson_date >= 'fromDate' and lesson_date <= 'toDate';",
+		"fromDate" : {
+			"value" : ""
+		},
+		"toDate" : {
+			"value" : ""
+		}
+	},
+	"checkClassworkStatus" : {
+	    "db_getQuery" : "CALL check_userworkstatus('user_key', 'fromDate', 'toDate', @result); SELECT @result AS result;",
+		"fromDate" : {
+			"value" : ""
+		},
+		"toDate" : {
+			"value" : ""
+		},
+		"user_key": {
+			"value": ""
+		}
+	}
 }

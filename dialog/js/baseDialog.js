@@ -275,7 +275,7 @@ function baseDialog(dialog){
 				throw new connectErrorException(xhr, status, error);
 			}
 		});
-
+		
 		return retObj;
 	};
 	
@@ -290,7 +290,8 @@ function baseDialog(dialog){
                               			 function(){
                               			 //更新ボタンの処理を行う
                               			 this.dialogBuilder.callbackYes();
-                              		 }
+                              		 },
+                              		 icons : {primary : "ui-icon-check"}
 	                         	},
 		                         {	//いいえボタン
 		                        	 text:TEXT_NO,
@@ -300,7 +301,8 @@ function baseDialog(dialog){
                               			 function(){
                               			 //更新ボタンの処理を行う
                               			 this.dialogBuilder.callbackNo();
-                              		 }
+                              		 },
+                              		 icons : {primary : "ui-icon-close"}
 		                         }
 	                         ];
 	
@@ -314,22 +316,64 @@ function baseDialog(dialog){
                           			 function(){
                           			 //更新ボタンの処理を行う
                           			 this.dialogBuilder.callbackCreateNew();
-                          		 }
+                          		 },
+                          		 icons : {primary : "ui-icon-plus"}
 	                         }
 	                 ];
 	
+	//デフォルトの新規作成ボタン・編集ボタン・削除ボタン設定用配列
+	this.createNew_edit_delete = [
+	                  {	
+	                	  //新規作成ボタン
+	                	  text:TEXT_BUTTON_NEW,
+	                	  //クリック時のコールバック関数を設定する
+	                	  click:
+	                		  //コールバック関数
+	                		  function(){
+	                		  //更新ボタンの処理を行う
+	                		  this.dialogBuilder.callbackCreateNew();
+                   		 },
+                  		 icons : {primary : "ui-icon-plus"}
+	                  },
+	                  {	
+	                	  //編集ボタン
+	                	  text:TEXT_EDIT,
+	                	  //クリック時のコールバック関数を設定する
+	                	  click:
+	                		  //コールバック関数
+	                		  function(){
+	                		  //更新ボタンの処理を行う
+	                		  this.dialogBuilder.callbackEdit();
+                   		 },
+                  		 icons : {primary : "ui-icon-pencil"}
+	                  },
+	                  {	
+	                	  //削除ボタン
+	                	  text:TEXT_DELETE,
+	                	  //クリック時のコールバック関数を設定する
+	                	  click:
+	                		  //コールバック関数
+	                		  function(){
+	                		  //削除ボタンの処理を行う
+	                		  this.dialogBuilder.callbackDelete();
+                   		 },
+                  		 icons : {primary : "ui-icon-close"}
+	                  }
+	                  ];
+	
 	//送信の確認・リセットボタンの配列
-	this.confirm_reset = [
+	this.send_reset = [
 	                   {
-	                	   //確認ボタン
-	                	   text:TEXT_BUTTON_CONFIRM,
+	                	   //送信ボタン
+	                	   text:TEXT_BUTTON_SEND,
 	                	   //コールバック関数
                     		 click:
                       			 //コールバック関数
                       			 function(){
                       			 //更新ボタンの処理を行う
-                      			 this.dialogBuilder.callbackConfirm();
-                      		 }
+                      			 this.dialogBuilder.callbackSend();
+                      		 },
+                      		 icons : {primary : "ui-icon-signal-diag"}
 	                   },
 	                   {
 	                	   //リセットボタン
@@ -340,7 +384,8 @@ function baseDialog(dialog){
 	                  			 function(){
 	                  			 //更新ボタンの処理を行う
 	                  			 this.dialogBuilder.callbackReset();
-	                  		 }
+                      		 },
+                      		 icons : {primary : "ui-icon-trash"}
 	                   }
 	             ];
 	
@@ -349,13 +394,16 @@ function baseDialog(dialog){
 					{	
 						//確認ボタン
 						text:TEXT_BUTTON_CONFIRM,
+						icons: {
+					        primary: "ui-icon-check"
+					    },
 						//確認ボタンのコールバック関数をセットする
                    		 click:
                    			 //コールバック関数
                    			 function(){
                    			 //更新ボタンの処理を行う
                    			 this.dialogBuilder.callbackConfirm();
-                   		 }
+                  		 }
 					},
 					{
 						//閉じるボタン
@@ -366,9 +414,40 @@ function baseDialog(dialog){
                   			 function(){
                   			 //更新ボタンの処理を行う
                   			 this.dialogBuilder.callbackCloseButton();
-                  		 }
+                  		 },
+                  		 icons : {primary : "ui-icon-close"}
 					}
 	           ];
+	
+	//送信・キャンセルボタンの配列
+	this.send_cancel = [
+	                       {	
+	                    	   //送信ボタン
+	                    	   text:TEXT_BUTTON_SEND,
+	                    	   icons: {
+	                    		   primary: "ui-icon-signal-diag"
+	                    	   },
+	                    	   //送信ボタンのコールバック関数をセットする
+	                    	   click:
+	                    		   //コールバック関数
+	                    		   function(){
+	                    		   //送信ボタンの処理を行う
+	                    		   this.dialogBuilder.callbackSend();
+	                    	   }
+	                       },
+	                       {
+	                    	   //キャンセルボタン
+	                    	   text:STR_CANCEL_JP,
+	                    	   //キャンセルボタンのコールバック関数をセットする
+	                    	   click:
+	                    		   //コールバック関数
+	                    		   function(){
+	                    		   //キャンセルボタンの処理を行う
+	                    		   this.dialogBuilder.callbackCancelButton();
+	                    	   },
+	                    	   icons : {primary : "ui-icon-close"}
+	                       }
+	                       ];
 	
 	//更新ボタンと受講者一覧ボタン
 	this.update_students = [
@@ -380,7 +459,8 @@ function baseDialog(dialog){
                 			 function(){
                 			 //更新ボタンの処理を行う
                 			 this.dialogBuilder.callbackUpdate();
-                		 }
+                  		 },
+                  		 icons : {primary : "ui-icon-refresh"}
 					},
 					{	//受講者一覧ボタン
 						text : TEXT_LESSON_STUDENTS_BUTTON,
@@ -390,7 +470,8 @@ function baseDialog(dialog){
 	               			 function(){
 	               			 //受講者一覧ボタンの処理を行う
 	               			 this.dialogBuilder.callbackStudents();
-	               		 }
+                  		 },
+                  		 icons : {primary : "ui-icon-note"}
 					}
 	];
 	
@@ -407,7 +488,8 @@ function baseDialog(dialog){
 		                			 function(){
 		                			 //ログインボタンの処理を行う
 		                			 this.dialogBuilder.callbackLogin();
-		                		 }
+                  		 },
+                  		 icons : {primary : "ui-icon-person"}
 					},
 					//閉じるボタン
 					{
@@ -419,7 +501,8 @@ function baseDialog(dialog){
                			 function(){
 		                	//閉じるボタンの処理を行う
 		                	this.dialogBuilder.callbackCloseButton();
-		                }
+                 		 },
+                  		 icons : {primary : "ui-icon-close"}
 					}
 	           ];
 	
@@ -435,7 +518,8 @@ function baseDialog(dialog){
 	                    		function(){
 	                    		//閉じるボタンの処理を行う
 	                    		this.dialogBuilder.callbackCloseButton();
-	                    	}
+	                 		 },
+	                  		 icons : {primary : "ui-icon-close"}
 	                    }
 	                    ];
 	
@@ -487,6 +571,28 @@ function baseDialog(dialog){
 	 */
 	this.callbackCreateNew = function(){
 		this.dialogClass.setPushedButtonState(CREATE_NEW);
+	}
+	
+	/* 関数名:callbackEdit
+	 * 概要　:編集ボタンのコールバック関数(必ずオーバーライドで内容を定義されたし)
+	 * 引数　:なし
+	 * 返却値:なし
+	 * 作成日　:2016.0409
+	 * 作成者　:T.Masuda
+	 */
+	this.callbackEdit = function(){
+		this.dialogClass.setPushedButtonState(EDIT);
+	}
+	
+	/* 関数名:callbackCreateNew
+	 * 概要　:削除ボタンのコールバック関数(必ずオーバーライドで内容を定義されたし)
+	 * 引数　:なし
+	 * 返却値:なし
+	 * 作成日　:2016.0409
+	 * 作成者　:T.Masuda
+	 */
+	this.callbackDelete = function(){
+		this.dialogClass.setPushedButtonState(DELETE);
 	}
 	
 	/* 関数名:setCallbackRowClick
@@ -551,6 +657,18 @@ function baseDialog(dialog){
 		this.dialogClass.setPushedButtonState(CONFIRM);
 	};
 	
+	/* 関数名:callbackConfirm
+	 * 概要　:ダイアログの確認ボタンを押したときのコールバック関数用関数
+	 * 引数　:なし
+	 * 返却値:なし
+	 * 設計者　:H.Kaneko
+	 * 作成日　:2016.04.17
+	 * 作成者　:T.Masuda
+	 */
+	this.callbackSend = function(){
+		this.dialogClass.setPushedButtonState(SEND);
+	};
+	
 	/* 関数名:callbackCloseButton
 	 * 概要　:ダイアログの閉じるボタンを押したときのコールバック関数用関数
 	 * 引数　:なし
@@ -564,6 +682,19 @@ function baseDialog(dialog){
 		$(this.dialog).dialog(CLOSE);		//ダイアログを閉じる
 	};
 
+	/* 関数名:callbackCancelButton
+	 * 概要　:ダイアログのキャンセルボタンを押したときのコールバック関数用関数
+	 * 引数　:なし
+	 * 返却値:なし
+	 * 設計者　:H.Kaneko
+	 * 作成日　:015.08.22
+	 * 作成者　:T.Masuda
+	 */
+	this.callbackCancelButton = function(){
+		this.dialogClass.setPushedButtonState(CANCEL);
+		$(this.dialog).dialog(CLOSE);		//ダイアログを閉じる
+	};
+	
 	/* 関数名:callbackReset
 	 * 概要　:ダイアログのリセットボタンを押したときのコールバック関数用関数
 	 * 引数　:なし

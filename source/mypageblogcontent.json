@@ -1,8 +1,0 @@
-{
-	"myBlogTable":{
-		"db_getQuery":"SELECT ub.id, ub.image_1 AS image1, ub.image_2 AS image2,ub.image_3 AS image3,ub.title,ub.post_timestamp AS date,uin.user_name AS userName,ub.content AS text FROM user_blog AS ub,user_inf AS uin WHERE ub.user_key='user_key' AND ub.user_key=uin.id ORDER BY post_timestamp DESC;",
-		"user_key":{
-			"value":""
-		}
-	}
-}

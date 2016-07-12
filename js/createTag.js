@@ -24,6 +24,12 @@ function createTag(){
 	this.reservedDialog = {};	
 	this.dateText = null;		//日付による記事絞込時の日付。nullでなければ絞込を行う
 	
+	this.DOM_THEAD = '<thead></thead>';	//theadタグ
+	this.TAG_THEAD = 'thead';			//theadタグのセレクタ
+	this.ATTR_CLASS = 'class';			//クラス属性
+	//ファイル取得失敗のエラーメッセージ
+	this.MESSAGE_FAILED_TO_GET_FILE	= '通信に失敗しました。\n原因:ファイルが取得できませんでした。\nファイル名:';
+	
 	/*
 	 * 関数名:this.getJsonFile = function(jsonPath,map)
 	 * 概要  :JSONファイルを取得して返す。
@@ -43,13 +49,15 @@ function createTag(){
 	this.getJsonFile = function(jsonPath, map, key){
 		//一時的に値を保存する変数tmpを宣言する。
 		var tmp;
+		//関数内でいつでもthisを参照できるように変数に格納する
+		var thisElem = this;
 		
 		//mapに何も入力されていなければ、空の連想配列を代入する。入力されていればJSON文字列に変換する
 		map = map === void(0) ? {json:""} : JSON.stringify(map);
 		//Ajax通信でjsonファイルを取得する。
 		$.ajax({
 			//jsonファイルのURLを指定する。
-			url: jsonPath,
+			url: jsonPath + CHAR_QUESTION + commonFuncs.getNowUnixTime(),
 			//取得するファイルの形式をJSONに指定する。
 			dataType: 'JSON',
 			//POSTメソッドでデータを送信する
@@ -74,8 +82,8 @@ function createTag(){
 			},
 			//通信失敗時の処理。
 			error:function(xhr, status, error){
-				//エラーのダイアログを出す。
-				alert('通信に失敗しました。');
+				//エラーのアラートを出す。
+				alert(thisElem.MESSAGE_FAILED_TO_GET_FILE + jsonPath);
 				throw error;
 			}
 		});
@@ -98,6 +106,8 @@ function createTag(){
 			//連想配列を連結する。
 			this.json = $.extend(true, this.json, tmp);
 		}
+		
+		return tmp;	//取得したデータを返す
 	};
 
 	/* 
@@ -111,11 +121,13 @@ function createTag(){
 	this.getDomFile = function(htmlPath){
 		//一時的に値を保存する変数tmpを宣言する。
 		var tmp;
+		//関数内でいつでもthisを参照できるように変数に格納する
+		var thisElem = this;
 		
 		//Ajax通信でjsonファイルを取得する。
 		$.ajax({
 			//jsonファイルのURLを指定する。
-			url: htmlPath,
+			url: htmlPath + CHAR_QUESTION + commonFuncs.getNowUnixTime(),
 			//取得するファイルの形式をJSONに指定する。
 			dataType: 'HTML',
 			//同期通信を行う。
@@ -129,8 +141,8 @@ function createTag(){
 			},
 			//通信失敗時の処理。
 			error:function(){
-				//エラーのダイアログを出す。
-				alert('通信に失敗しました。');
+				//エラーのアラートを出す。
+				alert(thisElem.MESSAGE_FAILED_TO_GET_FILE + htmlPath);
 			}
 		});
 		
@@ -919,7 +931,7 @@ function createTag(){
 		//Ajax通信でjsonファイルを取得する。
 		$.ajax({
 			//jsonファイルのURLを指定する。
-			url: jsonPath,
+			url: jsonPath + CHAR_QUESTION + commonFuncs.getNowUnixTime(),
 			//取得するファイルの形式をJSONに指定する。
 			dataType: 'JSON',
 			//同期通信を行う。
@@ -1000,6 +1012,12 @@ function createTag(){
 		//何度も使うため、テーブルのjQueryオブジェクトを生成して変数に格納しておく
 		var $table = $(domNode);
 		
+		//テーブルにクラス設定のノードがあれば
+		if(mapNode.class) {
+			//クラスを付与する
+			$table.attr(this.ATTR_CLASS, mapNode.class);
+		}
+		
 		//例外発生の恐れがある(レコード0時)ため、try-catchで例外処理を行う
 		try{
 			//mapNodeの要素数を取得する。
@@ -1009,10 +1027,6 @@ function createTag(){
 			
 			startIndex = 0;		//記事の表示開始インデックスを算出する
 			endCount = mapNodeArrayLength; 	//記事の表示終了インデックスを算出する。
-			
-			//デバッグ用
-			//pageNum = 10;
-			//displayPage = 3;
 			
 			//ページ番号、表示記事数が引数にあったら
 			if(pageNum !== void(0) && displayPage !== void(0)){
@@ -1057,6 +1071,9 @@ function createTag(){
 					.attr(STR_COLSPAN, this.getColspan(config, column));
 				}
 			}
+
+			//テーブルに見出し行の領域を確保する
+			$table.prepend(this.DOM_THEAD);
 			
 			//配列のオブジェクト数分のdomNodeを作成する。最初から1行分のDOMが用意されているので、カウンターを1から開始する
 			//@mod 2015.0730 T.Masuda 表示指定した記事数分だけ複製するように変更しました。
@@ -1072,7 +1089,7 @@ function createTag(){
 			//表示する記事数分ループする
 			for(var i = startIndex; i < endCount; i++){
 				//i番目の行を取得してjQueryオブジェクトに変換し、変数に格納する
-				var $row = $table.children().eq(0).children().eq(rowCounter++);
+				var $row = $table.children().eq(1).children().eq(rowCounter++);
 				var j = 0;	//オブジェクト用ループ内でのカウンターを用意する
 				//テーブルの行に相当するオブジェクトを、テーブルに相当する配列から取得する
 				var mapObject = mapNodeArray[i];
@@ -1088,7 +1105,7 @@ function createTag(){
 			}
 			
 			//colNameNodeを行の先頭に配置する
-			$table.prepend(colNameNode);
+			$(this.TAG_THEAD, $table).append(colNameNode);
 		//例外処理ブロック
 		} catch(e){
 			//そのまま終了させるために握りつぶす
@@ -1390,7 +1407,6 @@ function createTag(){
 		
 		//記事を走査し、日付が当てはまらない記事を削除していく
 		for(var i = 0; i < retObj[TABLE_DATA_KEY].length; i++){
-			console.log(dateText.replace(/\//g, '-'));
 			//日付が合わなければ
 			if(retObj[TABLE_DATA_KEY][i].date !== void(0) && retObj[TABLE_DATA_KEY][i].date != dateText.replace(/\//g, '-')){
 				retObj[TABLE_DATA_KEY].splice(i--, 1);	//該当する記事を削除する
@@ -1513,85 +1529,3 @@ function createTag(){
 	}
 }
 
-/*
- * クラス名:loginStateError
- * 概要  :非ログイン状態を検知したときの例外
- * 引数  :int createTagState:ログインエラー状態の整数値
- * 作成日:2015.08.01
- * 作成者:T.Masuda
- */
-	function loginStateError(createTagState){
-		//ログインダイアログが既に出ていなければ
-		if(!($(CLASS_LOGIN_DIALOG).length)){
-				
-			//エラー内容の値をメンバに格納する
-			this.createTagState = createTagState;
-			//タイトルの文字列
-			this.title = '';
-			//ダイアログのメッセージ
-			this.message = '';
-	
-			//エラー内容でダイアログの内容をを分岐させる
-			switch(this.createTagState){
-			//初回ログイン時
-			case STATE_NOT_LOGIN:
-				this.title = LOGIN;				//タイトルを「ログイン」にする
-				this.message = LOGIN_MESSAGE;	//初回ログインダイアログ用のメッセージを表示するようにする
-				break;				//switch文を抜ける
-			//タイムアウト時
-			case STATE_TIMEOUT:
-				this.title = RE_LOGIN;				//タイトルを「再ログイン」にする
-				this.message = RE_LOGIN_MESSAGE;	//再ログインダイアログ用のメッセージを表示するようにする
-				break;				//switch文を抜ける
-			}
-			
-			//ダイアログ用のインプットデータオブジェクトを作る
-			var argumentObj = commonFuncs.getDefaultArgumentObject();
-			//ダイアログの幅を固定幅にする
-			argumentObj.config.width = DIALOG_FIXED_WIDTH;
-			//インプット用データオブジェクトにエラー内容の値を追加する
-			$.extend(true, argumentObj.data, {createTagState: this.createTagState});
-			//インプット用データオブジェクトにタイトルのデータを追加する
-			$.extend(true, argumentObj.config, {title: this.title});
-			
-			//ログインダイアログを作る。
-			var loginDialog = new dialogEx(URL_LOGIN_DIALOG, argumentObj, {});
-//			loginDialog.setCallbackCreate(whenLoginDialogCreate);				//ダイアログが作成されたときのコールバック関数を登録する。
-//			loginDialog.setCallbackClose(whenLoginDialogClose);					//ダイアログを閉じる時のコールバック関数を登録する。
-			loginDialog.run();	//ログインダイアログを開く
-			commonFuncs.hideLoadingScreen();	//ローディング画面が出っぱなしになっているので消す
-//			$('.loginDialogMessage', loginDialog.dom).html(this.message);	//ダイアログのメッセージ領域を書き換える	
-		}
-	};
-	
-	/*
-	 * 関数名:whenLoginDialogCreate
-	 * 概要  :ログインダイアログが作られたときのコールバック関数
-	 * 引数  :なし
-	 * 戻り値:なし
-	 * 作成日:2015.08.01
-	 * 作成者:T.Masuda
-	 */
-	function whenLoginDialogCreate(){
-		//文字サイズを小さめにする。
-		$(this).next().css('font-size', '0.5em');
-		loginCreator = new createTag();	//ログインダイアログ用のcreateTagクラスインスタンスを生成する
-		loginCreator.getJsonFile(PATH_LOGIN_DIALOG_JSON);	//ログインダイアログのJSONを開く
-		loginCreator.getJsonFile('source/memberPage.json');	//会員ページのJSONを取得する
-		//ログインダイアログの中にあるテキストボックスにフォーカスしているときにエンターキー押下でログインボタンを自動でクリックする
-		enterKeyButtonClick('.userName, .password', '.loginButton');
-		$('.loading').hide();	//例外で消えなかったローディング画面を消す。
-	}
-	
-	/*
-	 * 関数名:whenLoginDialogClose
-	 * 概要  :ログインダイアログが閉じられるときのコールバック関数
-	 * 引数  :なし
-	 * 戻り値:なし
-	 * 作成日:2015.08.01
-	 * 作成者:T.Masuda
-	 */
-	function whenLoginDialogClose(){
-		loginCreator = null;	//createTagインスタンスを削除する
-		this.instance.destroy();			//ダイアログを完全に破棄する
-	}

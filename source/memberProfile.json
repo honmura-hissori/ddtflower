@@ -5,6 +5,7 @@
         }
     },
     "memberInfo":{
+        "class" : "memberInfo cf",
         "userInf":{
             "class":"userInf outsideArea cf"
         }
@@ -136,10 +137,10 @@
         }
     },
     "updateUserInf":{
-        "db_setQuery":"UPDATE user_inf SET user_name = 'user_name',name_kana = 'name_kana', zip_code = 'zip_code' ,address = 'address' ,user_sex = 'user_sex' ,birthday_date = 'birthday_date' ,telephone = 'telephone' ,telephone2 = 'telephone2' ,mail_address = 'mail_address',mail_deny = 'mail_deny' , update_datetime=NOW() WHERE  id = 'userId';"
+        "db_setQuery":"CALL updateUserProfile('user_name', 'name_kana', 'zip_code', 'address', 'user_sex', 'birthday_date', 'telephone','telephone2' ,'mail_address', 'mail_deny', 'userId');"
     },
     "getUserInf":{
-        "db_getQuery":"SELECT user_name, name_kana, user_sex, birthday_date, zip_code, address, mail_address, telephone, telephone2, mail_deny FROM user_inf WHERE id = 'userId';",
+        "db_getQuery":"CALL getUserProfile(@result, 'userId'); SELECT @result AS 'result';",
         "userId":{
             "value":""
         },

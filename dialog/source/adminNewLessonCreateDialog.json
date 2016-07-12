@@ -65,9 +65,9 @@
                 }
             }
         },
-        "minStudentsArea":{
-            "minStudentsText":{
-                "text":"最少人数"
+        "studentsArea":{
+            "studentsText":{
+                "text":"人数"
             },
             "minStudentsTextbox":{
                 "type":"number",
@@ -75,21 +75,13 @@
                 "value":"0",
                 "min":"0"
             },
-            "minStudentsUnit":{
-                "text":"人"
-            }
-        },
-        "maxStudentsArea":{
-            "maxStudentsText":{
-                "text":"最大人数"
+            "periodsText":{
+                "text":"〜"
             },
             "maxStudentsTextbox":{
                 "type":"number",
                 "name":"max_students",
                 "value":"8"
-            },
-            "maxStudentsUnit":{
-                "text":"人"
             }
         },
         "statusArea":{

@@ -126,6 +126,15 @@
 	opacity: 0.8;	/* 透過して色を薄くする。 */
 }
 
+ /* 
+ * セレクタ:form.blogEdit
+ * 概要   :ブログ編集領域
+ * 作成者 :T.Masuda
+ * 作成日 :2016.05.05
+ */
+form.blogEdit {
+    margin-bottom: 5px;	/* ページ下端と間隔を取る */
+}
 
 .blogEditTitle:before {
 	content: "\30bf \30a4 \30c8 \30eb \7de8 \96c6";
@@ -236,7 +245,7 @@
 	width		:90%;		/*余白を考慮した幅を取る。*/
 	height		:300px;		/*高さを決める。*/
 	display		:block;		/*marginによる中央寄せをするため、ブロック要素にする。*/
-	margin		:0 auto;	/*中央に寄せる。*/
+	margin: 0 0 0 auto;	/*中央に寄せる。*/
 }
 
  /* 
@@ -271,8 +280,10 @@
  */
 .blogEditButtons {
 	box-sizing	:border-box;/*サイズ計算にpaddingとborderを込みにする。*/
-　　text-align	:right;		/*子要素となるボタンを右に寄せる。*/
+	text-align	:right;		/*子要素となるボタンを右に寄せる。*/
 	float: right;			/* 右に寄せる。 */
+	width: auto;			/* 幅を内容に合わせる */
+	display: inline-block;	/* インラインブロックにして横に並べる。 */
 }
 
  /* 
@@ -601,7 +612,6 @@
 	 * 作成日 :2015.03.12
 	 */
 	 .blogEditButtons {
-	 	float: none;
 	 	margin: 0 auto;
 }
 

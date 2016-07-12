@@ -32,6 +32,9 @@
     		"text":"Gallery"
     	}
     },
+    "getTopicBlog" : {
+        "db_getQuery" : "CALL p_get_new_blog(@result); SELECT @result AS result;"
+    },
     "topicBlog": {
         "class": "topic topicBlog",
         "topicTitle": {
@@ -45,7 +48,7 @@
             "href": "#blog.html",
             "class": "topicContent",
             "topicContentImage": {
-                "style": "background-image:url('https://scontent.xx.fbcdn.net/hphotos-xtp1/v/t1.0-9/12143090_902219229871465_3020021506474382368_n.jpg?oh=6bff44ad98a94a6c181af05d4b776002&oe=56C2931E')"
+                "style": "background-image:url('')"
             },
             "topicContentDate": {
                 "text": "2015/10/13"
@@ -61,7 +64,7 @@
             "href": "#blog.html",
             "class": "topicContent",
             "topicContentImage": {
-                "style": "background-image:url('https://scontent.xx.fbcdn.net/hphotos-xap1/v/t1.0-9/12141541_901266206633434_8614146570224499070_n.jpg?oh=0e7fc5ebccfe63d4134d2c7b821a841b&oe=56CEF5E2')"
+                "style": "background-image:url('')"
             },
             "topicContentDate": {
                 "text": "2015/10/12"
@@ -77,16 +80,16 @@
             "href": "#blog.html",
             "class": "topicContent",
             "topicContentImage": {
-                "style": "background-image:url('https://scontent.xx.fbcdn.net/hphotos-xlt1/v/t1.0-0/p480x480/12074605_898863976873657_3868299574757063725_n.jpg?oh=b7be6fb4cade6214640c990cd64d3927&oe=569B0306')"
+                "style": "background-image:url('')"
             },
             "topicContentDate": {
-                "text": "2015/10/11"
+                "text": ""
             },
             "topicContentUserName": {
-                "text": "DDTFlowers"
+                "text": ""
             },
             "topicContentTitle": {
-                "text": "生花"
+                "text": ""
             }
         }
     },
@@ -148,6 +151,9 @@
             }
         }
     },
+    "getTopicGallery" : {
+        "db_getQuery" : "CALL p_get_new_gallery_photo(@result); SELECT @result AS result;"
+    },
     "topicGallery": {
         "class": "topic topicGallery",
         "topicTitle": {
@@ -161,48 +167,48 @@
             "href": "#gallery.html",
             "class": "topicContent",
             "topicContentImage": {
-                "style": "background-image:url('https://scontent.xx.fbcdn.net/hphotos-xpt1/v/t1.0-9/12141649_902219263204795_7158834189248039736_n.jpg?oh=0348fc8dedbf5a2f30877d7b16ab1fcd&oe=569469D9')"
+                "style": "background-image:url('')"
             },
             "topicContentDate": {
-                "text": "2015/10/13"
+                "text": ""
             },
             "topicContentUserName": {
-                "text": "DDTFlowers"
+                "text": ""
             },
             "topicContentTitle": {
-                "text": "生花"
+                "text": ""
             }
         },
         "topicContent2": {
             "href": "#gallery.html",
             "class": "topicContent",
             "topicContentImage": {
-                "style": "background-image:url('https://scontent.xx.fbcdn.net/hphotos-xpt1/v/t1.0-9/12108899_901652356594819_570051073601838295_n.jpg?oh=43da6b3891a3a05a0a504949654d0235&oe=56951D28')"
+                "style": "background-image:url('')"
             },
             "topicContentDate": {
-                "text": "2015/10/12"
+                "text": ""
             },
             "topicContentUserName": {
                 "text": "DDTFlowers"
             },
             "topicContentTitle": {
-                "text": "プリザ"
+                "text": ""
             }
         },
         "topicContent3": {
             "href": "#gallery.html",
             "class": "topicContent",
             "topicContentImage": {
-                "style": "background-image:url('https://scontent.xx.fbcdn.net/hphotos-xpa1/v/t1.0-9/12088160_901652346594820_1365892400195700146_n.jpg?oh=d36093274203ce468d99a54f28d16091&oe=56D1CDB8')"
+                "style": "background-image:url('')"
             },
             "topicContentDate": {
-                "text": "2015/10/12"
+                "text": ""
             },
             "topicContentUserName": {
-                "text": "DDTFlowers"
+                "text": ""
             },
             "topicContentTitle": {
-                "text": "プリザ"
+                "text": ""
             }
         }
     }

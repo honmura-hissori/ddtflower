@@ -74,22 +74,14 @@ function windowEx(url, argumentObj, returnObj, state){
 		this.bindAnchor();					//同ウィンドウ内のaタグのコールバックの対象を同ウィンドウ内のものにしぼる
 		
 		//ログインダイアログが出ていなければ
-		if(!$('.inputArea').length){
+		if(!$('.inputArea').length || $('.inputArea.valid').length){
 			this.callPage(this.url, this.state);	//URLを読み込む
 		}
 		this.setWindowZIndex();				//ウィンドウの重なりを整理する
-		commonFuncs.showCurrentWindow();	//最前部のウィンドウのみ表示する
 	}
 	
 	
 	
-	/* 関数名:callPage
-	 * 概要　:自身のウィンドウにDOMをロードする
-	 * 引数　:String url:DOMのURL
-	 * 返却値:なし
-	 * 作成日　:015.08.17
-	 * 作成者　:T.Masuda
-	 */
 	/*
 	 * 関数名:callPage(url, state)
 	 * 引数  :String url, Object state
@@ -122,7 +114,6 @@ function windowEx(url, argumentObj, returnObj, state){
 			//最前面に持ってきたウィンドウで当関数を再度コールする
 			$('.window:last')[0].instance.callPage(url, state);
 			this.setWindowZIndex();				//ウィンドウの重なりを整理する
-			commonFuncs.showCurrentWindow();	//最前部のウィンドウのみ表示する
 			return;	//このウィンドウの処理を終える
 		}
 		
@@ -134,7 +125,7 @@ function windowEx(url, argumentObj, returnObj, state){
 		}
 		
 		var self = this;	//コールバック内でクラスインスタンスを参照するために変数に保存しておく
-		
+
 		//Ajax通信を行う。
 		$.ajax({
 			//URLを指定する。
@@ -159,6 +150,11 @@ function windowEx(url, argumentObj, returnObj, state){
 						&& !commonFuncs.checkEmpty(self.argumentObj.config.firstExec)){
 					//画面遷移の履歴を追加する。
 					history.pushState({'url':'#' + currentLocation}, '', location.href);
+				}
+				
+				// リロード時の画面が会員、管理者画面であるとそれぞれの画面が映る前に通常画面が一瞬映ってしまうため対処
+				if ((!history.state && self.argumentObj.config.firstExec) || (history.state && !self.argumentObj.config.firstExec) || $('.window[name!="usuall"]').length) {
+					commonFuncs.showCurrentWindow();	//最前部のウィンドウのみ表示する
 				}
 				
 				self.argumentObj.config.firstExec = null;	//初回実行フラグをオフにする

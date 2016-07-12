@@ -94,18 +94,16 @@
 	
 					// 「メルマガ受信設定」概要領域を作る
 					create_tag.outputTag('mailMagaSettingSummary', 'inputLabel', '.userInf');
-					//
+					//「メルマガ受信設定」の項目を作成する
 					create_tag.outputTag('mailMagaSetting', 'mailMagaSetting', '.userInf');
 	
-					// 更新ボタン領域を作る
-					create_tag.outputTag('updateButton', 'updateButton', '.memberInfo');
-	
-					// パスワード変更リンクを作る
-					create_tag.outputTag('passLinkArea', 'passLinkArea', '.memberInfo');
+					// パスワード変更(パスワード変更画面へ行く)ボタンを作る
+					commonFuncs.putCommonButton('.memberInfo', 'passLinkArea fRight', 'password_change', true, true, true, {onclick : '$(CURRENT_WINDOW)[0].instance.callPage("window/member/page/memberPassword.html");'}, false);
+					// 更新ボタンを作る
+					commonFuncs.putCommonButton('.memberInfo', 'updateButton fRight', 'update', true, true, true, {}, false);
+										
 					// 生年月日のテキストボックスにフォーカスするとカレンダーを表示する
 					//clickCalendar('birthday_date');
-					// ボタンの見た目をjqueryuiのものにする
-					$('.updateButton').button();
 					//テキストボックスなどのvalue属性にDBから読込んだ値を入れる
 					commonFuncs.setValueDBdata(create_tag.json['getUserInf']['memberInfoValue'], '.userInf', EMPTY_STRING);
 

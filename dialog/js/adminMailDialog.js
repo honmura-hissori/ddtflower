@@ -127,7 +127,9 @@ function adminMailDialog(dialog){
 	 */
 	this.setConfig = function(){
 		//送信の確認ボタン、リセットボタンを配置する
-		this.setDialogButtons(this.confirm_reset);
+		this.setDialogButtons(this.send_reset);
+		//お知らせならメールアドレスを表示しない
+		this.hideMailAddressWhenNotice();
 	}
 	
 	/* 関数名:setArgumentObj
@@ -138,23 +140,40 @@ function adminMailDialog(dialog){
 	 * 作成者　:T.Masuda
 	 */
 	this.setArgumentObj = function() {
-		//インプット用オブジェクトのコピーを作る
-		var argumentObj = commonFuncs.createCloneObject(this[DIALOG_CLASS].getArgumentObject());
-		var data = this[DIALOG_CLASS].getArgumentDataObject();
+		var data = this.dialogClass.getArgumentDataObject();	//argumentObjのdataを取得する
+		//ダイアログのテンプレ設定オブジェクトを取得する
+		var argumentObj = commonFuncs.getDefaultArgumentObject();
 		//次のダイアログに渡すデータをまとめる
 		$.extend(true, 	
-				argumentObj.data,		//送信確認ダイアログのdataオブジェクト 
-				commonFuncs.getInputData(SEL_MAIL_SEND_CONTENT),	//このダイアログで編集したデータ 
-				data, 								//このダイアログに渡されたパラメータのdataオブジェクト
-				{
-					dialog:this[DIALOG_CLASS],	//このダイアログのクラスインスタンス(dialogEx)
-					parentDialogBuilder:this, 	//当該クラス
-					message:'送信を確定します。' ,	//ダイアログのメッセージ
-					callback:this.doSendMail}	//コールバック関数
-		);
+				argumentObj.data		//送信確認ダイアログのdataオブジェクト
+				//ダイアログ用データ
+				,{
+					//単なるメッセージのダイアログなのでコールバックなし
+	    			callback : commonFuncs.removeCurrentDialog
+	    			//ダイアログのメッセージ。送信タイプでメッセージを切り替える
+	    			,message : data.sendType == MAIL ? MESSAGE_FALED_TO_SEND_MAIL : MESSAGE_FALED_CREATE_NOTICE
+				}
+			);
+		//ダイアログの設定を追加する
+		$.extend(true, 	
+				argumentObj.config		//送信確認ダイアログのconfigオブジェクト
+				//ダイアログ設定データ
+				,{
+					//タイトルをセットする
+					title : TITLE_SEND_FAILED
+					//open時のコールバック
+					,open://基本的にopen時はdispContentsが実行されるようにする
+						function(){
+						//dispContentsをコールしてダイアログの内容を作る
+						commonFuncs.setCallbackToEventObject(this, 'dialogBuilder', 'dispContents');
+						//ボタンを消す
+						commonFuncs.removeCurrentDialogButtons();
+					},
+					//幅指定
+					width : 300
+				}
+			);				
 		
-		//タイトルをセットする
-		argumentObj.config.title = '送信確認'; 
 		return argumentObj;	//作成したオブジェクトを返す
 	}
 
@@ -212,25 +231,15 @@ function adminMailDialog(dialog){
 		if(data.sendType == MAIL){
 			var sendUrl = SEND_ADMINMAIL_PHP ;					//管理者メールの送信先PHP
 			//メールを送信する。成否判定を設定する
-			isSend = commonFuncs.sendMail(sendObject, sendUrl, SUCCESS_MESSAGE_MAIL);
+			isSend = commonFuncs.sendMail(sendObject, sendUrl);
 		//お知らせ更新であれば
 		} else {
-			//結果のメッセージを変数に格納する。最初は成功時のメッセージを格納する
-			var resultMessage = 'お知らせの登録が完了しました。';
 			//データ追加用JSONを作成する
 			var sendObject = this.updateJson();
 			//DBにお知らせのデータを追加する
 			isSend = parseInt(this.__proto__.sendQuery(URL_SAVE_JSON_DATA_PHP, sendObject.inf)[KEY_MESSAGE]) ?
 					//1つ目のクエリが成功したら、2つ目のクエリを実行する
 					this.sendQuery(URL_SAVE_JSON_DATA_PHP, sendObject.to) : false;
-			//送信に失敗していれば
-			if(!isSend){
-				//失敗のメッセージを結果メッセージの変数にセットする
-				resultMessage = 'お知らせの登録に失敗しました。時間をおいてお試しください。';
-			}
-			
-			//処理結果のメッセージを出す
-			alert(resultMessage);
 		}
 
 		return isSend;	//送信の成否判定を返す
@@ -279,17 +288,6 @@ function adminMailDialog(dialog){
 		switch(this.instance.getPushedButtonState()){
 		//はいボタンが押されていたら
 			case YES:
-				//親のダイアログのクラスインスタンスを取得する
-				var dialogClass = this.instance.getArgumentDataObject().dialog;
-				var data = dialogClass.getArgumentDataObject();	//argumentObjのdataを取得する
-				//メール、またはお知らせを送信する
-				var isSend = this.instance.getArgumentDataObject().parentDialogBuilder.sendMailOrAnnounce(data);
-				
-				//メールの送信に成功していたら
-				if(isSend){
-					//送信完了と共に入力ダイアログを消す
-					$(dialogClass.dom).dialog(CLOSE);
-				}
 				break;	//switch文を抜ける
 			//処理を行うボタンが押されていなければ
 			default:break;	//そのまま処理を終える
@@ -300,23 +298,34 @@ function adminMailDialog(dialog){
 	};
 	
 	/* 関数名:callbackSend
-	 * 概要　:ダイアログの確認ボタンを押したときのコールバック関数用関数
+	 * 概要　:ダイアログの送信ボタンを押したときのコールバック関数用関数
 	 * 引数　:なし
 	 * 返却値:なし
 	 * 設計者　:H.Kaneko
-	 * 作成日　:015.08.22
+	 * 作成日　:2016.04.17
 	 * 作成者　:T.Masuda
 	 */
-	this.callbackConfirm = function(){
+	this.callbackSend = function(){
 		//タイトル、本文に空欄があれば
 		if(!commonFuncs.checkEmpty($('.mailContentTextbox').val()) 
 				|| !commonFuncs.checkEmpty($('.mailTitleTextbox').val())){
 			alert(ALERT_EMPTY_CONTENTS);	//警告を出して
 			return;		//処理を終える
 		}
+
+		//メール、またはお知らせを送信する
+		var isSend = this.sendMailOrAnnounce(this.dialogClass.getArgumentDataObject());
 		
-		//確認ダイアログを開く
-		this.openDialog(URL_CONFIRM_DIALOG);
+		//メールの送信に成功していたら
+		if(isSend){
+			//送信完了と共に入力ダイアログを消す
+			this.dialogClass.destroy();
+		//失敗していたら
+		} else {
+			//アラートダイアログを開く
+			this.openDialog(URL_CONFIRM_DIALOG);
+		}
+		
 	};
 
 	/* 関数名:callbackSend
@@ -330,6 +339,23 @@ function adminMailDialog(dialog){
 	this.callbackReset = function(){
 		//フォームの内容をリセットする
 		$('.mailSendContent ' + FORM_ELEMS).val(EMPTY_STRING);
+	};
+	
+	/* 関数名:hideMailAddressWhenNotice
+	 * 概要　:お知らせ送信ダイアログとしてダイアログが開かれたならメールアドレスを表示しないようにする
+	 * 引数　:なし
+	 * 返却値:なし
+	 * 設計者　:H.Kaneko
+	 * 作成日　:2016.04.17
+	 * 作成者　:T.Masuda
+	 */
+	//お知らせならメールアドレスを表示しない
+	this.hideMailAddressWhenNotice = function(){
+		//お知らせダイアログなら
+		if(this.dialogClass.getArgumentDataObject().sendType != MAIL) {
+			//メールアドレスの領域を消す
+		    $(SELECTOR_MAIL_SEND_DIALOG_MAIL_TO_AREA).remove();
+		}
 	};
 	
 //ここまでクラスの記述

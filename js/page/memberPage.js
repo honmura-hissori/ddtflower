@@ -101,8 +101,8 @@ function finshedLessonTableAfterPaging() {
  * 作成日:2015.07.30
  */
 function finshedLessonTableThemeSelect() {
-	//ページングがクリックされた時のイベントを登録する
-	$(STR_BODY).on(CHANGE, '#finishedLesson .selectThemebox', function() {
+	//絞り込みボタンがクリックされたとき
+	$('#finishedLesson').on(CLICK, '.filterButton', function() {
 		//受講済み授業一覧のcreateTagを取得する
 		var create_tag = $('#finishedLesson')[0].create_tag;
 		//テーブルを作るためのクエリを置換する
@@ -120,3 +120,18 @@ function finshedLessonTableThemeSelect() {
 	});
 }
 
+/*
+ * 関数名:addExecuteFinishedLessonSearchEvent
+ * 概要  :指定した対象を押下することで受講済みテーブルの絞り込みを実行するイベントを登録する
+ * 引数  :なし
+ * 返却値  :なし
+ * 作成者:T.Masuda
+ * 作成日:2016.04.10
+ */
+function addExecuteFinishedLessonSearchEvent(target){
+	//対象のボタンを押下したら
+	$(target).on(CLICK, function(){
+		//絞り込みを行う
+		$('#finishedLesson .selectThemebox').trigger(CHANGE);
+	});
+}

@@ -158,3 +158,101 @@ AND
     school_key = 1
 #----------------------------------------------------
 
+#----------------------------------------------------
+# 受講承認からの遷移時のクエリ
+SELECT
+	*
+FROM
+	user_inf
+INNER JOIN
+	user_classwork
+ON
+	user_inf.id = user_classwork.user_key
+AND
+	user_classwork.user_work_status = 2
+#----------------------------------------------------
+
+#----------------------------------------------------
+#上記クエリを実装されていたクエリに合わせました
+SELECT DISTINCT 
+	user_name
+	,pre_paid
+	,user_inf.get_point
+	,DATE(user_inf.update_datetime) AS update_date
+	,user_inf.id
+	,mail_address
+	,user_status
+FROM 
+	user_inf 
+INNER JOIN 
+	user_classwork 
+ON 
+	user_inf.id = user_classwork.user_key 
+WHERE 
+	user_classwork.user_work_status = 2
+;
+#----------------------------------------------------
+
+#会員一覧
+# ユーザ情報(自分)
+delimiter $$
+CREATE PROCEDURE getSelfUserInfo(out result text, in userKey int)
+BEGIN
+SELECT 
+	*
+FROM
+	user_inf
+WHERE
+	id = userKey
+;
+END$$
+delimiter ;
+
+CALL getSelfUserInfo(@result, 'user_key'); SELECT @result AS 'result';
+
+# ユーザ情報
+delimiter $$
+CREATE PROCEDURE getUserInfoList(out result text, in sortTarget varchar(30), sortOrder tinyint)
+BEGIN
+
+IF sortOrder = 0 THEN
+	SELECT 
+		*
+	FROM
+		user_inf
+	ORDER BY 
+		sortTarget ASC
+	;
+ELSE
+	SELECT 
+		*
+	FROM
+		user_inf
+	ORDER BY 
+		sortTarget DESC
+	;
+END IF;
+
+END$$
+delimiter ;
+
+CALL getUserInfoList(@result, 'sort_target', 'sort_order'); SELECT @result AS 'result';
+
+# テーマ指定用リスト作成
+delimiter $$
+CREATE PROCEDURE getListForChooseThemes(out result text)
+BEGIN
+SELECT
+    id AS lesson_key
+    ,lesson_name
+FROM
+    lesson_inf
+WHERE
+    rec_status = 0
+AND
+    school_key = 1
+;
+END$$
+delimiter ;
+
+CALL getListForChooseThemes(@result); SELECT @result AS 'result';

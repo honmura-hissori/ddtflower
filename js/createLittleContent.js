@@ -394,7 +394,7 @@ function createLittleContents(){
 			 if (result) {
 				//その旨を伝える
 				alert('選択した写真の削除に成功しました。');
-				this.loadTableData('myGalleryTable', 1, 4, 1, MYGALLERY_SHOW_NUMBER, '.memberMyGallery', 'create_tag.createMyGalleryImages');
+				this.loadTableData('myGalleryTable', 1, 4, 1, MYGALLERY_SHOW_NUMBER, '.galleryArea', 'create_tag.createMyGalleryImages');
 			 //削除に失敗していたら
 			 } else {
 				 //その旨を伝える
@@ -614,8 +614,8 @@ function createLittleContents(){
 	 * 作成者　　:T.Masuda
 	 */
 	this.setDoubleClickMyPhotoEdit = function(){
-		$ownerClass = this;	//自分自身の暮らすインスタンスを変数に保存
-		$('.memberMyGallery').on('doubletap','.myPhotoTitle,.myPhotoComment,.myPhotoPublication',function(event){
+		$ownerClass = this;	//自分自身のクラスインスタンスを変数に保存する
+		$('.galleryArea').on('doubletap','.myGalleryTable .myPhotoTitle, .myGalleryTable .myPhotoComment, .myGalleryTable .myPhotoPublication',function(event){
 			//タイトルを編集モードにする。
 			$ownerClass.startEditText(this);
 		});
@@ -676,10 +676,10 @@ function createLittleContents(){
     			//コールバック関数。画像パスを引数として受け取る。
     			callback: function(data) {
     				thisElem.uploadUserPhoto(data);	//画像をアップロードする
-    				//マイギャラリーのデータを取得し直す
-    				thisElem.getJsonFile('php/GetJSONArray.php', create_tag.json['myGalleryTable'], 'myGalleryTable');
-    				//マイギャラリーを作り直す
-    				thisElem.outputNumberingTag('myGalleryTable', 1, 4, 1, 4, '.memberMyGallery', 'create_tag.createMyGalleryImages');	// ブログの記事を作る。
+    				//テーブルをクリアする
+    				$('.myGalleryTable').empty();
+    				//ギャラリーのデータをリロードする
+					thisElem.loadTableData('myGalleryTable', 1, 4, 1, MY_GALLERY_SHOW_PHOTO_NUM, '.galleryArea', 'create_tag.createMyGalleryImages');
     			}
     		});
 		});
@@ -1180,7 +1180,6 @@ function createLittleContents(){
 		
 		//データ取得元の連想配列を走査する
 		for(key in items) { 
-			console.log(items[key]);
 			$(selector).append($('<option></option>').addClass('contentOption').val(items[key].commodity_key).text(items[key].commodity_name));
 			//optionタグにテキストに応じたIDをセットする
 			//$('option', $(selector)).filter(function(index){return $(this).text() == items[key].commodity_name;}).val(items[key].id);
@@ -1234,7 +1233,7 @@ function createLittleContents(){
 	 * 引数  :object sendQueryJsonArray: DBに接続するためにdb_setQueryを子に持つcreate_tagの連想配列
 	 		:object queryReplaceData: クエリの中で置換するデータが入った連想配列
 	 		:string successMessage: クエリが成功した時のメッセージ
-	 * 返却値  :なし
+	 * 返却値  :int :変更できた数 
 	 * 作成者:T.Yamamoto
 	 * 作成日:2015.06.27
 	 * 変更者:T.Masuda
@@ -1284,7 +1283,9 @@ function createLittleContents(){
 				if(successMessage != EMPTY_STRING) {
 					//更新した内容が1件以上の時更新成功メッセージを出す
 					if(retInt >= 1) {
-						alert(successMessage);	//更新成功のメッセージを出す
+						if (successMessage) {
+							alert(successMessage);	//更新成功のメッセージを出す
+						}
 					//更新失敗であれば
 					} else {
 						alert(STR_TRANSPORT_FAILD_MESSAGE);	//更新失敗のメッセージを出す
@@ -1296,7 +1297,7 @@ function createLittleContents(){
 				alert(MESSAGE_FAILED_CONNECT);
 			}
 		});
-		
+
 		return retInt;	//整数値を返す
 	}
 	
@@ -1345,23 +1346,24 @@ function createLittleContents(){
 	 * 関数名:setInputValueToLecturePermitListInfoTable
 	 * 概要  :受講者一覧テーブルのテキストボックスにデフォルトで値を入れる。
 	 		使い方はsetTableTextboxValuefromDB関数で引数として呼ばれるときのみ使う
-	 * 引数  :なし
+	 * 引数  :Object recordData : レコードのデータ
+	 *      :String targetParent : 処理対象行の一意な祖先要素セレクタ
 	 * 返却値  :なし
 	 * 作成者:T.Yamamoto
 	 * 作成日:2015.07.11
 	 */
-	this.setInputValueToLecturePermitListInfoTable = function(recordData) {
+	this.setInputValueToLecturePermitListInfoTable = function(recordData, targetParent) {
 		//DBから取得した料金の値を取得する
 		resultValueCost = recordData['cost'];
 		//DBから取得した使用ptの値を取得する
 		resultValueUsePoint = recordData['use_point'];
 		//テーブルの料金のテキストボックスに対してデフォルトでDBから読込んだ値を入れる
-		$('[name=user_classwork_cost]').eq(counter).attr({
+		$('[name=user_classwork_cost]', $(targetParent)).eq(counter).attr({
 				value : resultValueCost,
 				min   : 0
 			});
 		//テーブルの料金の使用ptに対してデフォルトでDBから読込んだ値を入れる
-		$('.replaceTextboxUsePointCell [name=use_point]').eq(counter).attr({
+		$('.replaceTextboxUsePointCell [name=use_point]', $(targetParent)).eq(counter).attr({
 				value : resultValueUsePoint,
 				min   : 0
 			});
@@ -1370,7 +1372,7 @@ function createLittleContents(){
 			//DBから取得した日備品の値を取得する
 			resultValueCommodityName = recordData['content'];
 			//備品名セレクトボックスにデフォルト値をDBから読込んだ値で設定する。
-			$('.lecturePermitListInfoTable tr:eq(' + rowNumber + ') [name="content"]').val(resultValueCommodityName);
+			$('tr:eq(' + rowNumber + ') [name="content"]', $(targetParent)).val(resultValueCommodityName);
 		}
 	}
 	
@@ -1379,11 +1381,12 @@ function createLittleContents(){
 	 * 概要 :テーブルのテキストボックスにDBから読込んだ値をデフォルトでセットする
 	 * 引数 :tableArray:DBから読込んだテーブルのデータが入っている連想配列:例(受講者一覧テーブル) json.LecturePermitListInfoTable.table
 			:setTablefunc:テーブルのテキストボックスに値をセットするための関数
+			:targetParent:処理対象行の一意の祖先要素
 	 * 返却値  :なし
 	 * 作成者:T.Yamamoto
 	 * 作成日:2015.07.11
 	 */
-	this.setTableTextboxValuefromDB = function(tableArray, setTablefunc) {
+	this.setTableTextboxValuefromDB = function(tableArray, setTablefunc, targetParent) {
 		//DBから読込んだ値を取り出すためにカウンターを初期値0で作る
 		counter = 0;
 		//テーブルに値をセットするために行番号を初期値1で作る(0は見出しであるため、1から数え始める)
@@ -1393,7 +1396,7 @@ function createLittleContents(){
 			//DBから読込んだ値を取り出すためにループのカウンターに対応した行の値を指定する
 			recordData = tableArray[counter];
 			//テキストボックスにDBから読込んだ値を入れる
-			setTablefunc(recordData);
+			setTablefunc(recordData, targetParent);
 			//行番号をインクリメントする
 			rowNumber++;
 			//カウンタ変数をインクリメントする
@@ -1443,7 +1446,7 @@ function createLittleContents(){
 		//置換するkey名
 		replaceQueryKey:'lesson_date',
 		//テーブルのリロードが終わった時に行のクラス名を付ける処理とメルマガ内容列を指定文字数以内にする関数を呼び出す関数名を定義しておく
-		afterReloadFunc:'commonFuncs.tableReplaceAndSetClass(EACH_DAY_RESERVED_INFO_TABLE, EACH_DAY_RESERVED_INFO_TABLE_REPLACE_FUNC, false, create_tag, EACH_DAY_RESERVED_INFO_TABLE_RECORD, 10)',
+		afterReloadFunc:'commonFuncs.tableReplaceAndSetClass(EACH_DAY_RESERVED_INFO_TABLE, EACH_DAY_RESERVED_INFO_TABLE_REPLACE_FUNC, false, $("#dayReserver")[0].create_tag, EACH_DAY_RESERVED_INFO_TABLE_RECORD, 10)',
 		//検索結果がなかった時のエラーメッセージ
 		//検索結果がなかった時のエラーメッセージ
 		errorMessage:'この日の予約者はいません'
@@ -1530,8 +1533,22 @@ function createLittleContents(){
 	this.replaceTableQuery = function(queryArrayKey) {
 		//テーブルのクエリを置換するための値をセレクタから取得する
 		var replaceValue = $(replaceTableOption[queryArrayKey]['replaceValueDom']).val();
+
+		//全選択(何も選択されていない)なら「全て」、そうでなければテーマをひとまとめにして置換用変数にセットする
+		replaceValue = replaceValue != null && replaceValue.length? replaceValue.join(SIMBOLE_SINGLQUATE_COMMA) : KEY_ALL_JP;  
+		
+		//取得する授業の日時の範囲を取得する
+		var fromDate = $('.finishedLessonFromDate').val();
+		var toDate = $('.finishedLessonToDate').val();
+		//日付が入力されていたら
+		if(commonFuncs.checkEmpty(fromDate) && commonFuncs.checkEmpty(toDate)) {
+			//それぞれの日付をJSONにセットする
+			this.json[queryArrayKey].fromDate.value = $('.finishedLessonFromDate').val();
+			this.json[queryArrayKey].toDate.value = $('.finishedLessonToDate').val();
+		}
+		
 		//置換するものが「全て」以外であれば置換する
-		if (replaceValue != '全て') {
+		if (replaceValue != KEY_ALL_JP) {
 			//テーブルのクエリを置換するためのkey名を取得する
 			var replaceKey = replaceTableOption[queryArrayKey]['replaceQueryKey'];
 			//取得した値をjsonの反映させる
@@ -1561,7 +1578,7 @@ function createLittleContents(){
 	this.reloadTableTriggerEvent = function(eventSelector, eventName, reloadTableClassName) {
 		var thisElem = this;
 		//対象のボタンがクリックされた時テーブルをリロードするイベントを登録する
-		$(STR_BODY).on(eventName, eventSelector, function(){
+		$(eventSelector).on(eventName, function(){
 			//テーブルをリロードして最新のデータを表示する
 			thisElem.eventTableReload(reloadTableClassName);
 		});
@@ -1851,35 +1868,18 @@ function createLittleContents(){
 		var resultTableArray = this.json[tableClassName][TABLE_DATA_KEY][rowNumber];
 		try{
 			//ユーザが入力した値をDBのクエリに対応したkey名で連想配列で取得する
-			var inputDataArray = commonFuncs.getInputData(DOT + inputDataSelector, addAttr);
+			var inputDataArray = commonFuncs.getInputData(inputDataSelector, addAttr);
 			delete inputDataArray.columnCheckbox;	//チェックボックス列から取得したデータは空なので削除する
 			
 			//取得した連想配列を結合する
 			var sendReplaceArray = $.extend(true, {}, resultTableArray, inputDataArray);
-			console.log(sendReplaceArray);
 			//使用ポイントが所持ポイントを上回っていれば
 			if (sendReplaceArray.diff_point && sendReplaceArray.get_point < sendReplaceArray.diff_point) {
 				throw new Error("使用ポイントが所持ポイントを上回っています。 所持:" + sendReplaceArray.get_point + " 使用ポイント: " + sendReplaceArray.data-diff_point);	//例外を発生させる
 			}
 			
-//			//受講料に対する使用ポイント
-//			var lessonUsePoint = sendReplaceArray.use_point;
-//			//備品購入に対する使用ポイント
-//			var commodityUsePoint = 0;
-//			//使用ポイントが受講料を上回っていれば
-//			if (lessonUsePoint > sendReplaceArray.user_classwork_cost) {
-//				//備品の購入があれば
-//				if (sendReplaceArray.sell_number != "0") {
-//					lessonUsePoint = sendReplaceArray.user_classwork_cost;
-//					commodityUsePoint = sendReplaceArray.use_point - sendReplaceArray.user_classwork_cost;
-//				//なければ
-//				} else {
-//					lessonUsePoint = sendReplaceArray.user_classwork_cost;
-//				}
-//			}
-			
 			//実費の支払額をセットする
-			sendReplaceArray.pay_price = sendReplaceArray.user_classwork_cost - sendReplaceArray.use_point;
+			sendReplaceArray.pay_price = sendReplaceArray.user_classwork_cost ? sendReplaceArray.user_classwork_cost - sendReplaceArray.use_point : sendReplaceArray.pay_price;
 			
 			//結合した結果の連想配列を返す
 			return sendReplaceArray;
@@ -2153,7 +2153,7 @@ function createLittleContents(){
 		 this.json[deleteQueryKey].db_setQuery = deleteQuery;
 
 		//ブログの記事を作り直す
-		this.loadTableData('myBlogTable', 1, 4, 1, 2, '.blogArticles', 'create_tag.createMyBlogImages();create_tag.setBlogEditButtons');
+		this.loadTableData('myBlogTable', 1, 4, 1, 2, '.blogArticles', 'create_tag.createMyBlogImages(\'.myBlogTable\');create_tag.setBlogEditButtons');
 		//記事の画像を拡大できるようにする。
 //		creator.useZoomImage('blogImage');
 				
@@ -2331,7 +2331,7 @@ function createLittleContents(){
 					//全件失敗であれば
 					} else {
 						//更新ができなかった旨を伝える
-						alert('写真のデータの更新に失敗しました。時間をおいてお試しください。');
+						alert(MESSAGE_FAILED_TO_UPDATE_PHOTO);
 					}
 				}
 			}
@@ -2392,7 +2392,7 @@ function createLittleContents(){
 	/*
 	 * 関数名:createMyBlogImages
 	 * 概要  :マイブログの記事の画像列セルから画像タグを作る
-	 * 引数  :なし
+	 * 引数  :String or Element target: 処理対象となる行を持つテーブルのセレクタ
 	 * 返却値  :なし
 	 * 作成者:T.Masuda
 	 * 作成日:2015.08.03
@@ -2400,9 +2400,9 @@ function createLittleContents(){
 	 * 変更日:2015.10.31
 	 * 内容　:fancyboxによる画像拡大表示に対応しました。
 	 */
-	this.createMyBlogImages = function(){
+	this.createMyBlogImages = function(target){
 		//ブログの各行を走査する
-		$('.blogTable tr:not(:first)').each(function(){
+		$('tr:not(:first)', $(target)).each(function(){
 			var $row = $(this);	//行そのものへの参照を変数に入れておく
 			//画像の列を走査する
 			$('.blogImage', $row).each(function(){
@@ -2427,29 +2427,15 @@ function createLittleContents(){
 		$('.myBlogTable tr:not(:first)').each(function(){
 			var $row = $(this);	//行そのものへの参照を変数に入れておく
 			//編集ボタン用の列を走査する
-			$('.buttons', $row).each(function(){
-				//編集ボタン・削除ボタンを追加する
-				//編集ボタン
-				$(this).append($('<button></button>')
-							.attr({
-								type : 'submit', 
-								class : 'deleteButton', 
-								'data-role' : '2'
-								})
-								.text('削除'))
-						//削除ボタン
-						.append($('<button></button>')
-							.attr({
-								type : 'submit', 
-								class : 'editButton', 
-								'data-role' : '1'
-								})
-								.text('編集'));
-			});
+
+			//削除ボタン、編集ボタンを作る
+			var $deleteButton = commonFuncs.makeCommonButton('deleteButton', 'delete', true, true, true, {"type": "submit","data-role": "2"});
+			var $editButton = commonFuncs.makeCommonButton('editButton', 'edit', true, true, true, {"type": "submit","data-role": "1"});
+			
+			//作成したボタンを各行に追加する
+			$('.buttons', $row).append($deleteButton).append($editButton);
 		});
 		
-		//jQueryのリッチなボタンを配置する
-		$('.blogArticles .buttons button').button();
 	}
 	
 	/* 
@@ -2535,14 +2521,14 @@ function createLittleContents(){
 	/*
 	 * 関数名:this.sendButtonRole(form)
 	 * 引数  :element form: フォームの要素。
-	 * 戻り値:String:エラーメッセージの文字列。
+	 * 戻り値:なし
 	 * 概要  :ボタンに設定されたroleの値を隠しフォームにセットする。
 	 * 作成日:2015.04.15
 	 * 作成者:T.Masuda
 	 */
 	this.sendButtonRole = function(form){
 		//submitボタンのクリックイベントを設定する。
-		$('input:submit, button[type="submit"]').on('click', function(){
+		$(form).on('click', 'input:submit, button[type="submit"]', function(){
 			//次に来るvalueHolderクラスのhiddenのinputタグにdata-role属性を渡す。
 			$('.valueHolder:first').attr('data-role', $(this).attr('data-role'));
 			
@@ -2572,79 +2558,6 @@ function createLittleContents(){
 
 
 	/* 
-	 * 関数名:checkLogin()
-	 * 概要  :ログイン状態をチェックする。
-	 * 引数  :なし
-	 * 返却値  :なし
-	 * 作成者:T.M
-	 * 作成日:2015.02.18
-	 * 修正者:T.M
-	 * 修正日:2015.03.10
-	 * 変更　:ユーザー名が複数表示されてしまうバグへ対応しました。
-	 */
-	//※現状ではこの関数は必ずfalseを返します。
-	this.checkLogin = function(){
-		// ログインしているか否かの結果を返すための変数を用意する。
-		var result = false;
-		// クッキーを連想配列で取得する。
-		var cookies = GetCookies();
-		//ログイン中であれば	※空のcookieに対しては、IEは文字列"undefined"を返し、それ以外は空文字を返す。
-		if('user' in cookies && (cookies['user'] != "" && cookies['user'] != "undefined")){
-			// ログインボタンをログアウトボタンに差し替える。
-			$('.login').removeClass('login')
-						.addClass('logout')
-						.attr('src', 'image/icon(logout22-50).png');
-			//ログアウトボタンの下にユーザ名を表示する。
-			$('.logout')
-						// spanタグを追加する。
-						.after($('<span></span>')
-								// ユーザ名のクラスを設定する。
-								.addClass('userName')
-								//cookieからユーザ名を取り出し表示する。
-								.text(cookies['userName'] + '様')
-								)
-						// spanタグを追加する。
-						.after($('<span></span>')
-								// ユーザ名のクラスを設定する。
-								.addClass('welcome')
-								//cookieからユーザ名を取り出し表示する。
-								.text('ようこそ')
-								)
-						;
-			// ログアウトのイベントを定義する。
-			$(document).on('click', '.logout', function(){
-				// ユーザのクッキーを削除してログアウトする。
-				deleteCookie('user');
-				deleteCookie('userName');
-				//画面を更新する。
-	   		 	location.reload();
-			});
-			
-			// ログインしている状態であるという結果を変数に格納する。
-			result = true;
-		}
-		
-		// ログイン状態を返す。
-		return result;
-	}
-
-	/* 
-	 * 関数名:function getUserId()
-	 * 概要  :cookieからユーザIDを取得して返す。
-	 * 引数  :なし
-	 * 返却値  :String:ユーザIDの文字列。
-	 * 作成者:T.Masuda
-	 * 作成日:2015.04.16
-	 */
-//createTagクラスで定義してあるものを使った方が適切であるため無効にしました
-//	this.getUserId = function(){
-//		// クッキーを連想配列で取得する。
-//		var cookies = GetCookies();
-//		//ユーザIDを取得して返す。なければ空文字を返す。
-//		return 'userId' in cookies && cookies.userId != ''? cookies['userId']: '';
-//	}
-
-	/* 
 	 * 関数名:function checkLoginState()
 	 * 概要  :ログイン状態をチェックする。
 	 * 引数  :なし
@@ -2660,22 +2573,19 @@ function createLittleContents(){
 	 */
 	this.checkLoginState = function(){
 		// ログイン状態をチェックする。
-		//※現状ではこのcheckLogin関数は必ずfalseを返します。
-//		if(!(checkLogin())){
 		//イベントコールバック内でクラスインスタンスを参照するため、変数にクラスインスタンスを格納しておく
-			var thisElem = this;
-			//ログインボタンのイベントを設定する。
-			$(CLASS_LOGIN).on(CLICK, function(){
-				//遷移ページ振り分け処理(暫定です。理由は、画面遷移の条件がIDの番号になっているからです。ユーザ権限を見て転送URLを変えるべきです。20150801)
-				//グローバルなcreate_tagTagクラスインスタンスに会員ページログインのフラグが立っていたら(グローバルなcreateTagクラスインスタンスは廃止予定です)
-				var loginUrl = thisElem.json.accountHeader !== void(0)
-								&& thisElem.json.accountHeader.authority.text == ADMIN_AUTHORITY? 'window/admin/page/adminTop.html' :'window/member/page/memberTop.html';
-				// 会員ページ、または管理者ページへリンクする。
-				$(CURRENT_WINDOW)[0].instance.callPage(loginUrl, thisElem.json.accountHeader !== void(0)
-						//ログイン中でなければ画面遷移の履歴を作らない
-						&& commonFuncs.checkEmpty(thisElem.json.accountHeader.authority.text) ? null : 1 );
-			});
-//		}
+		var thisElem = this;
+		//ログインボタンのイベントを設定する。
+		$(CLASS_LOGIN).on(CLICK, function(){
+			var cookie = GetCookies();	//cookieを取得する
+			//ユーザの権限が管理者なら
+			var loginUrl = cookie.authority
+							&& cookie.authority == ADMIN_AUTHORITY? 'window/admin/page/adminTop.html' :'window/member/page/memberTop.html';
+			// 会員ページ、または管理者ページへリンクする。
+			$(CURRENT_WINDOW)[0].instance.callPage(loginUrl, thisElem.json.accountHeader !== void(0)
+					//ログイン中でなければ画面遷移の履歴を作らない
+					&& commonFuncs.checkEmpty(thisElem.json.accountHeader.authority.text) ? null : 1 );
+		});
 	}
 	
 
@@ -2976,6 +2886,21 @@ function createLittleContents(){
 			//テーブルを作る
 			this.outputNumberingTag(tableKey, startPage, displayPageMax, displayPage, pageNum, target, callback, getCreateTag);
 		}
+
+		/*
+		 * 関数名:isAdminLoginToMemberPage
+		 * 概要  :会員画面へ管理者ログインしているかの判定を返す
+		 * 引数　:なし
+		 * 戻り値:boolean : 管理者ログインしているか
+		 * 作成日:2016.0417
+		 * 作成者:T.Masuda
+		 */
+		this.isAdminLoginToMemberPage = function(){
+			//ログイン情報が乗っているため、cookieを取得する
+			var cookies = commonFuncs.GetCookies();
+			//管理者ログイン用IDがcookieにセットされているかを判定して返す
+			return commonFuncs.checkEmpty(cookies.otherUserId);
+		}
 		
 }	//createLittleContentsクラスの終わり
 
@@ -3013,7 +2938,7 @@ calendarOptions['blog'] = {
 		onSelect: function(dateText, inst){
 			this.instance.create_tag.dateText = dateText;
 			//絞り込まれたブログ記事を書き出す
-			this.instance.create_tag.outputNumberingTag('blogTable', 1, 4, 1, 2, '.blogArticles', 'create_tag.createMyBlogImages()')
+			this.instance.create_tag.outputNumberingTag('blogTable', 1, 4, 1, 2, '.blogArticles', 'create_tag.createMyBlogImages(\'.blogTable\')')
 		},
 		//日付有効の設定を行う。配列を返し、添字が0の要素がtrueであれば日付が有効、falseなら無効になる
 		beforeShowDay:function(date){
@@ -3037,7 +2962,7 @@ calendarOptions['myBlog'] = $.extend(true, {}, calendarOptions['blog'], {
 			//日付をcreateTagに渡して日付絞り込みを有効にする
 			this.instance.create_tag.dateText = dateText;
 			//絞り込まれたブログ記事を書き出す
-			this.instance.create_tag.outputNumberingTag('myBlogTable', 1, 4, 1, 2, '.blogArticles', 'create_tag.createMyBlogImages();create_tag.setBlogEditButtons');	
+			this.instance.create_tag.outputNumberingTag('myBlogTable', 1, 4, 1, 2, '.blogArticles', 'create_tag.createMyBlogImages(\'.myBlogTable\');create_tag.setBlogEditButtons');	
 		}
 	});
 
@@ -3120,6 +3045,25 @@ calendarOptions['member'] = {		//カレンダーを作る。
 			//ダイアログが開いたときのコールバック関数を指定する。
 			//callOpenDialog(現状はdispContents関数をコールするようになっている)をコールさせる
 			reservedLessonListDialog.run();	//主処理を走らせる。
+			var thisElem = this;
+			//一旦日付のハイライトが消えるので付け直す
+			setTimeout(function(){thisElem.instance.changeExistLessonDate();}, 100);
+			this.instance.monthDates = [];	//monthDatesを初期化する
+		},
+		//日付有効の設定を行う。配列を返し、添字が0の要素がtrueであれば日付が有効、falseなら無効になる
+		beforeShowDay:function(date){
+			//その月の日付を配列にセットしていく
+			this.instance.setMonthDates(date);
+			//日付を無効にするということはないのでtrueを入れた配列を返す
+			return [true];
+		},
+		onChangeMonthYear : function(year, month, inst){
+			this.instance.monthDates = [];
+			var thisElem = this;		//自身の要素を変数に保管する
+			//beforeShowDayが終わった後
+			setTimeout(function(){
+				thisElem.instance.changeExistLessonDate();
+			}, CALENDAR_SHOW_DELAY);
 		},
 		maxDate:this.dateRange,	//今日の日付を基準にクリック可能な期間を設定する。
 		minDate:1				//過去はクリックできなくする。
@@ -3149,7 +3093,27 @@ calendarOptions['admin'] = {		//カレンダーを作る。
 		//ダイアログが開いたときのコールバック関数を指定する。
 		//callOpenDialog(現状はdispContents関数をコールするようになっている)をコールさせる
 		lessonListDialog.setCallbackOpen(commonFuncs.callOpenDialog);
+		lessonListDialog.setCallbackClose(function(){this.instance.destroy();$('.adminCalendar')[0].instance.changeExistLessonDate();});
 		lessonListDialog.run();	//主処理を走らせる。
+		var thisElem = this;
+		//一旦日付のハイライトが消えるので付け直す
+		setTimeout(function(){thisElem.instance.changeExistLessonDate();}, 100);
+	},
+	//日付有効の設定を行う。配列を返し、添字が0の要素がtrueであれば日付が有効、falseなら無効になる
+	beforeShowDay:function(date){
+		//その月の日付を配列にセットしていく
+		this.instance.setMonthDates(date);
+		
+		//日付を無効にするということはないのでtrueを入れた配列を返す
+		return [true];
+	},
+	onChangeMonthYear : function(year, month, inst){
+		this.instance.monthDates = [];		//月の日付を初期化する
+		var thisElem = this;		//自身の要素を変数に保管する
+		//beforeShowDayが終わった後
+		setTimeout(function(){
+			thisElem.instance.changeExistLessonDate();
+		}, CALENDAR_SHOW_DELAY);
 	}
 }
 
@@ -3165,6 +3129,9 @@ function calendar(selector) {
 	//コンストラクタの引数をメンバに格納する
 	this.selector = selector;
 	this.calendarName = '';	//カレンダー名を設定する
+	//カレンダー自身のDOMを取得する
+	this.dom = selector ? $(selector)[0] : {};
+	this.dom.instance = this;	//クラスインスタンスへの参照をDOMにセットする
 	
 	this.calendarOptions = {};	//オプションをオブジェクトで記述する
 	
@@ -3393,6 +3360,111 @@ function calendar(selector) {
 		
 		return retBoo;	//retBooを返す。
 	}
+
+	/*
+	 * 関数名:changeExistLessonDate
+	 * 引数  :なし
+	 * 戻り値:なし
+	 * 概要  :授業がある日付をハイライトする
+	 * 作成日:2016.04.19
+	 * 作成者:T.Masuda
+	 */
+	this.changeExistLessonDate = function(){
+		
+		//クエリの検索期間の値をセットする。内容は月の初めと最後の日付
+		this.create_tag.json.searchClassworkExist.fromDate.value = this.monthDates[0];
+		this.create_tag.json.searchClassworkExist.toDate.value = this.monthDates[this.monthDates.length - 1];
+		this.create_tag.json.searchClassworkExist.tableData = [];
+		//授業を取得する
+		this.create_tag.getJsonFile(URL_GET_JSON_ARRAY_PHP, this.create_tag.json.searchClassworkExist, 'searchClassworkExist');
+		//存在する授業日付の数を取得する
+		var datesLength = this.create_tag.json.searchClassworkExist.tableData.length;
+
+		//授業があれば
+		if (datesLength) {
+			
+			//クエリの検索期間の値をセットする。内容は月の初めと最後の日付
+			this.create_tag.json.checkClassworkStatus.fromDate.value = this.monthDates[0];
+			this.create_tag.json.checkClassworkStatus.toDate.value = this.monthDates[this.monthDates.length - 1];
+			//ユーザIDをセットする
+			this.create_tag.json.checkClassworkStatus.user_key.value = this.userId;
+			this.create_tag.json.checkClassworkStatus.tableData = [];
+			
+			//ログインユーザの授業を取得する
+			this.create_tag.getJsonFile(URL_GET_JSON_ARRAY_PHP, this.create_tag.json.checkClassworkStatus, 'checkClassworkStatus');
+			//授業データを取り出す
+			var lessonDetail = this.create_tag.json.checkClassworkStatus.tableData;
+			
+			//日付を走査する
+			for (var i = 0; i < datesLength; i++) {
+				
+				//日付の文字列を取得する
+				var dateStrAll = this.create_tag.json.searchClassworkExist.tableData[i].lesson_date;
+				//日を切り出す
+				var dateStr = dateStrAll.substr(8, 2);
+				//日付要素を走査する
+				$('td', this.dom).each(function(){
+					//カレンダーから日付を取得する
+					var calendarDate = $(this).children('a').text();
+					//日付が1桁なら0を詰める
+					calendarDate = calendarDate.length > 1? calendarDate : '0' + calendarDate;
+					//その日に授業があれば
+					if(calendarDate == dateStr) {
+						//予約状況を取得する
+						var userWorkStatus = 99;
+						//授業詳細をチェックする
+						for (var j = 0; j < lessonDetail.length; j++) {
+							//日付が一致したら
+							if (lessonDetail[j].lesson_date == dateStrAll) {
+								//予約状況の値を取り出す
+								var recUserWorkStatus = lessonDetail[j].user_work_status;
+								//取得した予約状況の値が前より小さいなら
+								if (recUserWorkStatus < userWorkStatus) {
+									//現在の予約状態の値を更新する
+									userWorkStatus = recUserWorkStatus;
+								}
+							}
+						}
+						
+						//背景色を変更する
+						$(this).addClass(commonFuncs.getLessonStatusClassByPriority(userWorkStatus));
+						return;	//以降を走査する必要なしなのでここでbreakする
+					}
+				});
+			}
+		}
+	}
+	
+	/*
+	 * 関数名:setMonthDates
+	 * 引数  :Date date :日付型
+	 * 戻り値:なし
+	 * 概要  :日付を月の配列にセットしていく。1日目からチェックしていき、別の月の日付が後から入ってきたら弾く
+	 * 作成日:2016.04.19
+	 * 作成者:T.Masuda
+	 */
+	this.setMonthDates = function(date) {
+		
+		//日付を文字列に変換する
+		var dateStr = comDateFormat(date, DATEFORMAT_YYYY_MM_DD);
+		//日付全体から日にち部分を切り出す
+		var dayStr = dateStr.substr(8, 2);
+		
+		//日付が1日なら
+		//	if (dayStr == '01' && $.inArray(this.instance.monthDates, dateStr) == -1) {
+		//this.monthDates = [];	//monthDatesを初期化する
+		//	}
+		
+		//その月の1日以降の日付であれば。その月以外の日付も入ってくることがあるのでその場合は弾く
+		if((this.monthDates.length > 0)
+				|| comDateFormat(date, DATEFORMAT_YYYY_MM_DD).substr(8, 2) == '01') {
+			if(this.monthDates.length == 0 || dayStr >= this.monthDates[this.monthDates.length - 1].substr(8, 2)) {
+				//日付を文字列にして月の日付一覧に追加していく
+				this.monthDates.push(dateStr);
+			}
+		}
+	}
+	
 	
 }
 
@@ -3456,7 +3528,9 @@ function memberCalendar(selector, dateRange, userId, create_tag) {
 	$calendar.instance = this;		//カレンダーの要素にクラスインスタンスへの参照を持たせる
 	$calendar.calendar = this;		//クラスへの参照をカレンダーのタグにセットする
 	$calendar.userId = userId;		//ユーザIDを保存する
-	this.create_tag = create_tag;			//createLittleContentsクラスのインスタンスを利用する
+	this.userId = userId;			//ユーザIDをクラスインスタンス内に保存する
+	this.create_tag = create_tag;	//createLittleContentsクラスのインスタンスを利用する
+	this.monthDates = [];			//月の日付
 	
 	//クリック可能な最大日付までの日数をオブジェクトにセットする
 	calendarOptions[this.calendarName].maxDate = dateRange;
@@ -3486,7 +3560,8 @@ function adminCalendar(selector, dialog, create_tag) {
 	$calendar.dialog = dialog;		//ダイアログへの参照をDOMに保存する
 	$calendar.instance = this;		//カレンダーの要素にクラスインスタンスへの参照を持たせる
 	$calendar.calendar = this;		//クラスへの参照をカレンダーのタグにセットする
-	this.create_tag = create_tag;			//createLittleContentsクラスのインスタンスを利用する
+	this.create_tag = create_tag;	//createLittleContentsクラスのインスタンスを利用する
+	this.monthDates = [];			//月に存在する日付
 	
 	//@mod 2015.0704 T.Masuda 引数にない変数を使おうとしているのでコメントアウトしました。
 	//this.dateRange = dateRange;	//クリック可能な日付の期間の引数をメンバに格納する
@@ -3761,14 +3836,17 @@ var articleCreateHandler = $.extend({}, true, showAlert, {
 	//成功時のコールバック
 	submitHandler : function(form, event){
 	
-		//ダイアログのインプットデータのオブジェクトを作成する。close時のコールバック関数、タイトル、ダイアログのメッセージを引数で渡す
-		var argumentObj = commonFuncs.createBasicComfirmDialogObject(sendArticleData, SAVE_ARTICLE_BEFORE_CONFIRM_TITLE, SAVE_ARTICLE_BEFORE_CONFIRM_MESSAGE);
-		//記事編集ページのcreateTagをダイアログに渡す
-		argumentObj.data.create_tag = create_tag;
-		//確認ダイアログクラスインスタンスを生成する
-		var confirmDialog = new dialogEx(CONFIRM_DIALOG_PATH, argumentObj);
-		//openイベントのコールバック関数をセットする
-		confirmDialog.run();	//ダイアログを開く
+		//記事を作成する、または更新する
+		sendArticleData(articleNumber, $('.blogEdit')[0].create_tag);
+		
+//		//ダイアログのインプットデータのオブジェクトを作成する。close時のコールバック関数、タイトル、ダイアログのメッセージを引数で渡す
+//		var argumentObj = commonFuncs.createBasicComfirmDialogObject(sendArticleData(), SAVE_ARTICLE_BEFORE_CONFIRM_TITLE, SAVE_ARTICLE_BEFORE_CONFIRM_MESSAGE);
+//		//記事編集ページのcreateTagをダイアログに渡す
+//		argumentObj.data.create_tag = create_tag;
+//		//確認ダイアログクラスインスタンスを生成する
+//		var confirmDialog = new dialogEx(CONFIRM_DIALOG_PATH, argumentObj);
+//		//openイベントのコールバック関数をセットする
+//		confirmDialog.run();	//ダイアログを開く
 		
 		return false;	//元々のsubmitイベントコールバックをキャンセルする
 	}

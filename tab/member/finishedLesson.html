@@ -42,20 +42,47 @@
 	create_tag.json.finishedLessonTable.user_key.value = memberInfo;
 	// 受講済み授業のタブ内コンテンツを作る
 	create_tag.outputTag('finishedLesson', 'tabInContent', $('.tabContentArea', $currentContent));
+	
 	//受講済み授業の絞り込み領域を作る
 	create_tag.outputTag('selectTheme', 'selectTheme', '#finishedLesson');
+	//受講済み授業の絞り込み領域を作る
+	create_tag.outputTag('lessonListSearch', 'lessonListSearch', '#finishedLesson');
+	//絞り込みボタンを作る
+	commonFuncs.putCommonButton('#finishedLesson', 'filterButton', 'filter', true, false, true, {}, false);
+	
 	//受講済みテーブルページングの一番外側となる領域を作る
 	create_tag.outputTag('finishedLessonPagingArea', 'divArea', '#finishedLesson');
 	//ページングのテーブルを作るためにテーブルの外側となるdivを作る
 	create_tag.outputTag('finishedLessonTableOutside', 'divArea', '.finishedLessonPagingArea');
 	// ナンバリング領域を作る
 	create_tag.outputTag('numberingOuter', 'numberingOuter', '.finishedLessonPagingArea');
+	
+	//デフォルトの時間をセットする
+	var today = new Date();	//日付型を用意する
+	//本日の日付を文字列変換する
+	var todayStr = commonFuncs.getDateString(today);
+	//本日をセットする
+	create_tag.json.finishedLessonTable.toDate.value = todayStr;
+	//1年前の日付をセットする
+	today.setYear(today.getFullYear() - 1);
+	//3ヶ月前の日付を文字列変換する
+	var threeMonthBeforeStr = commonFuncs.getDateString(today);
+	create_tag.json.finishedLessonTable.fromDate.value = threeMonthBeforeStr;
+	//日付のテキストボックスに初期値をセットする
+	commonFuncs.setDateToFromToBox('.lessonListSearch:first', threeMonthBeforeStr, todayStr);
+	
 	//受講済み授業一覧のデータを取り出して一覧テーブルを作成して表示する
 	create_tag.loadTableData('finishedLessonTable', NUMBERING_START, NUMBERING_PAGE, NUMBERING_DEFAULT, NUMBERING_DISPLAY, '.finishedLessonTableOutside', 'finshedLessonTableAfterPaging', "$('#finishedLesson')[0].");
 	
 	//授業の絞り込み機能を実装する
-	setConfigFinishedLesson()
-	
+	setConfigFinishedLesson();
+
+	//絞込ボタンの機能を有効にする
+	addExecuteFinishedLessonSearchEvent('.filterButton');
+
+	//テーマ選択セレクトメニューのクリックでの全表示をオンにする
+	commonFuncs.setTogglePosition('#finishedLesson', '.selectThemebox', VALUE_ABSOLUTE, STR_AUTO);
+
 </script>
 </body>
 </html>

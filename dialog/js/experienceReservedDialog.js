@@ -18,8 +18,8 @@ function experienceReservedDialog(dialog){
 	this.validationRule = {
 			//submit成功時のコールバック
 			submitHandler : function (form, event){
-				//確認ダイアログを表示する。その前にチェックも入れる
-				$(CURRENT_DIALOG)[0].dialogBuilder.openDialog(URL_CONFIRM_DIALOG);
+				//送信する
+				$(CURRENT_DIALOG)[0].dialogBuilder.sendReservedMail();
 				return false;	//本来のsubmitをキャンセルする
 			},
 			//バリデーションルール
@@ -217,8 +217,8 @@ function experienceReservedDialog(dialog){
 	 * 作成日　:2015.0822
 	 */
 	this.setConfig = function(){
-		//確認・キャンセルボタンを配置する
-		this.setDialogButtons(this.confirm_cancel);		
+		//送信・キャンセルボタンを配置する
+		this.setDialogButtons(this.send_cancel);		
 		// 全ての曜日のチェックボックスにチェックする
 		commonFuncs.allCheckbox(ALLDAY_CHECKBOX, CHECKBOX_DAYOFWEEK);
 		// 全ての週のチェックボックスにチェックする
@@ -315,16 +315,17 @@ function experienceReservedDialog(dialog){
 		}
 	}
 
-	/* 関数名:callbackConfirm
-	 * 概要　:ダイアログの確認ボタンを押したときのコールバック関数用関数
+	/* 関数名:callbackSend
+	 * 概要　:ダイアログの送信ボタンを押したときのコールバック関数用関数
 	 * 引数　:なし
 	 * 返却値:なし
 	 * 設計者　:H.Kaneko
 	 * 作成日　:015.08.22
 	 * 作成者　:T.Masuda
 	 */
-	this.callbackConfirm = function(){
-		console.log("confirmed");
+	this.callbackSend = function(){
+		console.log("pushSendButton");
+		this.dialogClass.setPushedButtonState(SEND);
 		//フォームをsubmitする
 		$(CURRENT_DIALOG).submit();
 	};
@@ -379,7 +380,7 @@ function experienceReservedDialog(dialog){
 		}
 
 		//結果のメッセージをアラートで表示する
-		alert(retMessage);
+		commonFuncs.showMessageDialog(EMPTY_STRING, retMessage);
 	}
 	
 	
@@ -391,20 +392,15 @@ function experienceReservedDialog(dialog){
 	 * 作成者　:T.Masuda
 	 */
 	this.sendReservedMail = function(){
-		//ダイアログのクラスインスタンスを取得する
-		var dialogClass = this.instance;
-		var data = dialogClass.getArgumentDataObject();			//argumentObjのdataを取得する
-		var $parentDialog = $(data.parentDialogBuilder.dialog);	//ダイアログのDOMを取得する
-		$(FORM_ELEMS, $parentDialog).removeAttr('disabled');				//フォーム要素の無効化を解除する
 		
 		//押されたボタンの判定を行う。returnObjに設定されたボタンの値を基準にする
-		switch(dialogClass.getPushedButtonState()){
-		//はいボタンが押されていたら
-			case YES:
+		switch(this.dialogClass.getPushedButtonState()){
+		//送信ボタンが押されていたら
+			case SEND:
 				//フォーム要素からデータを取得する
-				var formObj = commonFuncs.createFormObject($parentDialog);
+				var formObj = commonFuncs.createFormObject(this.dialog);
 				//メール本文を作成する
-				var mailContent = data.parentDialogBuilder.createExperienceReservedMail(formObj);
+				var mailContent = this.createExperienceReservedMail(formObj);
 				//送信するデータをまとめたオブジェクトを作る
 				var sendObj	= {
 								//お客様返信用
@@ -413,19 +409,22 @@ function experienceReservedDialog(dialog){
 								admin:{content : EXPERIENCE_MAIL_INTRODUCTION_ADMIN + mailContent, subject:EXPERIENCE_MAIL_SUBJECT_ADMIN, from:formObj.email, "to[]":1}
 							};
 				//予約希望メールを送信する
-				var isSendToCustom	= commonFuncs.sendMail(sendObj.custom, EXPERIENCE_MAIL_SEND_PHP);
 				var isSendToAdmin	= commonFuncs.sendMail(sendObj.admin, EXPERIENCE_MAIL_SEND_PHP);
-				console.log(isSendToCustom);
-				console.log(isSendToAdmin);
+				var isSendToCustom	= commonFuncs.sendMail(sendObj.custom, EXPERIENCE_MAIL_SEND_PHP);
+
 				//送信結果をアラートで通知する
-				data.parentDialogBuilder.showSendResultMessage(isSendToCustom, isSendToAdmin);
+				this.showSendResultMessage(isSendToCustom, isSendToAdmin);
+
+				//メール送信ができていたら
+				if (isSendToAdmin) {
+					this.dialogClass.destroy();	//ダイアログを破棄する
+				}
 				
 				break;	//switch文を抜ける
 			//処理を行うボタンが押されていなければ
-			default:break;	//そのまま処理を終える
+			default:
+				break;	//そのまま処理を終える
 		}
-		
-		dialogClass.destroy();	//確認ダイアログを破棄する
 	}
 	
 	

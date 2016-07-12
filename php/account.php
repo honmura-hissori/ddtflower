@@ -35,6 +35,10 @@ class LoginCheckException extends  Exception{
 		//cookieがあるかどうかをチェックする。
 		if(isset($_COOKIE['user'])){
 			$retState = 1;	//タイムアウトであれば1をセットする
+		//タイムアウトしていなければ
+		} else {
+			//セッションIDを再発行してセッションを更新する
+			session_regenerate_id(true);
 		}
 		
 		return $retState;	//状態の整数値を返す

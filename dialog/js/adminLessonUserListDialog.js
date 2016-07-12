@@ -1,11 +1,11 @@
 ﻿/* ファイル名:adminLessonUserListDialog.js
- * 概要　　　:管理者ページ 授業一覧ダイアログ
+ * 概要　　　:管理者ページ 授業予約者一覧ダイアログのクラスファイル
  * 作成者　:T.Masuda
  * 場所　　:dialog/js/adminLessonUserListDialog.js
  */
 
 /* クラス名:adminLessonUserListDialog.js
- * 概要　　:URLからダイアログのHTMLファイルを取得して表示する。
+ * 概要　　:管理者ページ 授業予約者一覧ダイアログクラス
  * 親クラス:baseDialog
  * 引数	 :Element dialog:ダイアログのDOM
  * 作成者　:T.Masuda
@@ -24,7 +24,6 @@ function adminLessonUserListDialog(dialog){
 	this.getJson = function() {
 		//管理者ページ受講者一覧ダイアログのjsonデータを取得する
 		this[VAR_CREATE_TAG].getJsonFile(ADMIN_LESSON_USER_LIST_DIALOG_JSON);
-		console.log(this.dialogClass.getArgumentDataObject());
 		//授業データ検索のキーとして授業IDをインプットデータから取得し、JSONにセットする
 		this.create_tag.json.lessonTable.id.value = this.dialogClass.getArgumentDataObject().classwork_key;
 		//予約できる授業のデータ一覧をDBから取得してテーブルを作る準備をする
@@ -55,13 +54,16 @@ function adminLessonUserListDialog(dialog){
 	 * 作成者　:T.Masuda
 	 */
 	this.customizeJson = function(){
-		//授業のデータを取得する
-		var tableData = $.extend([], true, this[VAR_CREATE_TAG].json[LESSON_TABLE][TABLE_DATA_KEY]);
+		//授業データがあれば
+		if (this[VAR_CREATE_TAG].json[LESSON_TABLE].tableData.length) {
+			//授業のデータを取得する
+			var tableData = $.extend([], true, this[VAR_CREATE_TAG].json[LESSON_TABLE][TABLE_DATA_KEY]);
 
-		//授業データを走査し、列データを置換していく
-		for(var i = 0; i < tableData.length; i++){
-			//予約状態を数値から文字列に変換していく
-			tableData[i].user_work_status = commonFuncs.userClassworkStatuses[parseInt(tableData[i].user_work_status)];
+			//授業データを走査し、列データを置換していく
+			for(var i = 0; i < tableData.length; i++){
+				//予約状態を数値から文字列に変換していく
+				tableData[i].user_work_status = commonFuncs.userClassworkStatuses[parseInt(tableData[i].user_work_status)];
+			}
 		}
 	};
 	
@@ -77,8 +79,15 @@ function adminLessonUserListDialog(dialog){
 	this.dispContentsMain = function(){
 		//授業一覧テーブルの外側の領域を作る
 		this[VAR_CREATE_TAG].outputTag(TABLE_OUTER, TABLE_OUTER, $(this.dialog));
-		//授業のデータ一覧テーブルを作る
-		this[VAR_CREATE_TAG].outputTagTable(LESSON_TABLE, LESSON_TABLE, $(DOT+TABLE_OUTER, this.dialog));
+		//授業データがあれば
+		if (this[VAR_CREATE_TAG].json[LESSON_TABLE].tableData.length) {
+			//授業のデータ一覧テーブルを作る
+			this[VAR_CREATE_TAG].outputTagTable(LESSON_TABLE, LESSON_TABLE, $(DOT+TABLE_OUTER, this.dialog));
+		//なければ
+		} else {
+			//その旨を伝える
+			this[VAR_CREATE_TAG].outputTag('noReserver', 'noReserver', $(this.dialog));
+		}
 	}
 
 	/* 関数名:setConfig
@@ -119,7 +128,7 @@ function adminLessonUserListDialog(dialog){
 		//当クラスインスタンスをイベントコールバック内で使える用に変数に格納する
 		var thisElem = this;	
 		//ダイアログの内のテーブルの行をクリックしたときのコールバック関数をセットする
-		$(STR_TR, this.dialog).on(CLICK, function(){
+		$(SELECTOR_TBODY_TR, this.dialog).on(CLICK, function(){
 			//行データを引数にコールバック用関数をコールする
 			thisElem.callbackRowClick(this);
 		});

@@ -48,15 +48,22 @@
 					// バナー領域を作る
 					create_tag.outputTag('userBanner', 'userBanner', $currentContent);
 	
-					create_tag.outputTag('pageTitle', 'pageTitle', $currentContent);						// タイトル領域を作る
-					create_tag.outputTag('myGalleryEditButtons', 'myGalleryEditButtons', $currentContent);			// ギャラリー編集用のボタンを作る。
+					// タイトル領域を作る
+					create_tag.outputTag('pageTitle', 'pageTitle', $currentContent);						
+					// ギャラリー編集用のボタンを作る。
+					create_tag.outputTag('myGalleryEditButtons', 'myGalleryEditButtons', $currentContent);
+					//新規、更新、削除ボタンを作成する
+					commonFuncs.putCommonButton('.myGalleryEditButtons', 'createButton', 'createNew', true, true, true, {}, false);
+					commonFuncs.putCommonButton('.myGalleryEditButtons', 'galleryUpdateButton', 'update', true, true, true, {}, false);
+					commonFuncs.putCommonButton('.myGalleryEditButtons', 'deleteButton', 'delete', true, true, true, {}, false);
+
 					//ギャラリーのちょっとした説明を付け足す。
 					create_tag.outputTag('myGalleryNotice', 'myGalleryNotice', '.myGalleryEditButtons');
 					//ギャラリー全体の領域のDOMを配置する
 					create_tag.outputTag('memberMyGallery', 'memberMyGallery', $currentContent);
 					//ギャラリーの左右のエリアのDOMを作る
-					create_tag.outputTag('galleryRightSide', 'gallerySideArea', $currentContent);
-					create_tag.outputTag('galleryLeftSide', 'gallerySideArea', $currentContent);
+					create_tag.outputTag('galleryRightSide', 'gallerySideArea', '.memberMyGallery');
+					create_tag.outputTag('galleryLeftSide', 'gallerySideArea', '.memberMyGallery');
 					create_tag.outputTag('galleryArea', 'memberMyGallery', '.galleryRightSide');
 					
 					// ギャラリーページ用のギャラリーを作る。
@@ -69,11 +76,12 @@
 					
 					//ユーザ自身のブログ記事を取得して表示する
 					create_tag.loadTableData('myGalleryTable', 1, 4, 1, MYGALLERY_SHOW_NUMBER, '.galleryArea', 'create_tag.createMyGalleryImages');
-	
+					
+					//記事がなかった場合、メッセージを出す
+					commonFuncs.checkNoArticle('.myGalleryTable', MESSAGE_NO_ARTICLE);
+					
 					//ギャラリーの画像を拡大できるようにする。
 					create_tag.useZoomImage('myPhotoImage');
-					//jQuery UIのリッチなボタンを配置する。
-					$('.myGalleryEditButtons button').button();
 					//新規ボタンをクリックしたらアップロードするボタンを押すイベントを登録する。
 					create_tag.bindClickTarget('.myGalleryEditButtons .createButton', '.myGalleryEditButtons .uploader');
 					//画像アップローダーの値が変わったときのイベントを定義する。

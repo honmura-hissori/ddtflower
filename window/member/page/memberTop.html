@@ -72,8 +72,10 @@
 								// 日ごと授業のテンプレートを読み込む
 								create_tag.getDomFile('template/eachDayLesson.html');
 								// カレンダーを作り、クリックでダイアログ作成を作る
-			 					var memCalendar = new memberCalendar('.lessonCalendar', 90, memberInfo, $('#alreadyReserved')[0].create_tag);
+			 					var memCalendar = new memberCalendar('.lessonCalendar', 90, memberInfo, create_tag);
 								memCalendar.create();	//カレンダーを実際に作成する
+								//授業のある日付をハイライトする
+								memCalendar.changeExistLessonDate();
 								//キャンセル料率,加算ポイントのレートをアコーディオン形式で表示する
 								create_tag.accordionSetting(DOT+CLASS_INFO_ACCORDION, DOT+CLASS_LESSON_ACCORDION);
 								addlogoutEvent('.logoutLink');	//ログアウトボタンのイベントを登録する。

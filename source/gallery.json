@@ -13,7 +13,7 @@
     },
     "gallery":{},
     "galleryTable":{
-        "db_getQuery":"SELECT ui.id, ui.photo_title AS myPhotoImage,Date(ui.update_timestamp) AS date, ui.article_title AS myPhotoTitle, uin.user_name AS myPhotoUser, ui.photo_summary AS myPhotoComment FROM user_image AS ui,user_inf AS uin WHERE ui.user_key=uin.id ORDER BY ui.update_timestamp DESC;",
+        "db_getQuery":"CALL getGalleryContents(@result); SELECT @result AS 'result';",
         "config": {
             "columns": {
                 "id":{

@@ -14,6 +14,95 @@
  */
 function common(){
 
+	//共通ボタン作成関数で扱うボタンのタイプ
+	this.COMMON_BUTTON_TYPE = {
+			search : {
+				src : SRC_SEARCH_BUTTON,
+				text : '検索'
+			},
+			filter : {
+				src : SRC_FILTER_BUTTON,
+				text : '絞込'
+			},
+			'delete' : {
+				src : SRC_DELETE_BUTTON,
+				text : '削除'
+			},
+			add : {
+				src : SRC_ADD_BUTTON,
+				text : '追加'
+			},
+			edit : {
+				src : SRC_EDIT_BUTTON,
+				text : '編集'
+			},
+			cancel : {
+				src : SRC_CANCEL_BUTTON,
+				text : 'キャンセル'
+			},
+			select : {
+				src : SRC_SELECT_BUTTON,
+				text : '選択'
+			},
+			mail : {
+				src : SRC_MAIL_BUTTON,
+				text : 'メール'
+			},
+			notice : {
+				src : SRC_NOTICE_BUTTON,
+				text : 'お知らせ'
+			},
+			send : {
+				src : SRC_SEND_BUTTON,
+				text : '送信'
+			},
+			createNew : {
+				src : SRC_CREATE_NEW_BUTTON,
+				text : '新規'
+			},
+			update : {
+				src : SRC_UPDATE_BUTTON,
+				text : '更新'
+			},
+			confirm : {
+				src : SRC_CONFIRM_BUTTON,
+				text : '確認'
+			},
+			reset : {
+				//妥当なアイコンが見つかっていないため、削除アイコンを流用中
+				src : SRC_DELETE_BUTTON,
+				text : 'リセット'
+			},
+			permit : {
+				src : SRC_PERMIT_BUTTON,
+				text : '承認'
+			},
+			key : {
+				src : SRC_KEY_BUTTON,
+				text : ''
+			},
+			password_change : {
+				src : SRC_PASSWORD_CHANGE_BUTTON,
+				text : 'パスワード変更'
+			},
+			arrow_right_single : {
+				src : SRC_ARROW_RIGHT_SINGLE_BUTTON,
+				text : ''
+			},
+			arrow_left_single : {
+				src : SRC_ARROW_LEFT_SINGLE_BUTTON,
+				text : ''
+			},
+			arrow_right_double : {
+				src : SRC_ARROW_RIGHT_DOUBLE_BUTTON,
+				text : ''
+			},
+			arrow_left_double : {
+				src : SRC_ARROW_LEFT_DOUBLE_BUTTON,
+				text : ''
+			}
+	};
+	
 //以下、授業一覧テーブル作成用のデータ
 //授業状況
 this.classworkStatuses = {
@@ -24,6 +113,15 @@ this.classworkStatuses = {
 		,4:"予約不可"
 		,5:"予約締切"
 		,6:"満席"
+};
+
+//入会状況
+this.userStatusList = {
+	0 : '入会'
+	,1 : '退会'
+	,2 : '体験'
+	,3 : '予備'
+	,99 : '予備'
 };
 
 //授業情報補足
@@ -61,6 +159,58 @@ this.defaultClassworkCostColumns = [
 	'default_user_classwork_cost'
 	,'default_flower_cost'
 ];
+
+//以下2個、setDataToNoticeContents関数で利用するデータのサンプル。現状そのまま使えます
+//トップページお知らせの記事データの構造サンプル
+this.sampleNoticeDataOrganizeKeyArray = [
+		"topicContentImage" //各要素のキー。sampleNoticeDataOrganizeSettingObjのキーとなる
+		,"topicContentDate"
+		,"topicContentUserName"
+		,"topicContentTitle"
+    ];
+
+//トップページお知らせの記事データの構造サンプル
+this.sampleNoticeDataOrganizeSettingObj = {
+	"topicContentImage": [
+		"image",   //列名
+	    "style"  //値セット先のキー
+	],
+	"topicContentDate": [
+		"date",
+	    "text"
+	],
+	"topicContentUserName": [
+		"user_name",
+	    "text"
+	],
+	"topicContentTitle": [
+		"title",
+	    "text"
+	]
+};
+
+//unix時間の重複回避用の数
+this.unixtimeIncrement = 0;
+
+this.messageDialogDefaultOption = {
+		width : '300'	//幅を固定値にする
+		,modal : true	//モーダルダイアログにする
+		,close : function (dialog, ui){	//close時コールバック
+			//ダイアログの機能を無効にし、DOMを消去する
+			$(SELECTOR_CURRENT_MESSAGE_DOIALOG).dialog(DESTROY);
+			$(SELECTOR_CURRENT_MESSAGE_DOIALOG).parent().remove();
+		}
+		//閉じるボタン。
+		,buttons : [
+		            {text : STR_CLOSE_JP
+		            //クリック時コールバック
+		            ,click : function(dialog, ui){
+		            		//ダイアログを閉じる
+		            		$(SELECTOR_CURRENT_MESSAGE_DOIALOG).dialog(CLOSE);
+		            	}
+		            }
+		    ]
+}
 
 //以上、授業一覧テーブル作成用のデータ
 
@@ -657,7 +807,7 @@ this.defaultClassworkCostColumns = [
 		// 終了時間を表示する
 		$(tableName + ' tr:eq(' + rowNumber + ') td').eq(3).text(end_time);
 		//ユーザステータスを表示する
-		$(tableName + ' tr:eq(' + rowNumber + ') td').eq(6).text(userStatus);
+		$(tableName + ' tr:eq(' + rowNumber + ') td').eq(8).text(userStatus);
 	};
 
 
@@ -678,9 +828,9 @@ this.defaultClassworkCostColumns = [
 		// 開始日時と終了時刻を組み合わせた値を入れる
 		allDay = this.allDateTime(recordData);
 		//連番を入れる
-		$(tableName + ' tr:eq(' + rowNumber + ') td').eq(1).text(rowNumber);
+		$(tableName + ' tr:eq(' + rowNumber + ') td').eq(0).text(rowNumber);
 		// 開始日時と終了時間を合わせてテーブルの最初のカラムに値を入れる
-		$(tableName + ' tr:eq(' + rowNumber + ') td').eq(2).text(allDay);
+		$(tableName + ' tr:eq(' + rowNumber + ') td').eq(1).text(allDay);
 	};
 
 	/* 
@@ -1686,6 +1836,8 @@ this.defaultClassworkCostColumns = [
 	this.showCurrentWindow = function(){
 		$('.window').hide();		//全てのウィンドウを消す
 		$('.window:last').show();	//カレントのウィンドウのみ表示する
+		//画面のリサイズイベントをトリガーしてJSでリサイズする要素をリサイズする
+		$(window).trigger('resize');
 	}
 
 	/* 
@@ -1781,11 +1933,6 @@ this.defaultClassworkCostColumns = [
 					resultwork = result;		//通信結果から情報を取り出す
 					//送信完了と共に入力ダイアログを消す
 					alert(MESSAGE_SEND_SUCCESS_SIMPLE_NOTICE);	//送信完了のメッセージを出す
-					//目安箱メールを送信していたら
-					//if(parseInt(sendObject.suggestionRadio) == SUGGESTION_MAIL){
-						//目安箱テーブルに新たにデータを挿入する
-						//new baseDialog().sendQuery(PATH_SAVE_JSON_DATA_PHP, sendObject);
-					//}
 				}
 				//通信失敗時
 				,error:function(xhr, status, error){
@@ -1982,6 +2129,30 @@ this.defaultClassworkCostColumns = [
 		$(tableName + ' tr:eq(' + rowNumber + ') td').eq(4).text(point);
 	};
 	
+	/*
+	 * 関数名:function checkIdentifier(fileName)
+	 * 引数  :String fileName:ファイル名。
+	 * 戻り値:boolean
+	 * 概要  :有効な拡張子かどうかをチェックする。
+	 * 作成日:2015.04.18
+	 * 作成者:T.M
+	 */
+	this.checkIdentifier = function(fileName){
+		var retBoo = false;	//返却するチェック結果を格納する変数を宣言、初期化する。
+		var listLength = VALID_IMAGE_IDENTIFIERS.length;	//有効な拡張子の配列の長さを取得する。
+		
+		//有効な拡張子のリストとfileNameを比較する
+		for(var i = 0; i < listLength; i++){
+			//有効な拡張子であったら
+			if(fileName.indexOf(VALID_IMAGE_IDENTIFIERS[i]) > -1 ){
+				retBoo = true;	//trueを返す
+				break;	//ループを抜ける
+			}
+		}
+		
+		return retBoo;	//判定結果を返す。
+	}
+	
 	/* 
 	 * 関数名:callMemberLessonValue
 	 * 概要  :ファイルの拡張子が画像ファイルか、空でないかをチェックする
@@ -1999,7 +2170,7 @@ this.defaultClassworkCostColumns = [
 		if (!commonFuncs.checkEmpty(filePath)) {
 			retBoo = false;	//NG判定となる
 		//拡張子チェックを行う。画像の拡張子でなければはじく。
-		} else if(!checkIdentifier(filePath)){
+		} else if(!this.checkIdentifier(filePath)){
 			//有効なファイルを選んでもらうように警告を出す。
 			alert(invalidMessage);
 			retBoo = false;	//NG判定となる
@@ -2163,7 +2334,6 @@ this.defaultClassworkCostColumns = [
 			cancelCharge = Math.floor(cost * cancelRate[dateDiff] / 100);
 		}
 		
-		console.log(cancelCharge);
 		return cancelCharge;	//キャンセル料を返す
 	}
 	
@@ -2260,60 +2430,839 @@ this.defaultClassworkCostColumns = [
 		return valueArray[valueLength - 1];
 	}
 	
-//ここまでクラス定義領域
+	/* 
+	 * 関数名:putTextboxInTd
+	 * 概要  :テーブルの指定した列にテキストボックスを入れる
+	 * 引数  :Object settings : テキストボックスの設定。キーを属性名、値を設定値にする
+	 * 		:String targetSelector : 処理対象の列のセレクタ
+	 * 作成者:T.Masuda
+	 * 作成日:2016.0319
+	 */
+	this.putTextboxInTd = function (settings, targetSelector){
+		
+		//INPUTタグを作成する
+		var $input = $(TAG_INPUT);
+		
+		//設定を取り出す
+		for (key in settings) {
+			//attr関数で属性値をセットする
+			$input.attr(key, settings[key]);
+		}
+
+		//対象にinputタグを入れる。既に何かしら入っている場合ものは除外する
+		$(targetSelector).filter(SELECTOR_NOT_FIRST).filter(SELECTOR_HAS_ANYTHING).append($input);
+
+	}
+
+	/* 
+	 * 関数名:createCommoditySelectMenu
+	 * 概要  :商品選択のセレクトメニューを作る
+	 * 引数  :Array contentSelect : 商品情報オブジェクトをまとめた配列
+	 * 		:String targetSelector : 処理対象の列のセレクタ
+	 * 作成者:T.Masuda
+	 * 作成日:2016.0320
+	 */
+	this.createCommoditySelectMenu = function (commodityData, targetSelector){
+		
+		//SELECTタグを作成する
+		var $select = $('<select></select>');
+		//セレクトメニューに属性を追加する
+		$select.attr({
+			class : 'contentSelect'
+			,name : 'content'
+		});
+		
+		//商品データの数を取得する
+		var commodityNum = commodityData.length;
+		//商品データのリストを作る
+		var commodityList = {};
+		
+		//処理対象を取得しておく
+		var $targetElems = $(targetSelector).filter(SELECTOR_NOT_FIRST);
+		//該当列のテキストデータを消しておく
+		$targetElems.empty();
+
+		//セレクトメニューに未選択データを追加する
+		$select.append($('<option></option>').addClass('contentOption').text(COMMODITY_NOT_SELECTED).attr({
+			value : COMMODITY_NOT_SELECTED
+			,'data-price' : 0
+			,'data-commodity_Key' : COMMODITY_NOT_SELECTED_KEY_2
+		}));
+
+		//未選択の商品データをリストを追加する
+		commodityList[COMMODITY_NOT_SELECTED_KEY_1] = COMMODITY_NOT_SELECTED;
+		commodityList[COMMODITY_NOT_SELECTED_KEY_2] = COMMODITY_NOT_SELECTED;
+		
+		//商品データを走査する
+		for (var i = 0; i < commodityNum; i++) {
+			//該当する商品情報を取り出す
+			var oneCommodityData = commodityData[i];
+			
+			//セレクトメニューにデータを追加していく
+			$select.append($('<option></option>').addClass('contentOption').text(oneCommodityData.commodity_name).attr({
+				value : oneCommodityData.commodity_name
+				,'data-price' : oneCommodityData.selling_price
+				,'data-commodity_Key' : oneCommodityData.commodity_key
+			}));
+			
+			//商品データのリストに内容を追加する
+			commodityList[oneCommodityData.commodity_key] = oneCommodityData.commodity_name;
+		}
+		
+		//対象にselectタグを入れる。既に何かしら入っている場合ものは除外する
+		$targetElems.filter(SELECTOR_HAS_ANYTHING).append($select);
+		//処理対象の親要素を取得する
+		var $parent = $targetElems.parent();
+		//対象各行を走査
+		$parent.each(function(){
+			//商品IDを基にセレクトメニューを選択されたものに変える
+			$('select[name="content"]', this).val(commodityList[$('[name="commodity_key"]', this).val()]);
+		});
+	}
+	
+	/* 
+	 * 関数名:callSellCommodityPermitListValue
+	 * 概要  :受講承認一覧テーブルに表示されている値を変換する
+	 * 引数  :tableName:値を置換する対象となるテーブルのcssクラス名
+	 		 loopData:ループ対象となるテーブルの行全体の連想配列
+	 		 counter:カウンタ変数
+	 		 rowNumber:行番号
+	 * 返却値  :なし
+	 * 作成者:T.Masuda
+	 * 作成日:2016.03.19
+	 */
+	this.callSellCommodityPermitListValue = function(tableName, loopData, counter, rowNumber) {
+		// テーブルの値に入る連想配列(テーブルの値一覧)を変数に入れる
+		recordData = loopData[counter];
+		//連番を入れる
+		$(tableName + ' tr:eq(' + rowNumber + ') td').eq(0).text(rowNumber);
+		//テーマの値が空白のとき、その列に後にセレクトボックスをアペンドするために対してクラスをつける。
+		if(!commonFuncs.checkEmpty(recordData.lesson_name)) {
+			//クラスappendSelectboxをつけてアペンド対象であることを分かりやすくする
+			$(tableName + ' tr:eq(' + rowNumber + ') td').eq(2).addClass('appendSelectbox');
+			$(tableName + ' tr:eq(' + rowNumber + ') input:hidden').val(recordData.id);
+		}
+	};
+
+	/* 
+	 * 関数名:tdReplaceToTextbox
+	 * 概要  :TDタグの値を持ったテキストボックスを配置する
+	 * 引数  :String tableName:値を置換する対象となるテーブルのcssクラス名
+	 		 String || int value : 値
+	 		 String name : テキストボックスのname属性
+	 		 String type : テキストボックスのtype属性
+	 		 Object setting : 追加設定
+	 * 返却値  :なし
+	 * 作成者:T.Masuda
+	 * 作成日:2016.03.20
+	 */
+	this.tdReplaceToTextbox = function(tableName, targetColumn, name, type, setting) {
+		//対象となる列を走査する
+		$(targetColumn, $(tableName)).filter(':not(:has("*"))').each(function(){
+			//tdタグ内の値を一時避難する
+			var tmpValue = $(this).text();
+			//対象のtdタグを一旦からにする
+			$(this).empty();
+			
+			//追加するための要素を生成し、必須の属性を追加する
+			var $addElem = $('<input>').attr({
+				'name' : name
+				,'type' : type
+				,'value' : tmpValue
+			});
+			
+			//追加設定がある場合
+			if (setting) {
+				//設定オブジェクトを走査して属性をセットしていく
+				for (key in setting) {
+					//キーを属性名にして値を設定していく
+					$addElem.attr(key, setting[key]);
+				}
+			}
+			
+			//対象のtdタグに様々設定を行ったテキストボックスを突っ込む
+			$(this).append($addElem);
+			
+
+		});
+	}
+	
+	/* 
+	 * 関数名:calcPayPrice
+	 * 概要  :支払い金額を計算する
+	 * 引数  :String tableName:処理対象テーブル名
+	 * 返却値  :なし
+	 * 作成者:T.Masuda
+	 * 作成日:2016.03.20
+	 */
+	this.calcPayPrice = function(tableName){
+		//数量、商品をいじったら
+		$(tableName).on('change', '[name="content"],[name="sell_number"],[name="price"]', function(){
+			var $parent = $(this).closest('tr');	//イベント発火元要素の親を取得する
+			
+			//商品プルダウンを触っていたら
+			if($(this).attr('name').indexOf('content') != -1) {
+				var $targetOption = $(this).children('[value="' + $(this).val() + '"]');
+				//価格テキストボックスの値を選択した商品の価格に変更する
+				$('[name="price"]', $parent).attr('value', $targetOption.attr('data-price'));
+				//商品キーを更新する
+				$('[name="commodity_key"]', $parent).val($targetOption.attr('data-commodity_key'));
+			}
+			//支払額を計算して対象のテキストボックスに格納する
+			$('[name="pay_price"]', $parent).attr('value', $('[name="sell_number"]', $parent).val() * $('input[name="price"]', $parent).val());
+		});
+	}
+	
+	
+	/* 
+	 * 関数名:insertSequenceNo
+	 * 概要  :指定した列に連番を入れる
+	 * 引数  :String targetTable:処理対象テーブル名
+	 * 　　  :String targetColumn:処理対象列
+	 * 返却値  :なし
+	 * 作成者:T.Masuda
+	 * 作成日:2016.03.27
+	 */
+	this.insertSequenceNo = function(targetTable, targetColumn){
+		//指定した列のセルを走査する。先頭の見出し行は無視する
+		$(targetColumn, $(targetTable)).filter(':not(:first)').each(function(i){
+			$(this).empty();		//セルの中身を空にする
+			$(this).text(i + 1);	//連番を振る
+		});
+	}
+	
+	//何もしない関数
+	this.motionless = function(){
+		
+	}
+
+	/* 
+	 * 関数名:removeCanceButton
+	 * 概要  :現在表示されているダイアログのキャンセルボタンを消し、はいだけ選択するようにする
+	 * 引数  :なし
+	 * 返却値  :なし
+	 * 作成者:T.Masuda
+	 * 作成日:2016.04.02
+	 */
+	this.removeCanceButton = function(){
+		//キャンセルボタンを消す
+		$('.ui-button', $(DOT + UI_DIALOG).filter(':last')).filter(':last').remove();
+	}
+	
+	/* 
+	 * 関数名:removeCurrentDialogButtons
+	 * 概要  :現在表示されているダイアログのキャンセルボタンを消し、はいだけ選択するようにする
+	 * 引数  :なし
+	 * 返却値  :なし
+	 * 作成者:T.Masuda
+	 * 作成日:2016.04.17
+	 */
+	this.removeCurrentDialogButtons = function(){
+		//ボタン領域を消す
+		$('.ui-dialog-buttonpane', $(DOT + UI_DIALOG).filter(':last')).filter(':last').remove();
+	}
+	
+	/* 
+	 * 関数名:removeCurrentDialog
+	 * 概要  :先頭に表示されているダイアログを消す
+	 * 引数  :なし
+	 * 返却値  :なし
+	 * 作成者:T.Masuda
+	 * 作成日:2016.04.02
+	 */
+	this.removeCurrentDialog = function(){
+		//先頭のダイアログをを消す
+		$('.dialog').filter(':last')[0].instance.destroy();
+	}
+	
+	/* 
+	 * 関数名:sendSimpleQuery
+	 * 概要  :指定した先にオブジェクトを送信する。特にひねりなくJSONをPHPに送信することを想定
+	 * 引数  :Object sendObj : 送信するJSON
+	 *      :String key : 送信するキーデータ。基本的に使わないと思われる 
+	 *      :String url : 送信先 
+	 * 返却値  :boolean : 成否結果
+	 * 作成者:T.Masuda
+	 * 作成日:2016.04.09
+	 */
+	this.sendSimpleQuery = function(sendObj, key, url){
+		//送信成否のboolean
+		var isSuccess = false;
+		
+		//Ajax通信を行う
+		$.ajax({
+			'url' : url
+			,dataType : 'json'	//JSON形式のデータを送受信する
+			,async : false	//同期通信
+			,cache : false	//通信結果をキャッシュしない
+			,method : 'POST'	//POSTメソッドでリクエストを送信する
+			//送信データを設定する
+			,data : {json : JSON.stringify(sendObj), 'key' : key}
+			//通信成功時のコールバック
+			,success : function(json, status){
+				for (objKey in json) {
+					//更新の成功件数0でなかった場合は(現状2016-04-09時点では対象のkeyはmessage。何でも対応できるように1つめのキーを対象にした)
+					if(!json[objKey] == "0") {
+						isSuccess = true;
+					}
+					
+					break;	//一回処理したら終わり
+				}
+			} 
+			//通信エラー時のコールバック
+			,error : function(xhr, status, error){
+				//特に何もせず、そのままで失敗扱い
+			}
+		});
+		
+		return isSuccess;	//結果を返す
+	}
+	
+	/* 
+	 * 関数名:makeCommonButton
+	 * 概要  :ボタンを作成し、値をセットして返す
+	 * 引数  :String className : ボタンに設定するクラス
+	 *      :String buttonType : ボタンのタイプの文字列
+	 *      :boolean enableImage : 画像を使うか
+	 *      :boolean enableText : テキストを使うか
+	 *      :boolean isImgFront : 画像をテキストの前に置くか後ろに置くか。trueで前
+	 *      :Object setting : 追加設定
+	 * 返却値  :Element (jQueryのArray) : ボタン
+	 * 作成者:T.Masuda
+	 * 作成日:2016.05.02
+	 */
+	this.makeCommonButton = function(className, buttonType, enableImage, enableText, isImgFront, setting){
+		//ボタンタイプの有効チェック
+		if(!this.COMMON_BUTTON_TYPE[buttonType]) {
+			//ボタンタイプが不正であると伝える
+			console.log(MESSAGE_INVALID_BUTTON_TYPE + buttonType);
+			return;	//ボタンを追加せずに終える
+		}
+		
+		//ボタンを生成し、クラスを設定する。画像タグもセットする
+		var $button = $(HTML_BUTTON).addClass(className).addClass(CLASS_COMMON_BUTTON);
+
+		//ボタンのタイプをbuttonに指定する
+		$button.attr({type : BUTTON});	
+		//テキストを使う場合
+		if (enableText) {
+			$button.text(this.COMMON_BUTTON_TYPE[buttonType].text);	//テキストを追記する
+		}
+		//画像を使う場合
+		if (enableImage) {
+			//画像を前に配置する場合
+			if (isImgFront) {
+				//prependで画像タグと画像をセットする
+				$button.prepend($(HTML_IMG).attr({src : this.COMMON_BUTTON_TYPE[buttonType].src}));	
+			//後ろに配置する場合
+			} else {
+				//appendで画像タグと画像をセットする
+				$button.append($(HTML_IMG).attr({src : this.COMMON_BUTTON_TYPE[buttonType].src}));
+			}
+		}
+		
+		//画像、テキスト両方使う場合
+		if (enableImage && enableText) {
+			//画像を前に配置する場合
+			if (isImgFront) {
+				//画像左側配置に適したレイアウト修正のクラスを追加する
+				$button.children('img').addClass('iconLeft');
+			//後ろに配置する場合
+			} else {
+				//画像右側配置に適したレイアウト修正のクラスを追加する
+				$button.children('img').addClass('iconRight');
+			}
+		}
+		
+		//追加設定がある場合
+		if (setting) {
+			//設定オブジェクトを走査して属性をセットしていく
+			for (key in setting) {
+				//キーを属性名にして値を設定していく
+				$button.attr(key, setting[key]);
+			}
+		}
+		
+		return $button;	//作成したボタンを返す
+	}
+	
+	/* 
+	 * 関数名:putCommonButton
+	 * 概要  :ボタンを作成し、値をセットして追加する
+	 * 引数  :String target : 追加先セレクタ
+	 *      :String className : ボタンに設定するクラス
+	 *      :String buttonType : ボタンのタイプの文字列
+	 *      :boolean enableImage : 画像を使うか
+	 *      :boolean enableText : テキストを使うか
+	 *      :boolean isImgFront : 画像をテキストの前に置くか後ろに置くか。trueで前
+	 *      :Object setting : 追加設定
+	 *      :boolean isPrepend : appendするかprependするか
+	 * 返却値  :なし
+	 * 作成者:T.Masuda
+	 * 作成日:2016.05.01
+	 */
+	this.putCommonButton = function(target, className, buttonType, enableImage, enableText, isImgFront, setting, isPrepend){
+
+		//指定した要素内の前方に配置するか
+		if (isPrepend) {
+			//指定した場所にボタンを配置する
+			$(target).prepend(this.makeCommonButton(className, buttonType, enableImage, enableText, isImgFront, setting));
+		//後方に配置するか
+		} else {
+			//指定した場所にボタンを配置する
+			$(target).append(this.makeCommonButton(className, buttonType, enableImage, enableText, isImgFront, setting));
+		}
+	}
+	
+	 /* 
+	  * 関数名:enterKeyCallFunction
+	  * 概要  :指定したテキストボックスをフォーカスしている最中にエンターキーを押すと
+	  *      :指定した関数をコールするようにする
+	  * 引数  :String enterTarget:エンターキーを押したときに対象となるセレクター名
+	  *       String targetElder:テキストボックスの祖先要素
+	  *       String func:コールする関数。evalによる遅延評価を行うので文字列で渡す
+	  * 返却値  :なし
+	  * 作成者:T.Masuda
+	  * 作成日:2016.04.10
+	 * 変更者:T.Masuda
+	  */
+	 this.enterKeyCallFunction = function(enterTarget, targetElder, func) {
+	 	//指定した対象フォーカス時のキー押下イベントコールバックを登録する
+	 	$(targetElder).on(EVENT_KEYPRESS, enterTarget, function (e) {
+	 		//エンターボタンが押された時の処理
+	 		if (e.which == NUM_ENTER_KEY) {
+	 			//関数をコールする
+	 			eval(func);
+	 		}
+	 	});
+	 }
+
+	 /* 
+	  * 関数名:getTodayDateString
+	  * 概要  :今日の日付の文字列を返す
+	  * 引数  :なし
+	  * 返却値  :なし
+	  * 作成者:T.Masuda
+	  * 作成日:2016.04.10
+	  */
+	this.getTodayDateString = function(){
+		//今日の日付の文字列を取得する。
+		//2つの日付型を作る
+		var today = new Date();
+		//2つ目は1つめを使って本日の日付を入力して生成する
+		var date = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+		
+		return date.toString();	//日付を文字列にして返す
+	}
+
+	/* 
+	 * 関数名:replaceColumnValue
+	 * 概要  :指定した列を値に応じたリスト内の値で置き換える
+	 * 引数  :String target : 対象列
+	 *       :Object replaceList : 置き換える値のリスト。元々の列の値をキーに置き換える値を持つ
+	 * 返却値  :なし
+	 * 作成者:T.Masuda
+	 * 作成日:2016.04.17
+	 */
+	this.replaceColumnValue = function(target, replaceList) {
+		$(target).each(function(){
+			//置き換える先となる要素を取得する
+			var $replaceTarget = $(this);
+			//値を置換する
+			$replaceTarget.text(replaceList[$replaceTarget.text()]);
+		});
+	}
+
+	/* 
+	 * 関数名:addSelectAllBox
+	 * 概要  :全選択チェックボックスを追加する。当パーツのクラス名は暫定的に固定にする
+	 * 引数  :String appendTarget : 追加先
+	 *       :String label : ラベル
+	 *       :boolean labelFront : ラベルを前に置くか(後ろに置くか)
+	 *       :String targetTable : 全選択対象となるテーブル 
+	 *       :String toggleClass : 選択状態を示すクラス名 
+	 *       :boolean doAppend   : appendするか(falseならafter) 
+	 * 返却値  :なし
+	 * 作成者:T.Masuda
+	 * 作成日:2016.04.17
+	 */
+	this.addSelectAllBox = function(appendTarget, label, labelFront, targetTable, toggleClass, doAppend) {
+		
+		//ラベルを除いて追加を行う要素を生成する
+		var $selectAllRowElem = $('<span></span>')
+				.addClass('selectAllRow')
+				.append(
+						$('<input type="checkbox">')
+						.addClass('selectAllRowCheckbox')
+				);
+		
+		//appendをする設定なら
+		if (doAppend) {
+			//チェックボックスとそれを囲む領域を指定した追加先に追加する。
+			$(appendTarget).append($selectAllRowElem);
+		//afterにする設定なら
+		} else {
+			//チェックボックスとそれを囲む領域を指定した追加先の後ろに追加する。
+			$(appendTarget).after($selectAllRowElem);
+		}
+		
+		//ラベルのDOMを生成する
+		var $label = $('<label></label>').addClass('selectAllRowLabel').text(label);
+		//全選択チェックボックスの領域を取得する。appendとafterで取得法が異なる
+		var $addedAreaParent = $(doAppend ? appendTarget : $(appendTarget).next());
+		$addedArea = doAppend ? $addedAreaParent.children('.selectAllRow') : $addedAreaParent;
+		
+		//ラベルを前に付けるなら
+		if(labelFront) {
+			//前に追加する関数をコールする
+			$addedArea.prepend($label);
+		//後ろなら
+		} else {
+			//後ろに追加する関数をコールする
+			$addedArea.append($label);
+		}
+		
+		//追加したチェックボックスにクリックのイベントコールバックを登録する		
+		$($addedArea).on(CLICK, '.selectAllRowCheckbox', function(){
+			
+			//対象チェックボックスのチェック状態を取得し、チェックが入っていたら
+			if($(this).prop('checked')) {
+				//対象に選択状態を付与する
+				$(SELECTOR_TBODY_TR, $(targetTable)).addClass(toggleClass);
+			//チェックが外れた
+			} else {
+				//対象から選択状態を解除する
+				$(SELECTOR_TBODY_TR, $(targetTable)).removeClass(toggleClass);
+			}
+		});
+		//ラベルクリックでチェックボックスをクリックするようにする
+		$($addedArea).on(CLICK, '.selectAllRowLabel', function(){
+		    //チェックボックスをクリックしたことにする
+			$('.selectAllRowCheckbox', $($addedArea)).trigger(CLICK);
+		});
+	}	
+
+	/* 
+	 * 関数名:toggleScrollY
+	 * 概要  :レコードの高さの総数に合わせてテーブルの上下スクロールバーの表示、非表示を切り替える
+	 * 引数  :String targetTable: 処理対象テーブル
+	 * 返却値  :なし
+	 * 作成者:T.Masuda
+	 * 作成日:2016.04.17
+	 */
+	this.toggleScrollY = function(targetTable){
+		//処理対象のテーブルを取得する
+		var $targetTable = $(targetTable);
+		//1行当たりの高さを取得する
+		var aHeight = $('tbody tr:first', $targetTable).length ? $('tbody tr:first', $targetTable).height() : 0;
+		//tbody内の要素の高さを算出する
+		var tbodyHeight = aHeight * $('tbody tr', $targetTable).length;
+		//tbodyより行の高さが勝っていなければ
+		if($('tbody', $targetTable).height() >= tbodyHeight) {
+			//スクロールバーを消す
+			$('tbody', $targetTable).css('overflow-y', 'hidden');
+		//そうでなければ
+		} else {
+			//スクロールバーを表示する
+			$('tbody', $targetTable).css('overflow-y', 'scroll');
+		}
+	}
+	
+	/* 
+	 * 関数名:getNowUnixTime
+	 * 概要  :現在のunix時間を取得する。通信キャッシュ回避でURLの末尾に重複しない時間をセットする時に使う
+	 * 引数  :なし
+	 * 返却値  :現在時刻のunix時間
+	 * 作成者:T.Masuda
+	 * 作成日:2016.04.17
+	 */
+	this.getNowUnixTime = function(){
+		//現在のunix時間を返す。通信時の時間の重複回避のためstaticフィールドの数値をインクリメントして足す
+		return Math.round( new Date().getTime() / 1000 + this.unixtimeIncrement++);
+	}
+
+	/* 
+	 * 関数名:setTogglePosition
+	 * 概要  :フォーカス時に指定したposition、高さを設定して、フォーカスが外れたら設定を無効にするようにする
+	 *       主にmultipleのセレクトメニューでフォーカス時に内容を全て出すようにするようにするときに使う
+	 * 引数  :
+	 * 返却値  :
+	 * 作成者:T.Masuda
+	 * 作成日:2016.04.30
+	 */
+	this.setTogglePosition = function(parent, target, position, height){
+		$(parent).on(EVENT_FOCUS, target, function(){
+			$(this).css({
+				height : height
+				,position : position
+			})
+		});
+
+		$(parent).on(EVENT_BLUR, target, function(){
+			$(this).css({
+				height : EMPTY_STRING
+				,position : EMPTY_STRING
+			})
+		});
+	}
+	
+
+	/* 
+	 * 関数名:getDateString
+	 * 概要  :Date型から日付の文字列を作成して返す
+	 * 引数  :Date date:日付型
+	 * 返却値  :String : 日付の文字列
+	 * 作成者:T.Masuda
+	 * 作成日:2016.04.30
+	 */
+	this.getDateString = function(date){
+		var retStr = EMPTY_STRING;
+		var year = date.getFullYear();
+		var month = date.getMonth() + 1;
+		var dateTime = date.getDate();
+		
+		//月が一桁なら
+		if (month / 10 < 1) {
+			//0を詰める
+			var month = CHAR_ZERO + month;
+		}
+		
+		//日にちが一桁なら
+		if (dateTime / 10 < 1) {
+			//0を詰める
+			var dateTime = CHAR_ZERO + dateTime;
+		}
+		
+		//日付の文字列を返す
+		return year + CHAR_HYPHEN + month + CHAR_HYPHEN + dateTime;
+	}
+
+	/* 
+	 * 関数名:setDateToFromToBox
+	 * 概要  :指定した要素内の先頭2つの日付テキストボックスに日付をセットする。
+	 *       主に期間指定を行うテキストボックスに値をセットするのに使う
+	 * 引数  :String target:処理対象のセレクタ
+	 *      :String from:fromの日付
+	 *      :String to:toの日付
+	 * 返却値  :String : 日付の文字列
+	 * 作成者:T.Masuda
+	 * 作成日:2016.04.30
+	 */	
+	this.setDateToFromToBox = function(target, from, to){
+		//処理対象となるテキストボックスを取得する
+		var $targetTextbox = $(SELECTOR_DATE_TEXTBOX, $(target));
+		//1つ目の日付テキストボックスに値を入れる
+		$targetTextbox.eq(0).val(from);
+		//2つ目の日付テキストボックスに値を入れる
+		$targetTextbox.eq(1).val(to);
+	}
+
+	/* 
+	 * 関数名:getLessonStatusClassByPriority
+	 * 概要  :予約状況の値に対応したクラス名を返す。主にカレンダーの日付を予約状況に合わせてハイライトする際に使う
+	 * 引数  :String userWorkStatus:予約状況の値
+	 * 返却値  :String : クラス名
+	 * 作成者:T.Masuda
+	 * 作成日:2016.05.01
+	 */	
+	this.getLessonStatusClassByPriority = function(userWorkStatus) {
+		
+		var retClassName = EMPTY_STRING;	//返却用の変数を用意する
+		
+		//ユーザ授業状況をチェックする
+		switch (parseInt(userWorkStatus)) {
+			//予約済み
+			case 0: retClassName = 'dateHasLesson';
+			        break;
+			//予約済み
+			case 1: retClassName = 'dateHasLesson' ;
+	                break;
+			//受付
+			case 2: retClassName = 'dateHasLesson' ;
+	                break;
+			//受講済み
+			case 3: retClassName =  'dateHasLesson';
+	                break;
+			//キャンセル(本人)
+			case 10: retClassName = 'dateCancelLesson';
+	                break;
+			//キャンセル(管理者)
+			case 11: retClassName = 'dateCancelLesson';
+	                break;
+			//中止
+			case 12: retClassName = 'dateStopLesson';
+	                break;
+	        //どれでもない(手をつけてない授業しかない)
+	        default: retClassName = 'dateHasClass';
+	                break;
+		};
+		
+		return retClassName;	//結果を返す
+	}
+	
+	/* 
+	 * 関数名:showMessageDialog
+	 * 概要  :シンプルにメッセージを出して消すのみの通知ダイアログを出す
+	 * 引数  :String title:ダイアログのタイトル
+	 *      :String message:メッセージ
+	 *      :Object addOption:追加オプション
+	 * 返却値  :String : クラス名
+	 * 作成者:T.Masuda
+	 * 作成日:2016.05.02
+	 */	
+	this.showMessageDialog = function(title, message, addOption) {
+		//ダイアログのDOMを生成する
+		var $messageDialog = $(HTML_MESSAGE_DIALOG);
+		//ダイアログにメッセージを書き込む
+		$messageDialog.text(message);
+		
+		//jQuery ui dialog形式でダイアログを表示する
+		$messageDialog.dialog($.extend({}
+			,true							//キーが被ったら後から追加したものでvalueを上書きしていく
+			//デフォルトのオプションを使う
+			,this.messageDialogDefaultOption
+			,{'title' : title}				//タイトルを設定する
+			//追加オプションを設定していたら追記する。デフォルトでは追加先の入力だけしておく
+			, addOption ? addOption : {appendTo : $(CURRENT_WINDOW)}
+		));
+	}
+	
+	/* 
+	 * 関数名:addTimeTableColumn
+	 * 概要  :テーブルに時間帯列を追加する
+	 * 引数  :String fromTarget:時間のfromとなる列名
+	 *      :String toTarget:時間のtoとなる列名
+	 *      :String or Elem targetTable:追加対象のテーブル
+	 *      :int substrPoint:時間の切り出しの尻の位置
+	 *      :String criteria :追加場所の基準となる列名
+	 *      :boolean isBefore :前に置くか、後ろに置くか
+	 * 返却値  :なし
+	 * 作成者:T.Masuda
+	 * 作成日:2016.05.02
+	 */	
+	this.addTimeTableColumn = function(fromTarget, toTarget, targetTable, substrPoint, criteria, isBefore) {
+		
+		//対象のテーブルの行を走査する
+		$(STR_TR, $(targetTable)).each(function() {
+			var timetableStr = EMPTY_STRING;	//時間帯の文字列の変数を用意する
+			//現在の行がtbody内のものなら
+			if($(this).parent()[0].tagName.toLowerCase().indexOf('tbody') != -1) {
+				//時間帯の文字列を生成する。取得する時間の文字列はsubstrPointで指定した文字数までにする
+				timetableStr = $(this).children(fromTarget).text().substr(0, substrPoint) + SYMBOL_UNIT + $(this).children(toTarget).text().substr(0, substrPoint);
+			//thead内のものなら
+			} else {
+				//「時間帯」の文字列をセットする(見出し行用)
+				timetableStr = '時間帯';
+			}
+			
+			//時間帯列用のタグを作り、クラス、テキストをセットする
+			var $addTag = $(TAG_TD).addClass(CLASS_TIME_TABLE).text(timetableStr);
+			
+			//追加を行う場所を判断し、適当な位置へ作成したタグを追加する
+			isBefore ? $(this).children(criteria).before($addTag) : $(this).children(criteria).after($addTag);
+		});
+		
+	}	
+
+	/* 
+	 * 関数名:setDBDataToNoticeContents
+	 * 概要  :トップページのお知らせウィンドウ用のデータをセットする
+	 * 引数  :String contentData:コンテンツのデータ
+	 *      :Array data:セットもとのデータ
+	 *      :Array targetKeys: コンテンツ内データのチェック対象となるキー
+	 *      :Object setKeys:セットデータとコンテンツデータのキーの対応表
+	 *      構成は以下
+	 *      {
+	 *          "contentName" : [
+	 *              "data内の列名"
+	 *              ,"データをセットする対象のキー名(例:text, style, src)"
+	 *          ]
+	 *      }
+	 * 返却値  :なし
+	 * 作成者:T.Masuda
+	 * 作成日:2016.05.02
+	 */	
+	this.setDataToNoticeContents = function(contentData, data, targetKeys, setKeys) {
+		
+		var dataLength = data.length;	//データの数を取得する
+		//セット用データを走査する
+		for (var i = 0; i < dataLength; i++) {
+			var oneContent = {};	//記事1つ分を格納する変数を用意する
+			//記事データを走査する
+			for (key in contentData) {
+				//記事データなら
+				if(key.indexOf(i + 1) != -1) {
+					//取り出す
+					oneContent = contentData[key]
+					break;	//目的のものを取り出したので終える
+				}
+			}
+			
+			//コンテンツのデータを走査する
+			for (key in oneContent) {
+				//チェック対象のキーであれば
+				if ($.inArray(key, targetKeys) != -1) {
+					//対象のコンテンツを取り出す
+					var content = oneContent[key];
+					//設定データを取り出す
+					var setData = setKeys[key];
+					//データ設定対象のキーで処理を分岐する
+					switch (setData[1]) {
+					    //styleで背景画像を指定している場合は、画像パスを記入する場所に置換でセットする。画像がなければnoimage画像に差し替える
+						case 'style' : 
+							content[setData[1]] = content[setData[1]].replace('\'\'', '\'' + (data[i][setData[0]] && this.checkIdentifier(data[i][setData[0]]) ? data[i][setData[0]] : SRC_NO_IMAGE)  + '\'');
+							break;
+						//特に値の設定で特別な処理が必要ない場合は、そのまま追加する
+						default : 
+							content[setData[1]] = data[i][setData[0]];
+							break;
+					}
+				}
+			}
+		} 
+	}	
+
+	/* 
+	 * 関数名:sleepCallFunction
+	 * 概要  :指定時間スリープさせて関数をコールする
+	 * 引数  :String || function func:実行する関数。文字列で渡せばevalを行う
+	 *      :int sleepTime:スリープする時間。ミリ秒
+	 * 返却値 :なし
+	 * 作成者:T.Masuda
+	 * 作成日:2016.05.05
+	 */	
+	this.sleepCallFunction = function(func, sleepTime) {
+		//遅延実行を行う
+		var end = setInterval(function() {
+			//関数をコールする
+			typeof func == 'string' ? eval(func) : func();
+			clearInterval(end);	//そのままだと当該関数がずっと実行されるので終わりを明記する
+		}, sleepTime);
+	}
+
+	/* 
+	 * 関数名:checkNoArticle
+	 * 概要  :テーブル内の行があるかチェックする。なければメッセージをテーブルに表示する
+	 * 引数  :String || Element targetTable:チェック対象のテーブル
+	 *      :String message:行がないときに表示するメッセージ
+	 * 返却値 :なし
+	 * 作成者:T.Masuda
+	 * 作成日:2016.05.06
+	 */	
+	this.checkNoArticle = function (targetTable, message){
+		//記事が何もなければ
+		if(!$(SELECTOR_THEAD, $(targetTable)).length) {
+			//空の記事を削除する
+			$(SELECTOR_TBODY, $(targetTable)).remove();
+			//代わりのメッセージを挿入する
+			$(targetTable).append($(HTML_PARAGRAPH).text(message).addClass('noArticle'));
+		}
+	}
+	
+	
+	//ここまでクラス定義領域
 }
 
 //どこでも当暮らすインスタンスを使えるように、共通関数クラスインスタンスをこの場(当JSファイル読み込みの最後)で生成する
 commonFuncs = new common();
 
-/*
- * 関数名:sendArticleData
- * 引数   :なし
- * 戻り値 :なし
- * 概要   :記事を投稿する
- * 作成日 :2015.11.07
- * 作成者 :T.M
- */
-function sendArticleData(){
-	
-	//ダイアログのクラスインスタンスを取得する。
-	var dialogClass = $(this)[0].instance;				//ダイアログのクラスインスタンスを取得する
-
-	//はいボタンが押されていたら
-	if(dialogClass.getPushedButtonState() == YES){
-		var data = dialogClass.getArgumentDataObject();		//インプット用データを取得する
-		
-		//フォームデータを取得する
-		var sendObject = commonFuncs.createFormObject('.blogEdit');
-		//ユーザIDをオブジェクトにセットする
-		sendObject.user_key = data.create_tag.getUserId();
-		//記事IDをオブジェクトにセットする
-		sendObject.id = articleNumber;
-		
-		//新規作成であれば
-		if(articleNumber == 0){
-			//INSERT用クエリをセットする
-			sendObject.db_setQuery = data.create_tag.json.insertMyBlog.db_setQuery;
-		//編集であれば
-		} else {
-			//UPDATE用クエリをセットする
-			sendObject.db_setQuery = data.create_tag.json.updateMyBlog.db_setQuery;
-		}
-		
-		//データを送信する
-		var result = this.dialogBuilder.sendQuery(URL_SAVE_JSON_DATA_PHP, sendObject);
-		//データの保存に成功していれば
-		if(parseInt(result.message)){
-			alert(SEND_TO_SERVER_MESSAGE);					//メッセージを出す
-			//マイブログページに戻る
-			$(CURRENT_WINDOW)[0].instance.callPage('window/member/page/memberMyBlog.html');
-		//失敗であれば
-		} else {
-			//その旨を伝える
-			alert('記事の保存に失敗しました。時間をおいてお試しください。');
-		}
-	}
-	
-	//ダイアログを破棄する
-	dialogClass.destroy();
-}	

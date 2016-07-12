@@ -72,7 +72,8 @@ INSERT INTO
 		,NOW()
 		,NOW()
 	)
-    
+
+	
 #-------------------------------------------
 # 新規登録(time_table_dayも一緒にVersion)
 # 同じ更新を連続でやると危険
@@ -157,3 +158,5 @@ FROM
     lesson_inf
 WHERE
     rec_status = 0;
+
+    

@@ -55,6 +55,8 @@ function memberPassword(userId){
 			if(own.queryReplaceData.newPass === own.queryReplaceData.password) {
 				//データべベースにクエリを発行してデータを更新する
 				create_tag.setDBdata(create_tag.json.updatePassword, own.queryReplaceData, MESSAGE_SUCCESS_PASSWORD_UPDATE);
+				//パスワード欄を空にして初期化する
+				$('.passTextbox').val(EMPTY_STRING);
 			} else {
 				alert('パスワードが確認と異なります');
 			}

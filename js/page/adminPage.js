@@ -6,6 +6,16 @@
  * パス :/js/page/adminPage.js
  */
 
+//テーブル用入力値セッティング
+var tableArgSettings ={};
+//メルマガテーブル
+tableArgSettings.mailMaga = {
+		//startPage→表示する1個目のページャの数値。1や0 displayPageMax : ページャの一度に表示する数の最大
+		//displayPage : 表示するページ pageNum : 一度に表示する記事数
+		startPage : 1, displayPageMax : 4, displayPage : 1, pageNum  : 15
+}
+
+
 /* 
  * 関数名:clickEvent
  * 概要  :クリックイベントを登録する
@@ -25,15 +35,16 @@ function clickEvent(clickSelector, clickFunc) {
 /* 
  * 関数名:toggleClassClickElement
  * 概要  :クリックした要素に対してクラス属性を付ける
- * 引数  :clickSelector:クリックされた要素のセレクター。
- 		:clickFunc：クリックされたときにコールする関数
+ * 引数  :clickSelector:イベントコールバック登録対象のセレクタ
+ 		:className：付与、消去するクラス名
+ 		:parentElem：コールバック登録対象の親要素
  * 返却値  :なし
  * 作成者:.Yamamoto
  * 作成日:2015.08.29
  */
-function toggleClassClickElement (clickSelector, className) {
+function toggleClassClickElement (clickSelector, className, parentElem) {
 	//会員一覧テーブルがクリックされた時にuserSelectクラスをがなければ追加しあるなら消去する
-	$(STR_BODY).on(CLICK, clickSelector, function(){
+	$(parentElem).on(CLICK, clickSelector, function(){
 		//userSelectクラスを追加したり消したりする。このクラスがあればユーザが選択されているとみなしてボタン処理を行うことができる
 		$(this).toggleClass(className);
 	});
@@ -47,14 +58,20 @@ function toggleClassClickElement (clickSelector, className) {
  * 返却値  :nowDateString:進退した日付の結果
  * 作成者:T.Yamamoto
  * 作成日:2015.08.29
+ * 変更者:T.Masuda
+ * 変更日:2016.04.217
+ * 内容  :クリック対象の要素のクラス名が複数存在するケースに対応しました
  */
 function dateMovement(clickSelector, nowDateObject) {
 	//クリックされたクラス名を取得する
 	var className = $(clickSelector).attr('class');
+	//先頭のクラス名を取得する(クラス名が複数設定されている場合の対策。対象クラス名が先頭にあることが前提)
+	var classNameFirst = className.split(/\s/g)[0];
+	
 	//取得したクラスの名前によって処理を分ける
-	switch(className) {
+	switch(classNameFirst) {
 		//クリックされたのが2日前の時、日付を2日前にする
-		case 'twoDaysBefore':
+		case 'twoDayBefore':
 		nowDateObject.setDate(nowDateObject.getDate() - 2);
 		break;
 		//クリックされたのが1日前の時、日付を1日前にする
@@ -78,12 +95,17 @@ function dateMovement(clickSelector, nowDateObject) {
 /* 
  * 関数名:updateDateMovement
  * 概要  :進退の領域をクリックしたときに日付を更新する
- * 引数  :なし
+ * 引数  :String clickSelector : クリックイベント対象のセレクタ
+ *      :Object nodDateObject : 日付型
+ *      :createLittleContents create_tag : createLittleContentsクラスインスタンス
  * 返却値  :なし
  * 作成者:T.Yamamoto
  * 作成日:2015.08.29
+ * 変更者:T.Masuda
+ * 変更日:2016.04.17
+ * 内容  :create_tagを引数から指定するように変更しました
  */
-var updateDateMovement = function(clickSelector, nowDateObject) {
+var updateDateMovement = function(clickSelector, nowDateObject, create_tag) {
 	//日付を更新する
 	nowDateString = dateMovement(clickSelector, nowDateObject);
 	//jsonに日付の値を入れる
@@ -100,12 +122,15 @@ nowDateObject = new Date();
 /* 
  * 関数名:updateDateSearch
  * 概要  :日付検索をクリックした時の処理
- * 引数  :なし
+ * 引数  :createLittleContents create_tag : createLittleContentsクラスインスタンス
  * 返却値  :なし
  * 作成者:T.Yamamoto
  * 作成日:2015.08.29
+ * 変更者:T.Masuda
+ * 変更日:2016.04.17
+ * 内容  :create_tagを引数から指定するように変更しました
  */
-var updateDateSearch = function () {
+var updateDateSearch = function (create_tag) {
 	//表示されている日付を更新するために検索する日付のデータを取得する。
 	var changeDate = $('.dateInput').val();
 	
@@ -124,6 +149,9 @@ var updateDateSearch = function () {
 	$(DOT + 'dateBelt p').text(changeDate)
 	//日ごと授業者一覧テーブルをリロードする
 	create_tag.eventTableReload('eachDayReservedInfoTable');
+	//検索日付テキストボックスに変更された日付をセットする
+	$('.dateInput').val($('.theDay').text());
+
 	//日付オブジェクトを更新する
 	return nowDateObject;
 }
@@ -132,43 +160,65 @@ var updateDateSearch = function () {
  * 関数名:nowDatePaging
  * 概要  :現在の日付からページング機能を実装する
  * 引数  :clickSelectorParent:クリックボタンのセレクター
+ *      :createLittleContents create_tag : createLittleContentsクラスインスタンス
  * 返却値  :なし
  * 作成者:T.Yamamoto
  * 作成日:2015.07.06
+ * 変更者:T.Masuda
+ * 変更日:2016.04.17
+ * 内容  :create_tagを引数から指定するように変更しました
  */
-function nowDatePaging(clickSelectorParent, creator) {
+function nowDatePaging(clickSelectorParent, create_tag) {
 	//現在時刻のオブジェクトを作る
 	var nowDateObject = new Date();
 	//日付の文字列を取得する
 	var nowDateString = create_tag.getDateFormatDB(nowDateObject);
 	//日付をタイトルに入れる
 	$(DOT + clickSelectorParent + ' p').text(nowDateString);
-	//jsonに日付の値を入れる
-	//create_tag.json['eachDayReservedInfoTable']['lesson_date']['value'] = nowDateString;
-	//対象の要素がクリックされたときに日付を進退する
 	//clickEvent(DOT + clickSelectorParent + ' a', updateDateMovement);
-	$(DOT + clickSelectorParent + ' a').click(function() {
+	$(DOT + clickSelectorParent + ' button').click(function() {
 		//コールバック関数の処理を開始する
-		updateDateMovement(this, nowDateObject);
+		updateDateMovement(this, nowDateObject, create_tag);
+		//検索日付テキストボックスの値を更新する
+		$('.dateInput').val($('.theDay').text());
 	});
 	//検索ボタンがクリックされた時に日付を更新する
 	$(DOT + 'dateSelect .searchButton').click(function() {
 		//日付オブジェクトを更新する
-		nowDateObject = updateDateSearch(this);
+		nowDateObject = updateDateSearch(create_tag);
 	});
-	//clickEvent(DOT + 'dateSelect .searchButton', updateDateSearch);
 }
+
+/* 
+ * 関数名:blushDayReserverDateButton
+ * 概要  :日ごと予約者画面の日付変更ボタンをリッチにする
+ * 引数  :なし
+ * 返却値  :なし
+ * 作成者:T.Masuda
+ * 作成日:2016.04.17
+ */
+function blushDayReserverDateButton() {
+	//各ボタンをjQuery UIのアイコンボタンに置き換える
+	//2日前ボタン
+	$('.twoDayBefore').button({ icons: {primary: "ui-icon-seek-prev"}, text : false});
+	//1日前ボタン
+	$('.oneDayBefore').button({ icons: {primary: "ui-icon-triangle-1-w"}, text : false});
+	//1日後ボタン
+	$('.oneDayAfter').button({ icons: {primary: "ui-icon-triangle-1-e"}, text : false});
+	//2日後ボタン
+	$('.twoDayAfter').button({ icons: {primary: "ui-icon-seek-next"}, text : false});
+}
+
 
 /* 
  * 関数名:setPermitListFromToDate
  * 概要  :受講承認一覧の検索する日付の範囲をデフォルトでは月の初日から末日に設定する
- * 引数  :なし
- 		:なし
+ * 引数  :String targetKey : 日付格納先のキー
  * 返却値  :なし
- * 作成者:T.Yamamoto
- * 作成日:2015.07.14
+ * 作成者:T.Masuda
+ * 作成日:2016.3.19
  */
-function setPermitListFromToDate() {
+function setPermitListFromToDate(targetKey) {
 	//今日の日付を取得する
 	var today = new Date();
 	//今月の初日オブジェクトを取得する
@@ -180,9 +230,9 @@ function setPermitListFromToDate() {
 	//今月の末日の日付を取得して、受講承認一覧のtoの部分で使う
 	monthEndday = create_tag.getDateFormatDB(monthEndday);
 	//受講承認一覧に今月の初日を入れて一覧テーブルを検索するようにする
-	create_tag.json.lecturePermitListInfoTable.FromDate.value = monthStartday;
+	create_tag.json[targetKey].fromDate.value = monthStartday;
 	//受講承認一覧に今月の末日を入れて一覧テーブルを検索するようにする
-	create_tag.json.lecturePermitListInfoTable.toDate.value = monthEndday;
+	create_tag.json[targetKey].toDate.value = monthEndday;
 	//デフォルトの検索値を分かりやすくするためにfromテキストボックスに月の初日の値を入れる
 	$('[name=fromSearach]').val(monthStartday);
 	//デフォルトの検索値を分かりやすくするためにtoテキストボックスに月の末日の値を入れる
@@ -192,19 +242,39 @@ function setPermitListFromToDate() {
 /* 
  * 関数名:searchPermitListInfoTable
  * 概要  :受講承認一覧の検索機能を実装する
- * 引数  :なし
- 		:なし
+ * 引数  :String createTagTarget : createTagを取得する先のDOMセレクタ
+ * 		:String targetTable : 処理対象テーブル
+ * 		 int startPage:表示する1つ目のナンバリングの数
+ * 		 int displayPageMax:表示するナンバリングの最大数
+ * 		 int displayPage:表示するテーブルのページ番号
+ * 		 int pageNum:1ページに表示するレコード数。
+ * 		 String targetArea:DOM追加先のセレクタ。
+ * 		 String callback:実行させたいコードの文字列
+ * 		 String button : 検索のトリガーとなるボタンのセレクタ
  * 返却値  :なし
  * 作成者:T.Yamamoto
  * 作成日:2015.07.14
+ * 作成者:T.Masuda
+ * 作成日:2016.03.19
+ * 内容　:引数を追加して他のテーブルでも使えるようにしました。
  */
-function searchPermitListInfoTable() {
+function searchPermitListInfoTable(
+		createTagTarget
+		,targetTable
+		,startPage
+		,displayPageMax
+		,displayPage
+		,pageNum
+		,targetArea
+		,callback
+		,button
+	) {
 	//受講承認の検索ボタンをクリックした時のイベント
-	$('.permitListSearch .searchButton').click(function(){
+	$(button).click(function(){
 		//検索初めの値を取得する
-		var fromDate = $('[name=fromSearach]').val();
+		var fromDate = $('[name=fromSearach]:visible').val();
 		//検索終わりの値を取得する
-		var toDate = $('[name=toSearach]').val();
+		var toDate = $('[name=toSearach]:visible').val();
 		
 		//不正な日付が入力されていたら
 		if(commonFuncs.isInvalidDate(new Date(fromDate)) 
@@ -212,24 +282,25 @@ function searchPermitListInfoTable() {
 			alert('不正な日付が入力されています。');	//警告を出す
 			return;	//処理を終える
 		}
-		
+
 		//受講承認一覧のcreateTagを取得する
-		var lecturePermitList = $('#lecturePermitList')[0].create_tag;
-		
+		var searchCreateTag = $(createTagTarget)[0].create_tag;
+//		var lecturePermitList = $('#lecturePermitList')[0].create_tag;
+
 		//受講承認一覧の連想配列に検索初めの値を入れる
-		lecturePermitList.json.lecturePermitListInfoTable.FromDate.value = fromDate;
+		searchCreateTag.json[targetTable].fromDate.value = fromDate;
 		//受講承認一覧の連想配列に検索終わりの値を入れる
-		lecturePermitList.json.lecturePermitListInfoTable.toDate.value = toDate;
+		searchCreateTag.json[targetTable].toDate.value = toDate;
 
 		//テーブルデータをリセットしておく
-		lecturePermitList.json.lecturePermitListInfoTable.tableData = [];
+		searchCreateTag.json[targetTable].tableData = [];
 		//DBからデータを取得する
-		lecturePermitList.getJsonFile('php/GetJSONArray.php', lecturePermitList.json['lecturePermitListInfoTable'], 'lecturePermitListInfoTable');
+		searchCreateTag.getJsonFile('php/GetJSONArray.php', searchCreateTag.json[targetTable], targetTable);
 		
 		//データがあれば
-		if (lecturePermitList.json.lecturePermitListInfoTable.tableData.length) {
+		if (searchCreateTag.json[targetTable].tableData.length) {
 			//受講承認一覧テーブルを作る
-			lecturePermitList.outputNumberingTag('lecturePermitListInfoTable', 1, 4, 1, 15, '.lecturePermitListInfoTableOutsideArea', 'afterReloadPermitListInfoTable', "$('#lecturePermitList')[0].");
+			searchCreateTag.outputNumberingTag(targetTable, startPage, displayPageMax, displayPage, pageNum, targetArea, callback, "$('" + createTagTarget + "')[0].");
 		//なければ
 		} else {
 			//その旨を伝える
@@ -376,7 +447,7 @@ function isBuyCommodity (sendReplaceArray) {
  * 関数名:permitDataUpdate
  * 概要  :受講承認テーブルの承認ボタンが押された時に1行ずつ値を取得して1行ずつDBの値を更新してする
  * 引数  :なし
- * 返却値  :なし
+ * 返却値  :int : 更新が成功したレコード数
  * 作成者:T.Yamamoto
  * 作成日:2015.07.17
  */
@@ -385,9 +456,11 @@ function permitDataUpdate(sendReplaceArray, boolRule, trueQueryKey, falseQueryKe
 	//クエリのデフォルトを取得してあとから元の戻せるようにする
 	var defaultQuery = sendQueryArray.db_setQuery;
 	//クエリを実行してテーブルの値1行ずつ更新していく
-	create_tag.setDBdata(sendQueryArray, sendReplaceArray, '');
+	var retNum = create_tag.setDBdata(sendQueryArray, sendReplaceArray, '');
 	//ループで実行するので置換データ連想配列を初期化する
 	sendQueryArray.db_setQuery = defaultQuery;
+	
+	return retNum;
 }
 
 /* 
@@ -401,9 +474,8 @@ function permitDataUpdate(sendReplaceArray, boolRule, trueQueryKey, falseQueryKe
 function loopUpdatePermitLesson() {
 	//受講承認の承認ボタンをクリックされた時にDBのデータを更新するイベントを登録する
 	$(SELECTOR_DOLECTUREPERMIT_BUTTON).on(CLICK, function(){
-		
 		//チェックが入っているレコードがなければ
-		if (!$(SELECTOR_DOLECTUREPERMIT_SELECTED_CHECKBOX).length) {
+		if (!$(LECTUREPERMIT_SELECTED_RECORD).length) {
 			alert(ALERT_NEED_SELECT_LECTUREPERMIT_RECORD);
 			return;	//処理を終える
 		}
@@ -427,14 +499,19 @@ function loopUpdatePermitLesson() {
 		//use_pointの数字チェック
 		validateSettings = VALIDATOR.getValidationSettingObject('use_point', 'isNumeric', validateSettings);
 		
+		//当該画面のcreateTagを取得する
+		var create_tag = $('#doLecturePermit')[0].create_tag;
+		//承認済みとなって削除するべきデータのインデックスの配列
+		var deleteList = [];
+		
 		//受講承認途中にエラーが出たらそこで打ち切るため、try-catchを利用する
 		try{
 			//受講承認一覧テーブルの対象となる行の数だけループしてデータを更新していく
-			$('.lecturePermitAccordion').each(function() {
-				//チェックボックスにチェックが入っているものだけを更新するように条件設定する
-				if($('.permitCheckbox').eq(counter+1).prop('checked')) {
+			$('.doLecturePermitInfoTable tr:not(:first)').each(function(i) {
+				//選択されているものだけを更新するように条件設定する
+				if(commonFuncs.checkEmpty($(this).attr('class')) && $(this).attr('class').indexOf('selectRecord') != -1) {
 						// DBを更新するための値を取得するために置換する連想配列を取得する
-						var sendReplaceArray = create_tag.getSendReplaceArray('doLecturePermitInfoTable', counter, 'accordionContent:eq(' + counter + ')');
+						var sendReplaceArray = create_tag.getSendReplaceArray('doLecturePermitInfoTable', counter, '.doLecturePermitInfoTable tr:not(:first):eq(' + $('doLecturePermitInfoTable tr:not(:first)').index(this) + ')');
 						//取得した値が不正かどうかをチェックする
 						VALIDATOR.validate(validateSettings, sendReplaceArray);
 						
@@ -459,15 +536,28 @@ function loopUpdatePermitLesson() {
 							commodityUsePoint = 0;
 						}
 						sendReplaceArray['pay_price'] = userClassworkCost - classworkUsePoint;
-						sendReplaceArray['pay_cash'] = sendReplaceArray['pay_cash'] - commodityUsePoint;
+						sendReplaceArray['pay_cash'] = sendReplaceArray['pay_price'] - commodityUsePoint;
 						
 						sendReplaceArray['classwork_use_point'] = classworkUsePoint;
 						sendReplaceArray['commodity_use_point'] = commodityUsePoint;
 						//備品代から加算ポイントを求める
 						//受講承認データを更新する
-						permitDataUpdate(sendReplaceArray, isBuyCommodity(sendReplaceArray), 'permitLessonContainCommodity', 'permitLessonUpdate');
+						var processedNum = permitDataUpdate(sendReplaceArray, isBuyCommodity(sendReplaceArray), 'permitLessonUpdate', 'permitLessonUpdate');
+						
+						//更新ができていなければ
+						if(!processedNum) {
+							//異常とし、例外を投げて以後の更新を中断する
+							throw new Error('以下のデータの更新に失敗しました。\n' + sendReplaceArray.user_name + ' ' +sendReplaceArray.start_time + ' ' + sendReplaceArray.lesson_name + '\n');
+						}
+						
 						//生徒さんの情報をリストに追加していく
-						processedList.push(sendReplaceArray.user_name + ' ' +sendReplaceArray.start_time + ' ' + sendReplaceArray.lesson_name + '\n');	
+						processedList.push(sendReplaceArray.user_name + ' ' +sendReplaceArray.start_time + ' ' + sendReplaceArray.lesson_name + '\n');
+						
+						//承認を終えたデータのインデックスをリストに追加する
+						deleteList.push(i);
+						//承認を終えた行を削除する
+						$(this).remove();
+
 				}
 				
 				//カウンターをインクリメントする
@@ -484,87 +574,39 @@ function loopUpdatePermitLesson() {
 		//必ず行う処理
 		} finally {
 
-			//1件でも処理していたら
-			if (counter > 0) {
-				alert(processedList.join(''));	//処理を行った生徒さんのリストを表示する
-				//先に既存のテーブルとボタンを消して
-				$('.doLecturePermitInfoTable').remove();
-				$('.doLecturePermit.normalButton').remove();
-				
-				//テーブルを更新する
-				updateDoLecturePermitTable(create_tag);
-			} 
+			commonFuncs.showMessageDialog('受講承認', processedList.join(''));	//処理を行った生徒さんのリストを表示する
+
+			//承認済みのデータを削除する
+			for (var i = 0; i < deleteList.length; i++) {
+				//テーブル用JSONをクリアする
+				create_tag.json['doLecturePermitInfoTable'].tableData.splice(deleteList[i] - i, 1);
+			}
 			
+			//連番を振り直す
+			commonFuncs.insertSequenceNo(SELECTOR_DO_LECTURE_PERMIT_INFO_TABLE, SELECTOR_NO_COL);
 		}
 	});
 }
 
-function updateDoLecturePermitTable (create_tag) {
-	//テーブル用JSONをクリアする
-	create_tag.json['doLecturePermitInfoTable'].tableData = [];
-	// 受講承認テーブル用のJSON配列を取得する
-	create_tag.getJsonFile('php/GetJSONArray.php', create_tag.json['doLecturePermitInfoTable'], 'doLecturePermitInfoTable');
-	//データがあればテーブルを追加する
-	if(!create_tag.json.doLecturePermitInfoTable[TABLE_DATA_KEY].length) {
-		return;	//なければ終了する
-	}
-	
-	//受講承認タブのリストテーブル
-	create_tag.outputTagTable('doLecturePermitInfoTable', 'doLecturePermitInfoTable', '#doLecturePermit');
-	//受講承認のボタン
-	create_tag.outputTag('doLecturePermitButton', 'normalButton', '#doLecturePermit');
-	//アコーディオンのセレクトボックスにいれるため受講承認の備品名JSON配列を取得する
-	create_tag.getJsonFile('php/GetJSONArray.php', create_tag.json['selectCommodityInf'], 'selectCommodityInf');
-
-	//受講承認のテーブルにチェックボックスを追加する
-	commonFuncs.addCheckbox('permitCheckboxArea', 'permitCheckbox');
-	//受講承認のテーブルを置換する
-	commonFuncs.dbDataTableReplaceExecute(DOT + DO_LECTURE_PERMIT_INFO_TABLE, create_tag.json[DO_LECTURE_PERMIT_INFO_TABLE][TABLE_DATA_KEY], DO_LECTURE_PERMIT_INFO_TABLE_REPLACE_FUNC);
-	//受講承認のアコーディオンの備品名にセレクトボックスの値をDBから取り出した値で追加する
-	create_tag.setSelectboxText(create_tag.json.selectCommodityInf[TABLE_DATA_KEY], create_tag.json.accordionContent.contentCell.contentSelect.contentOption, 'commodity_name');
-	//備品代の連想配列にDBから取り出した最初の値をデフォルトで入れる
-	setDefaultSellingPrice();
-	//受講承認テーブルでアコーディオン機能を実装するために可変テーブルの行にクラス属性を付ける
-	commonFuncs.setTableRecordClass('doLecturePermitInfoTable', 'lecturePermitAccordion');
-	//受講承認テーブルのアコーディオン機能の中身の行をテーブルに挿入する
-	create_tag.insertTableRecord('lecturePermitAccordion', 'accordionContent');
-	//アコーディオンのコンテントの中に隠れテキストボックスとして備品idを入れる
-	create_tag.outputTag('commodityKeyBox','commodityKeyBox', '.accordionContent');
-	//受講承認テーブルのアコーディオン機能の概要の行をテーブルに挿入する
-	create_tag.insertTableRecord('lecturePermitAccordion', 'accordionSummary');
-	//受講承認テーブルがクリックされた時にアコーディオン機能を実装する
-	create_tag.accordionSettingToTable('.lecturePermitAccordion', '.accordionSummary');
-	create_tag.accordionSettingToTable('.lecturePermitAccordion', '.accordionContent');
-	//受講承認テーブルのチェックボックスですべてのチェックボックスにチェックを入れる関数を実行する
-	commonFuncs.allCheckbox('.permitCheckbox:eq(0)', '.permitCheckbox');
-	//受講承認の備品名セレクトボックスにvalueを入れる
-	create_tag.setSelectboxValueWithName('.contentSelect');
-	//受講承認の備品名セレクトボックスが変化したときに備品代が変わるイベントを登録する
-	setSellingPrice('.contentCell', '.accordionContent');
-	//受講承認テーブルアコーディオンの会計のテキストボックスにデフォルト値を設定する
-	setDefaultCommodityCostPrice();
-	//受講承認テーブルの会計列を備品名が変化した時に自動でセットする
-	setCommodityCostPrice('.contentSelect');
-	//受講承認テーブルの会計列を個数が変化した時に自動でセットする
-	setCommodityCostPrice('.sellNumberTextbox');
-	
-	var $activePanel = $('.tabPanel.active', $currentContent);	//現タブパネルを取得する
-	// ボタンの見た目をjqueryuiのものにしてデザインを整える
-	$('button, .searchButton, input[type="button"]', $activePanel).button();
-}
-
 /* 
  * 関数名:loopUpdatePermitLessonList
- * 概要  :受講承認一覧テーブルの更新ボタンが押された時に1行ずつ値を取得して1行ずつDBの値を更新する
- * 引数  :なし
+ * 概要  :承認一覧テーブルの更新ボタンが押された時に1行ずつ値を取得して1行ずつDBの値を更新する
+ * 引数  :String button : トリガーとなるボタンのセレクタ
+ * 　　  :String targetTab : 処理対象のテーブルがあるタブ
+ * 　　  :String rowSelector : 処理対象のレコードのセレクタ
+ * 　　  :String targetTable : 処理対象のレコードのあるテーブル
+ * 　　  :String parentTab : 親のタブのセレクタ
  * 返却値  :なし
  * 作成者:T.Yamamoto
  * 作成日:2015.07.17
+ * 作成者:T.Masuda
+ * 作成日:2016.03.19
+ * 内容　:処理対象を選択できるように変更しました
  */
-function loopUpdatePermitLessonList() {
+function loopUpdatePermitLessonList(button, targetTab, rowSelector, targetTable, parentTab) {
 	var thisElem = this;
 	//受講承認一覧の更新ボタンをクリックされた時にDBのデータを更新するイベントを登録する
-	$('#lecturePermitList .normalButton').on(CLICK, function(){
+	$(button).on(CLICK, function(){
 		//受講承認一覧テーブルの行を1行ごとに更新するため、1行を特定するためにカウンタを作る
 		var counter = 0;
 		//受講承認を行った生徒の方のリストを作る
@@ -572,7 +614,7 @@ function loopUpdatePermitLessonList() {
 		//クエリのキー
 		var queryKey = EMPTY_STRING;
 		//受講承認一覧のcreateTagを取得する
-		var create_tag = $(SELECTOR_LECTUREPERMITLIST_TAB)[0].create_tag;
+		var create_tag = $(targetTab)[0].create_tag;
 		
 		//フォームの追加取得用オブジェクトを作る
 		var addAttr = commonFuncs.getAddAttrObject("use_point", "data-diff_point", "diff_point");
@@ -580,43 +622,56 @@ function loopUpdatePermitLessonList() {
 		//受講承認途中にエラーが出たらそこで打ち切るため、try-catchを利用する
 		try{
 			//受講承認一覧テーブルの対象となる行の数だけループしてデータを更新していく
-			$(SELECTOR_LECTUREPERMITLIST_RECORD).each(function() {
+			$(rowSelector).each(function(i) {
 					//DBを更新するための値を取得するために置換する連想配列を取得する
-					var diffPoint = $('input[name="use_point"]').eq(counter).attr('data-diff_point');	// 元の値からの増減値
+					var diffPoint = $('input[name="use_point"]', this).attr('data-diff_point');	// 元の値からの増減値
 					var sendReplaceArray = 
 						create_tag.getSendReplaceArray(
-							LECTURE_PERMIT_LIST_INFO_TABLE, 
+							targetTable, 
 							counter, 
-							'lecturePermitListRecord:eq(' + counter + ')',
+							rowSelector + ':eq(' + counter + ')',
 							 commonFuncs.checkEmpty(diffPoint) ? addAttr : null
 					);
+					sendReplaceArray.diff_point = diffPoint;
 					//受講承認一覧データを更新する
-					permitDataUpdate(sendReplaceArray, commonFuncs.checkEmpty(sendReplaceArray.content), 'updatePermitListCommoditySell', 'updatePermitListLesson');
+					var processedNum = permitDataUpdate(sendReplaceArray, commonFuncs.checkEmpty(sendReplaceArray.commodity_key), 'updateSellCommodityPermitList', 'updatePermitListLesson');
+					
+					//更新ができていなければ
+					if(!processedNum) {
+						//エラーメッセージを作成する
+						var errorMes = '以下のデータの更新に失敗しました。\n' + (i + 1) + '行目 ' + sendReplaceArray.user_name + ' '+ (sendReplaceArray.lesson_name? sendReplaceArray.lesson_name : sendReplaceArray.content) + '\n';
+						//異常とし、例外を投げて以後の更新を中断する
+						throw new Error(errorMes);
+					}
+					
 				//カウンターをインクリメントする
 				counter++;
 			});
 		//例外処理
 		} catch(e){
-			//処理件数が0件であれば
-			if (counter == 0) {
-				processedList = [];		//序文を消す
-			}
-			//メッセージの先頭を追加する
+			//メッセージの先頭にエラーメッセージを追加する
 			processedList.unshift(ALERT_LECTUREPERMIT_PROCESS_ERROR + e.message + JS_EOL);
 		//必ず行う処理
 		} finally {
 			//createTagから検索日付をとりだす
-			var fromDate = create_tag.json[LECTURE_PERMIT_LIST_INFO_TABLE][KEY_FROM_DATE][VALUE];
-			var toDate = create_tag.json[LECTURE_PERMIT_LIST_INFO_TABLE][KEY_TO_DATE][VALUE];
+			var fromDate = create_tag.json[targetTable][KEY_FROM_DATE][VALUE];
+			var toDate = create_tag.json[targetTable][KEY_TO_DATE][VALUE];
 			//検索日付をオブジェクトにまとめる
-			var searchDate = {'FromDate' : fromDate, 'toDate' : toDate}
+			var searchDate = {'fromDate' : fromDate, 'toDate' : toDate}
 			
-			//テーブルをリロードする。
-			//create_tag.loadTableData(LECTURE_PERMIT_LIST_INFO_TABLE, START_PAGE_NUM, LECTUREPERMITLIST_TABLE_NUMBERING_MAX, FIRST_DISPLAY_PAGE, LECTUREPERMITLIST_TABLE_MAX_ROWS, SELECTOR_LECTUREPERMITLIST_OUTSIDE, AFTER_RELOAD_LECTUREPERMITINFOLIST_FUNC, GET_LECTUREPERMITLIST_CREATE_TAG, searchDate);
 			//処理件数を処理リストの末尾に追加する
 			processedList.push(counter + NOTICE_RECORD_UPDATE_MESSAGE_AND_NUMBER);
-			alert(processedList.join(EMPTY_STRING));	//処理を行った生徒さんのリストを表示する
-			$('#lecturePermitTab').easytabs('select', '#lecturePermitList' );
+			//結果を表示する
+			commonFuncs.showMessageDialog('承認一覧', processedList.join(''));
+			
+			//受講承認一覧テーブルなら
+			if($('#lecturePermitList:visible').length > 0){
+				create_tag.loadTableData(LECTURE_PERMIT_LIST_INFO_TABLE, START_PAGE_NUM, LECTUREPERMITLIST_TABLE_NUMBERING_MAX, FIRST_DISPLAY_PAGE, LECTUREPERMITLIST_TABLE_MAX_ROWS, SELECTOR_LECTUREPERMITLIST_OUTSIDE, AFTER_RELOAD_LECTUREPERMITINFOLIST_FUNC, GET_LECTUREPERMITLIST_CREATE_TAG);
+			//商品購入一覧テーブルなら
+			} else if ($('#sellCommodityPermitList:visible').length > 0) {
+				//テーブルをリロードする。
+				create_tag.loadTableData(SELLCOMMODITY_PERMIT_LIST_INFO_TABLE, START_PAGE_NUM, LECTUREPERMITLIST_TABLE_NUMBERING_MAX, FIRST_DISPLAY_PAGE, LECTUREPERMITLIST_TABLE_MAX_ROWS, SELECTOR_SELLCOMMODITYLIST_OUTSIDE, AFTER_RELOAD_SELLCOMMODITYPERMITINFOLIST_FUNC, GET_SELLCOMMODITYPERMITLIST_CREATE_TAG);
+			}
 		}
 	});
 }
@@ -625,36 +680,46 @@ function loopUpdatePermitLessonList() {
  * 関数名:userListSearch
  * 概要  :管理者 会員一覧の検索機能を有効にする
  * 引数  :なし
- * 返却値  :なし
+ * 返却値  :String targetPage : 対象となる画面のセレクタ。createTagの参照を持っている要素である必要あり
  * 作成者:T.Yamamoto
  * 作成日:2015.08.29
+ * 変更者:T.Yamamoto
+ * 変更日:2016.04.10
+ * 内容　:イベントコールバック登録を除去しました。
  */
-function userListSearch() {
-//検索ボタンをクリックしたときにテーブルの内容を更新する
-	$(STR_BODY).on(CLICK, '.searchUserButton', function() {
-		//当該タブのcreateTagを取得する
-		var userListCreateTag = $('#userList')[0].create_tag;
+function userListSearch(targetPage) {
+		//当該画面のcreateTagを取得する
+		var userListCreateTag = $(targetPage)[0].create_tag;
 		//クエリのデフォルトを取得する
 		var defaultQuery = userListCreateTag.json.userListInfoTable.db_getQuery;
 		//クエリを変数に入れてクエリ発行の準備をする
-		var sendQuery = {db_getQuery:new adminUserSearcher($.extend(true, {}, userListCreateTag.json.userListInfoTable)).execute()}
+		var sendQuery = {db_getQuery:new adminUserSearcher($.extend(true, {}, userListCreateTag.json.userListInfoTable)).execute(SELECTOR_SEARCH_USER_LIST_CURRENT)}
 		userListCreateTag.json.userListInfoTable.tableData = [];	//データを消しておく
 		//会員一覧のデータを取り出す
-		userListCreateTag.getJsonFile(URL_GET_JSON_ARRAY_PHP, sendQuery, 'userListInfoTable');
+		userListCreateTag.getJsonFile(URL_GET_JSON_ARRAY_PHP, sendQuery, KEY_USER_INFO_LIST_TABLE);
 		//クエリをデフォルトに戻す
 		userListCreateTag.json.userListInfoTable.db_getQuery = defaultQuery;
-		//取得した値が0の時のテーブルを作らない
-//		if(userListCreateTag.json.userListInfoTable[TABLE_DATA_KEY].length != 0) {
+
+		//1件以上取得できていれば
+		if(userListCreateTag.json[KEY_USER_INFO_LIST_TABLE].tableData.length){
 			//ページング機能付きでユーザ情報一覧テーブルを作る
-			userListCreateTag.outputNumberingTag('userListInfoTable', 1, 4, 1, 15, '.userListTableOutside', "afterReloadUserListInfoTable", "$('#userList')[0].");
-//		}
-	});
+			userListCreateTag.outputNumberingTag(KEY_USER_INFO_LIST_TABLE, 1, 4, 1, 15, SELECTOR_USER_LIST_TABLE_OUTSIDE, FUNC_AFTER_RELOAD_USER_LIST_INFO_TABLE, JQUERY_OBJECT_FRONT + targetPage + JQUERY_OBJECT_REAR_0INDEX);
+		//0件ならヘッダー行だけ出力する
+		} else {
+			//ダミーデータを入れる
+			userListCreateTag.json[KEY_USER_INFO_LIST_TABLE].tableData[0] = {user_name: "", pre_paid: "", get_point:"",id:"",mail_address:"",pre_paid:"",update_date:"",user_name:""};
+			//ページング機能付きでユーザ情報一覧テーブルを作る
+			userListCreateTag.outputNumberingTag(KEY_USER_INFO_LIST_TABLE, 1, 4, 1, 15, SELECTOR_USER_LIST_TABLE_OUTSIDE, FUNC_AFTER_RELOAD_USER_LIST_INFO_TABLE, JQUERY_OBJECT_FRONT + targetPage + JQUERY_OBJECT_REAR_0INDEX);
+			//ダミー行を削除する
+			$(SELECTOR_TBODY_TR, $(SELECTOR_USER_INFO_LIST_TABLE)).remove();
+		}
 }
 
 /* 
  * 関数名:jumpToMemberPage
  * 概要  :管理者 会員一覧で選択されているユーザの会員ページに接続する
  * 引数  :String || Element clickTarget : クリックイベントの対象
+ * 　　  :String || Element targetParent : クリックイベントの対象の一意な祖先要素
  * 　　  :String user : 選択中ユーザのセレクタ
  * 返却値  :なし
  * 作成者:T.Yamamoto
@@ -663,9 +728,9 @@ function userListSearch() {
  * 変更日:2015.11.01
  * 内容　:セレクタが固定になっていたため調整しました
  */
-function jumpToMemberPage(clickTarget, user) {
+function jumpToMemberPage(clickTarget, targetParent, user) {
 	//詳細設定ボタンがクリックされたときになり代わりログインを行うかアラートを表示するかのイベントを登録する
-	$(STR_BODY).on(CLICK, clickTarget, function(){
+	$(targetParent).on(CLICK, clickTarget, function(){
 		//選択されているユーザの数を変数に入れ、なり代わりログインで選択されている人が1人であるかを判定するのに使う
 		var selected = $(user).length;
 		//詳細設定ボタンがクリックされた時に選択されている会員の人数が一人の時だけなりかわりログイン処理を行うイベントを登録する
@@ -693,7 +758,7 @@ function jumpToMemberPage(clickTarget, user) {
  */
 function loginMemberPageFromAdminPage(eventBase, clickTarget, getTarget){
 	//対象の要素のクリックイベントコールバックを登録する
-	$(eventBase).on('click', clickTarget, function(e){
+	$(eventBase).on(CLICK, clickTarget, function(e){
 		var id = $(getTarget, this).text();	//対象からテキスト(ID)を取得する
 		loginInsteadOfMember(id);			//取得したIDで会員画面へのログインを行う
 	});
@@ -740,7 +805,7 @@ function afterReloadPermitListInfoTable() {
 	//受講承認のアコーディオンの備品名にセレクトボックスの値をDBから取り出した値で追加する
 	lecturePermitList.setSelectboxText(lecturePermitList.json.selectCommodityInf[TABLE_DATA_KEY], lecturePermitList.json.accordionContent.contentCell.contentSelect.contentOption, 'commodity_name');
 	//受講承認一覧テーブルのテキストボックスにDBから読込んだ値をデフォルトで入れる
-	lecturePermitList.setTableTextboxValuefromDB(lecturePermitList.json['lecturePermitListInfoTable'][TABLE_DATA_KEY], create_tag.setInputValueToLecturePermitListInfoTable);
+	lecturePermitList.setTableTextboxValuefromDB(lecturePermitList.json['lecturePermitListInfoTable'][TABLE_DATA_KEY], create_tag.setInputValueToLecturePermitListInfoTable, '.lecturePermitListInfoTable');
 	
 	//セレクトメニューが生成されていたら
 	if($('.contentSelect').length){
@@ -749,7 +814,7 @@ function afterReloadPermitListInfoTable() {
 		//備品販売IDを格納するための隠しフォームを各行にセットする
 		lecturePermitList.outputTag('commoditySellId','commoditySellId', '.appendSelectbox');
 		//備品セレクトボックスを規定のものにする
-		setSelectedCommodity(lecturePermitList);
+		setSelectedCommodity(lecturePermitList, null, LECTURE_PERMIT_LIST_INFO_TABLE, '.lecturePermitListRecord');
 	}
 	
 	//置換済みテキストボックスに数値入力のみできるようにする
@@ -767,7 +832,7 @@ function afterReloadPermitListInfoTable() {
  * 作成者:T.Masuda
  * 作成日:2015.11.08
  */
-function setSelectedCommodity(create_tag, showMaxNum){
+function setSelectedCommodity(create_tag, showMaxNum, targetTable, targetRowClass){
 	
 	var pagenum = 1;					//ページ番号
 	
@@ -791,13 +856,13 @@ function setSelectedCommodity(create_tag, showMaxNum){
 	var endNum = startNum + showMaxNum;
 	
 	//リストのレコードを走査する
-	$('.lecturePermitListRecord').each(function(i){
+	$(targetRowClass).each(function(i){
 		//セレクトメニューが行内にあれば
 		if($('.contentSelect', this).length){
 			//セレクトメニューをDBの値のものを選択した状態にする
-			$('.contentSelect' ,this).val(create_tag.json[LECTURE_PERMIT_LIST_INFO_TABLE][TABLE_DATA_KEY][startNum + i]['commodity_key']);
+			$('.contentSelect' ,this).val(create_tag.json[targetTable][TABLE_DATA_KEY][startNum + i]['commodity_key']);
 			//備品販売IDもセットする
-			$('.commoditySellId' ,this).val(create_tag.json[LECTURE_PERMIT_LIST_INFO_TABLE][TABLE_DATA_KEY][startNum + i]['id']);
+			$('.commoditySellId' ,this).val(create_tag.json[targetTable][TABLE_DATA_KEY][startNum + i]['id']);
 		}
 	});
 }
@@ -812,7 +877,7 @@ function setSelectedCommodity(create_tag, showMaxNum){
  */
 function afterReloadMailMagaTable() {
 	//メルマガの内容列に対して150文字以上の内容は画面には表示しないようにする。テキストボックスにはすべての値が反映される
-	cutString('.mailMagaContent', '150');
+	//cutString('.mailMagaContent', '150');
 	//メルマガテーブルのクリック対象レコードに対してクラス属性を付けて識別をしやすくする
 	commonFuncs.setTableRecordClass('mailMagaTable', 'targetMailMagazine');
 }
@@ -828,6 +893,8 @@ function afterReloadMailMagaTable() {
 function afterReloadUserListInfoTable() {
 	//会員一覧テーブルのクリック対象レコードに対してクラス属性を付けて識別をしやすくする
 	commonFuncs.setTableRecordClass('userListInfoTable', 'targetUser');
+	//ユーザ一覧の入会状況列をDB上の値から意味ある文字列に置き換える
+	commonFuncs.replaceColumnValue('.userListInfoTable .user_status', commonFuncs.userStatusList);
 }
 
 /* 
@@ -872,7 +939,7 @@ function getSendPersonInfo() {
  */
 function adminMessageCreate(buttonSelector, sendType) {
 	//お知らせボタンをクリックでメール送信ダイアログを作る
-	$(STR_BODY).on(CLICK, buttonSelector, function() {
+	$(buttonSelector).on(CLICK, function() {
 		//選択されているユーザの数を変数に入れ、ユーザが選択されていればメール送信処理を開始する
 		var selected = $(SEL_SELECT_USER).length;
 		//会員一覧から送信するメールの対象となる人が1人以上選択されているなら送信ダイアログを開く
@@ -943,51 +1010,19 @@ function mailMagaSearch() {
 	});
 }
 
-/* 
- * 関数名:setMailMagaSendContent
- * 概要  :メルマガのテーブルをクリックしたときにクリックされた行の内容を
- 		メルマガ送信のテキストボックスに入れる
- * 引数  :なし
- * 返却値  :なし
- * 作成者:T.Yamamoto
- * 作成日:2015.09.12
- */
-function setMailMagaSendContent() {
-
-	//クリック対象となっているメルマガテーブルの行をクリックしたときにタイトルや内容を自動でセットするイベントを登録する
-	$('.mailMagaAndAnnounce').on(CLICK, '.targetMailMagazine', function() {
-
-		//メルマガ・アナウンスタブのcreateTagを取得する
-		var mailMagaAndAnnounce = $('#mailMagaAndAnnounce')[0].create_tag;
-		//クリックされたのが何番目の行であるかを取得し、メルマガのタイトルや内容を取り出すのに使う
-		var targetNumber = $('.targetMailMagazine').index(this);
-		
-		//ページャの番号を取得する
-		var pager = $('.mailMagaPagingArea .numbering .select').text();
-		//ページャの番号-1の値を取得する
-		var pageNum = commonFuncs.checkEmpty(pager) && !isNaN(pager)  ? parseInt(pager) - 1 : 0;
-		//JSON内での記事の番号を取得する
-		var targetNumberFix = pageNum * MAILMAGA_TABLE_SHOW_NUMBER + targetNumber;
-		
-		//取得した番号をもとにメルマガのタイトルや内容などの情報を取得し、連想配列に入れる
-		var targetInf = mailMagaAndAnnounce.json.mailMagaTable[TABLE_DATA_KEY][targetNumberFix];
-		//取得した連想配列をテキストボックスにセットする
-		commonFuncs.setObjectValue(targetInf, '.mailMagaAndAnnounceArea');
-	});
-}
 
 /* 
  * 関数名:mailMagaSendConfirm
  * 概要  :メルマガ送信の内容を取得して、メルマガ送信ダイアログを作る
- * 引数  :なし
+ * 引数  :String target : イベントコールバック登録対象(基本的にボタン)のセレクタ
  * 返却値  :なし
  * 作成者:T.Yamamoto
  * 作成日:2015.09.12
  */
-function mailMagaSendConfirm() {
+function mailMagaSendConfirm(target) {
 	
 	//送信ボタンがクリックされたときにメール送信イベントを開始する
-	$(STR_BODY).on(CLICK, '.messageButtonArea .sendButton', function() {
+	$(target).on(CLICK, function() {
 
 		//タイトル、または本文が空であれば
 		if(!commonFuncs.checkEmpty($('.messageTitleTextbox').val()) 
@@ -997,13 +1032,8 @@ function mailMagaSendConfirm() {
 			return;		//処理を終える
 		}
 		
-		//ダイアログ用オブジェクトを作る
-		var dialogObj = commonFuncs.createBasicComfirmDialogObject(sendMailMaga, '送信確認', '入力した内容を送信します。');
-		//インプットデータ用オブジェクトにメルマガ・アナウンスタブのcreateTagをセットする
-		dialogObj.data.create_tag = $('#mailMagaAndAnnounce')[0].create_tag;
-		//メルマガ送信ダイアログを作る
-		var mailmagazineSendDialog = new dialogEx('dialog/confirmDialog.html', dialogObj);
-		mailmagazineSendDialog.run();	//ダイアログを表示する
+		//メルマガを送信する
+		sendMailMaga();
 	});
 }
 
@@ -1017,50 +1047,52 @@ function mailMagaSendConfirm() {
  */
 function sendMailMaga() {
 
-	//はいボタンが押されていたら
-	if(this.instance.getPushedButtonState() == YES){
-		
-		//メルマガタブのcreateTagを取得する
-		var create_tag = this.instance.getArgumentDataObject().create_tag;
-		//メルマガを送信するための値をテキストボックスから取得する
-		var data = commonFuncs.getInputData('.mailMagaAndAnnounceArea');
-		var sendObject = {									//送信するデータのオブジェクト
-				//DB保存用クエリ
-				db_setQuery : create_tag.json.insertMailMagazine.db_setQuery
-				,subject:data.magazine_title	//タイトル
-				,content:data.magazine_content	//本文
-				,type :data.magazine_type		//メルマガの種別
-				,school_key : data.school_key	//校舎キー
-		}
-
-		//DBにメルマガの内容を保存する。成功していれば送信処理に移る
-		if (new baseDialog().sendQuery(URL_SAVE_JSON_DATA_PHP, sendObject)) {
-			$.ajax({					//PHPにメール用データを渡すAjax通信
-				url:SEND_MAILMAGA_PHP			//PHPのURLを設定する
-				,data:sendObject	//送信データのオブジェクト
-				,dataType:"json"	//JSON形式でデータをもらう
-				,type:"POST"		//POSTメソッドでHTTP通信する
-				,async : false		//同期通信を行う
-				,cache : false		//通信結果をキャッシュしない
-				,success:function(json){		//通信成功時
-					//送信結果を伝える
-					alert('メルマガの送信を行いました。\n送信結果は以下の通りになります。\n\n送信成功 : ' + json.sendCount + '件\n送信失敗 : ' + json.failCount + '件\nアドレスなし : ' + json.noAddressCount + '件');
-					//メルマガテーブルをリフレッシュする
-					create_tag.loadTableData('mailMagaTable', 1, 4, 1, 15, '.mailMagaTableOutside', 'afterReloadMailMagaTable', "$('#mailMagaAndAnnounce')[0].");
-				}
-				//通信失敗時
-				,error:function(xhr, status, error){
-					//送信失敗と再操作要求の旨を伝える
-					alert(SEND_MAILMAGA_FAIL_HALF);
-				}
-			});
-		//DBへの保存失敗時
-		} else {
-			//失敗の旨を伝える
-			alert(SEND_MAILMAGA_FAIL_ALL);
-		}
-		
+	//メルマガダイアログのcreateTagを取得する
+	var create_tag = $('.dialog:has(.mailMagaAndAnnounceArea)')[0].dialogBuilder.create_tag;
+	//メルマガを送信するための値をテキストボックスから取得する
+	var data = commonFuncs.getInputData('.mailMagaAndAnnounceArea');
+	var sendObject = {									//送信するデータのオブジェクト
+			//DB保存用クエリ
+			db_setQuery : create_tag.json.insertMailMagazine.db_setQuery
+			,subject:data.magazine_title	//タイトル
+			,content:data.magazine_content	//本文
+			,type :data.magazine_type		//メルマガの種別
+			,school_key : data.school_key	//校舎キー
 	}
+
+	//DBにメルマガの内容を保存する。成功していれば送信処理に移る
+	if (new baseDialog().sendQuery(URL_SAVE_JSON_DATA_PHP, sendObject)) {
+		$.ajax({					//PHPにメール用データを渡すAjax通信
+			url:SEND_MAILMAGA_PHP			//PHPのURLを設定する
+			,data:sendObject	//送信データのオブジェクト
+			,dataType:"json"	//JSON形式でデータをもらう
+			,type:"POST"		//POSTメソッドでHTTP通信する
+			,async : false		//同期通信を行う
+			,cache : false		//通信結果をキャッシュしない
+			,success:function(json){		//通信成功時
+				//送信結果を伝える
+				alert('メルマガの送信を行いました。\n送信結果は以下の通りになります。\n\n送信成功 : ' + json.sendCount + '件\n送信失敗 : ' + json.failCount + '件\nアドレスなし : ' + json.noAddressCount + '件');
+				//メルマガテーブルをリフレッシュする
+				$(SELECTOR_MAIL_MAGA_TAB)[0].create_tag.loadTableData(
+						KEY_MAIL_MAGA_TABLE, tableArgSettings.mailMaga.startPage, 
+						tableArgSettings.mailMaga.displayPageMax, tableArgSettings.mailMaga.displayPage, 
+						tableArgSettings.mailMaga.pageNum, '.mailMagaTableOutside',
+						'afterReloadMailMagaTable', "$('#mailMagaAndAnnounce')[0].");
+				//ダイアログを閉じる
+				$('.dialog:has(.mailMagaAndAnnounceArea)')[0].instance.destroy();
+			}
+			//通信失敗時
+			,error:function(xhr, status, error){
+				//送信失敗と再操作要求の旨を伝える
+				alert(SEND_MAILMAGA_FAIL_HALF);
+			}
+		});
+	//DBへの保存失敗時
+	} else {
+		//失敗の旨を伝える
+		alert(SEND_MAILMAGA_FAIL_ALL);
+	}
+	
 }
 
 /* 
@@ -1078,3 +1110,795 @@ function resetMailMageSendContent() {
 		$('.mailMagaAndAnnounceArea textarea').text('');
 	});
 }
+
+
+/* 
+ * 関数名:permitSellCommodity
+ * 概要  :商品購入承認を行う
+ * 引数  :なし
+ * 返却値  :なし
+ * 作成者:T.Masuda
+ * 作成日:2016.03.19
+ */
+function permitSellCommodity() {
+	//受講承認の承認ボタンをクリックされた時にDBのデータを更新するイベントを登録する
+	$(SELECTOR_SELLCOMMODITYPERMIT_BUTTON).on(CLICK, function(){
+		
+		//チェックが入っているレコードがなければ
+		if (!$('.sellCommodityPermitInfoTable tr.selectRecord').length) {
+			alert(ALERT_NEED_SELECT_LECTUREPERMIT_RECORD);
+			return;	//処理を終える
+		}
+
+		//商品購入承認テーブルの行を1行ごとに更新するため、1行を特定するためにカウンタを作る
+		var counter = 0;
+		//商品購入承認を行った生徒の方のリストを作る
+		var processedList = new Array();
+		//序文を追加する
+		processedList.push(MESSAGE_RESULT_SELLCOMMODITYLECTUREPERMIT);
+
+		//フォームの追加取得用オブジェクトを作る
+		var addAttr = commonFuncs.getAddAttrObject("use_point", "data-diff_point", "diff_point");
+		commonFuncs.getAddAttrObject("use_point", "data-commodity_use_point", "commodity_use_point", addAttr);
+		commonFuncs.getAddAttrObject("use_point", "data-base_point", "base_point", addAttr);
+
+		//validation用の設定オブジェクトを作る
+		//use_pointの未定義チェック
+		var validateSettings = VALIDATOR.getValidationSettingObject(KEY_USE_POINT, 'isUndefined');
+		//use_pointの数字チェック
+		validateSettings = VALIDATOR.getValidationSettingObject(KEY_USE_POINT, 'isNumeric', validateSettings);
+		
+		//createTagを取得する
+		var scpc =$(SELECTOR_SELL_COMMODITY_PERMIT_TAB)[0].create_tag;
+		var deleteList = [];
+
+		//商品購入承認途中にエラーが出たらそこで打ち切るため、try-catchを利用する
+		try{
+			//商品購入承認一覧テーブルの対象となる行の数だけループしてデータを更新していく
+			$('.sellCommodityPermitInfoTable tr:not(:first)').each(function(i) {
+				//選択済みレコードであれば
+				if(commonFuncs.checkEmpty($(this).attr(CLASS)) && $(this).attr(CLASS).indexOf('selectRecord') != -1){
+
+					// DBを更新するための値を取得するために置換する連想配列を取得する
+					var sendReplaceArray = scpc.getSendReplaceArray(KEY_SELL_COMMODITY_PERMIT_INFO_TABLE, counter, '.sellCommodityPermitInfoTable tr:not(:first):eq(' + counter + ')');
+					//商品が未選択であれば
+					if(sendReplaceArray.commodity_key == COMMODITY_NOT_SELECTED_KEY_1 || sendReplaceArray.commodity_key == COMMODITY_NOT_SELECTED_KEY_2) {
+						//エラー扱いにするため例外を投げる。対象の行のお客様の名前を挙げる
+						throw new Error(MESSAGE_COMMODITY_NOT_SELECT_EXCEPTION + sendReplaceArray.user_name);
+					}
+
+					//取得した値が不正かどうかをチェックする
+					VALIDATOR.validate(validateSettings, sendReplaceArray);
+					// ユーザの所持ポイント退避
+					var userGetPoint = sendReplaceArray[KEY_GET_POINT];
+					//商品購入時のポイントレート
+					var commodityPointrate = 1;
+					// 商品代から加算ポイントを求める
+					var get_point = Math.ceil(Number(sendReplaceArray.pay_price) * commodityPointrate / 100);
+					sendReplaceArray[KEY_GET_POINT] = get_point;
+					// 支払い金額、使用ポイント計算(ポイントは授業料、備品代の双方に対して消費できる)
+					var usePoint = sendReplaceArray[KEY_USE_POINT];
+					if (userGetPoint * 1 < usePoint * 1) {
+						throw new Error("使用ポイント(" + usePoint + ")が所持ポイント(" + userGetPoint + ")を超えています");
+					}
+					
+					//実際の支配額をセットする
+					sendReplaceArray[KEY_PAY_CASH] = sendReplaceArray[KEY_PAY_PRICE] - usePoint;
+
+					//商品購入承認データを更新する
+					var processedNum = permitDataUpdate(sendReplaceArray, isBuyCommodity(sendReplaceArray), 'permitLessonContainCommodity', 'permitLessonContainCommodity');
+					
+					//更新ができていなければ
+					if(!processedNum) {
+						//異常とし、例外を投げて以後の更新を中断する
+						throw new Error('以下のデータの更新に失敗しました。\n' + sendReplaceArray.user_name + ' ' +sendReplaceArray.content + ' ' + sendReplaceArray.sell_number + '個 合計' +  sendReplaceArray.selling_price + '円\n');
+					}
+					
+					//生徒さんの情報をリストに追加していく
+					processedList.push(sendReplaceArray.user_name + ' ' + sendReplaceArray.content + ' ' + sendReplaceArray.sell_number + '個 ' + sendReplaceArray.pay_cash + '円' + '\n');	
+
+					//データ削除用リストに番号を追加する
+					deleteList.push[i];
+					//承認を終えた行を削除する
+					$(this).remove();
+				}
+				
+				//カウンターをインクリメントする
+				counter++;
+			});
+		//例外処理
+		} catch(e){
+			//処理件数が0件であれば
+			if (counter == 0) {
+				processedList = [];		//序文を消す
+			}
+			//メッセージの先頭を追加する
+			processedList.unshift('商品購入処理中にエラーが発生したため商品購入承認処理を中断しました。\n' + e.message + '\n');
+		//必ず行う処理
+		} finally {
+
+			commonFuncs.showMessageDialog('商品購入承認', processedList.join(''));	//処理を行った生徒さんのリストを表示する
+			
+			//承認済みのデータを削除する
+			for (var i = 0; i < deleteList.length; i++) {
+				//テーブル用JSONをクリアする
+				create_tag.json[KEY_SELL_COMMODITY_PERMIT_INFO_TABLE].tableData.splice(deleteList[i] - i, 1);
+			}
+			
+		//連番を振り直す
+		commonFuncs.insertSequenceNo(SELECTOR_SELL_COMMODITY_PERMIT_INFO_TABLE, SELECTOR_NO_COL);
+		}
+	});
+}
+
+/* 
+ * 関数名:afterReloadSellCommodityPermitListInfoTable
+ * 概要  :商品購入承認一覧がリロードした際にテーブルに対して処理をする関数をコールするための関数
+ * 引数  :なし
+ * 返却値  :なし
+ * 作成者:T.Masuda
+ * 作成日:2016.03.19
+ */
+function afterReloadSellCommodityPermitListInfoTable() {
+	//当該タブのcreateTagを取得する
+	var sellCommodityPermitList = $('#sellCommodityPermitList')[0].create_tag;
+	//受講承認一覧テーブルの取り出した行にクラス名を付ける
+	setTableRecordClass('sellCommodityPermitListInfoTable', 'sellCommodityPermitListRecord');
+	//受講承認一覧テーブルの列内を編集する
+	commonFuncs.dbDataTableReplaceExecute(DOT + SELLCOMMODITY_PERMIT_LIST_INFO_TABLE, sellCommodityPermitList.json[SELLCOMMODITY_PERMIT_LIST_INFO_TABLE][TABLE_DATA_KEY], SELLCOMMODITY_PERMIT_LIST_INFO_TABLE_REPLACE_FUNC, null, DEFAULT_SHOW_MAX_ROW);
+	//受講承認一覧テーブルの料金列をテキストボックスにする
+	sellCommodityPermitList.insertTextboxToTable('sellCommodityPermitListInfoTable', 'replaceTextboxCost', 'replaceTextboxCostCell');
+	//受講承認一覧テーブルの使用pt列をテキストボックスにする
+	sellCommodityPermitList.insertTextboxToTable('sellCommodityPermitListInfoTable', 'replaceTextboxUsePoint', 'replaceTextboxUsePointCell');
+	//セレクトメニューを列にアウトプットする
+	sellCommodityPermitList.outputTag('contentSelect', 'contentSelect', '.appendSelectbox');
+	//受講承認のアコーディオンの備品名にセレクトボックスの値をDBから取り出した値で追加する
+	sellCommodityPermitList.setSelectboxText(sellCommodityPermitList.json.selectCommodityInf[TABLE_DATA_KEY], sellCommodityPermitList.json.accordionContent.contentCell.contentSelect.contentOption, 'commodity_name');
+	//受講承認一覧テーブルのテキストボックスにDBから読込んだ値をデフォルトで入れる
+	sellCommodityPermitList.setTableTextboxValuefromDB(sellCommodityPermitList.json['sellCommodityPermitListInfoTable'][TABLE_DATA_KEY], create_tag.setInputValueToLecturePermitListInfoTable, '.sellCommodityPermitListInfoTable');
+
+	//テーブルにデータがあれば
+	if($('.sellCommodityPermitListInfoTable tbody tr').length){
+		//セレクトボックスのvalueを画面に表示されている値にする
+		sellCommodityPermitList.setSelectboxValue('.contentSelect', LECTURE_PERMIT_LIST_INFO_TABLE, 'commodity_key', sellCommodityPermitList.json.selectCommodityInf[TABLE_DATA_KEY]);
+		//備品販売IDを格納するための隠しフォームを各行にセットする
+		sellCommodityPermitList.outputTag('commoditySellId','commoditySellId', '.appendSelectbox');
+		//備品セレクトボックスを規定のものにする
+		setSelectedCommodity(sellCommodityPermitList, null, SELLCOMMODITY_PERMIT_LIST_INFO_TABLE, '.sellCommodityPermitListInfoTable tbody tr');
+	}
+	
+	//置換済みテキストボックスに数値入力のみできるようにする
+	$('.lecturePermitListInfoTable .replaceTextbox').attr({
+        onkeydown:"return controllInputChar(event);"	//数値のみ入力できるように関数を登録
+	});
+}
+
+/* 
+ * 関数名:moveToUserList
+ * 概要  :ユーザ情報取得のためにユーザ一覧へ遷移する
+ * 引数  :String beforePanel : 遷移前のパネル名
+ * 		:String button : ボタンのセレクタ
+ * 返却値  :なし
+ * 作成者:T.Masuda
+ * 作成日:2016.03.19
+ */
+function moveToUserList(beforePanel, button) {
+	//ボタンにコールバックを登録する
+	$(button).on(CLICK, function(){
+		//遷移前の画面名を指定したタブのクラスインスタンスにセットする
+		$('#adminTab')[0].instance.beforePanel = beforePanel;
+		//対象のタブへ遷移する
+		$('#adminTab').easytabs('select', '#userList');
+	});
+}
+
+/*
+ * 関数名:returnFromUserList
+ * 概要  :ユーザ情報を選択した後前の画面に戻る
+ * 引数  :element button : 押されたボタン
+ * 返却値  :なし
+ * 作成者:T.Masuda
+ * 作成日:2016.03.19
+ */
+function returnFromUserList(button) {
+	//管理者タブから前の画面名を取得する
+	var moveTo = $(SELECTOR_ADMIN_TAB)[0].instance.beforePanel;
+	//選択済みの行を取得する
+	var selectedRecords = $(SELECTED_USER_RECORDS);
+	//押されたボタンの値を取得する
+	var buttonType = $(this).attr('data-buttontype');
+	
+	//元の画面に戻る前の処理を行う
+	backCallbacks[moveTo](selectedRecords, buttonType);
+}
+
+//ユーザ一覧から元画面に戻るときにコールする関数
+var backCallbacks = {
+		//受講承認
+		doLecturePermit : function(records, buttonType){
+			//押されたボタンがキャンセルでなければ
+			if (buttonType != 0) {
+				//受講承認タブのcreateTagを取得する
+				var dlpc = $(DO_LECTUREPERMIT_TAB)[0].create_tag;
+				//DOMの入れ物を作る
+				var recordList = $(TAG_DIV)[0];
+				var idList = [];	//ID一覧の入れ物を作る
+				//新たな受講承認データを作る
+				var newData = dlpc.json.doLecturePermitInfoTable.tableData.concat();
+
+				//元テーブルからID行を取り出す
+				$(SELECTOR_DO_LECTURE_PERMIT_INFO_TABLE + ' td.user_key:not(:first)').each(function(){
+					//IDリストにIDを追加していく
+					idList.push($(this).text());
+				});
+				
+				//元テーブルのID一覧を作る
+				for (var i = 0; i < records.length; i++) {
+					//レコードからIDを抽出してJSONにセットする
+					dlpc.json.getAdditionalUserForLecturePermit.user_key.value = $(records[i]).children('.id').text();
+					
+					//IDチェックを始める
+					for(var j = 0; j < idList.length + 1; j++) {
+						//IDが一致したら
+						if(idList[j] == dlpc.json.getAdditionalUserForLecturePermit.user_key.value){
+							//追加を行わない
+							break;
+						//どれにも当てはまらなければレコード追加
+						} else if(j == idList.length){
+							//DBからユーザに対応した受講承認データを取得する
+							dlpc.getJsonFile(URL_GET_JSON_ARRAY_PHP, dlpc.json.getAdditionalUserForLecturePermit, 'getAdditionalUserForLecturePermit');
+							//受講承認用のDOMを作り入れ物に追加する
+							$(recordList).append(creaetLecturePermitRecord(dlpc.json.getAdditionalUserForLecturePermit.tableData[0]));
+							var tmpData = dlpc.json.getAdditionalUserForLecturePermit.tableData.concat();
+							//受講承認用JSONデータを追加する
+							newData.push(tmpData[0]);
+							dlpc.json.getAdditionalUserForLecturePermit.tableData = [];
+							break;	//ループをやめる
+						}
+					}
+				}
+			}
+			
+			//作成した受講承認用データをcreateTagに渡す
+			dlpc.json.doLecturePermitInfoTable.tableData = newData.concat();
+			//作成したレコードを受講承認テーブルに追加する
+			$('.doLecturePermitInfoTable').append($('tr', recordList));
+			
+			//タブのインスタンスを取得する
+			var tabInstance = $('#adminTab')[0].instance;
+			//タブが切り替わっても元々あったコンテンツを取得し直さない様に一時設定する
+			tabInstance.cache = true;
+			
+			//連番を振り直す
+			commonFuncs.insertSequenceNo(SELECTOR_DO_LECTURE_PERMIT_INFO_TABLE, SELECTOR_NO_COL);
+			
+			//元のタブに戻る
+			$('#adminTab').easytabs('select', '#lecturePermit')
+			//呼び出し画面情報を初期値に戻す
+			tabInstance.beforePanel = null;
+		},
+		//商品購入承認
+		sellCommodityPermit : function(records, buttonType){
+			//押されたボタンがキャンセルでなければ
+			if (buttonType != 0) {
+				//商品購入承認画面のcreateTagを取得する
+				var scpc = $('#sellCommodityPermit')[0].create_tag;
+				//レコードを走査する
+				$(records).each(function(){
+					//データ作成用のデータをレコードから抽出する
+					var recordData = createRecordFromDom(this);
+					//承認用データを作る
+					var permitData = creaetSellCommodityPermitData(recordData);
+					//元画面に追加するレコード(DOM)を作成する
+					var addRecord = creaetSellCommodityPermitRecord(recordData);
+					//商品購入承認のレコードをINSERTする準備を行う
+					scpc.json.insertSellCommodityRecord.user_key.value = permitData.user_key;
+					//レコードの保存を行う
+					var result = scpc.getJsonFile(URL_SAVE_JSON_DATA_PHP, scpc.json.insertSellCommodityRecord, 'insertSellCommodityRecord');
+					//レコードの保存に成功した
+					if (parseInt(result.message)) {
+						//最新の商品販売IDを取得し、画面に追加する行のデータへ追加する
+						scpc.getJsonFile(URL_GET_JSON_ARRAY_PHP, scpc.json.getCommoditySellId, 'getCommoditySellId');
+						//承認データに商品販売IDを追加する
+						console.log(scpc.json.getCommoditySellId);
+						permitData.commodity_sell_key = scpc.json.getCommoditySellId.tableData[0].id;
+						//承認用データをJSONに追加する
+						scpc.json.sellCommodityPermitInfoTable.tableData.push(permitData);
+						$('.sellCommodityPermitInfoTable tbody').append($('tr', addRecord));
+					//レコードの保存ができなかった
+					} else {
+						//レコードの保存が出来なかった旨を伝達する
+						alert(COUNDNT_INSERT_SELLCOMMODITY_PERMIT_MESSAGE + permitData.user_name + ' 会員番号 : ' + permitData.user_key);
+					}
+				});
+			}
+
+			//連番を振る
+			commonFuncs.insertSequenceNo('.sellCommodityPermitInfoTable', '.No');
+			
+			//数量、価格、使用ポイント、合計金額列をテキストボックスに置き換える
+			//商品キー列は隠しinputに置き換える
+			replaceSellCommodityPermitInputs(commonFuncs);
+
+			//合計金額列を編集不可にする
+			$('input[name="pay_price"]').attr('readonly', 'readonly');
+
+			//タブのインスタンスを取得する
+			var tabInstance = $('#adminTab')[0].instance;
+			//タブが切り替わっても元々あったコンテンツを取得し直さない様に一時設定する
+			tabInstance.cache = true;
+			//元のタブに戻る
+			$('#adminTab').easytabs('select', '#lecturePermit')
+			//追加した行に製品選択用セレクトメニューを追加する
+			commonFuncs.createCommoditySelectMenu($('#sellCommodityPermit')[0].create_tag.json.selectCommodityInf.tableData, '.sellCommodityPermitInfoTable .content');
+
+			//呼び出し画面情報を初期値に戻す
+			tabInstance.beforePanel = null;
+		}
+}
+
+/* 
+ * 関数名:replaceSellCommodityPermitInputs
+ * 概要  :受講承認用レコードのDOMを作成する
+ * 引数  :common common : 汎用関数クラスインスタンス 
+ * 返却値  :なし
+ * 作成者:T.Masuda
+ * 作成日:2016.03.26
+ */
+function replaceSellCommodityPermitInputs(common) {
+	//数量、価格、使用ポイント、合計金額列をテキストボックスに置き換える
+	//商品キー列は隠しinputに置き換える
+	common.tdReplaceToTextbox('.sellCommodityPermitInfoTable', '.sell_number:not(:first)', 'sell_number', 'number');
+	common.tdReplaceToTextbox('.sellCommodityPermitInfoTable', '.price:not(:first)', 'price', 'number');
+	common.tdReplaceToTextbox('.sellCommodityPermitInfoTable', '.use_point:not(:first)', 'use_point', 'number');
+	common.tdReplaceToTextbox('.sellCommodityPermitInfoTable', '.pay_price:not(:first)', 'pay_price', 'number');
+	common.tdReplaceToTextbox('.sellCommodityPermitInfoTable', '.commodity_key:not(:first)', 'commodity_key', 'hidden');
+}
+
+/* 
+ * 関数名:creaetLecturePermitRecord
+ * 概要  :受講承認用レコードのDOMを作成する
+ * 引数  :Object record : 受講承認データ1レコード分 
+ * 返却値  :なし
+ * 作成者:T.Masuda
+ * 作成日:2016.03.19
+ */
+function creaetLecturePermitRecord(record) {
+	//返却用のDOMを作成する
+	var retDom =
+			//行の連番
+			$('<table><tr><td class="No">'
+			//開始〜終了時刻
+			+ TD_FROM_REAR + commonFuncs.allDateTime(record)
+			//受講人数
+			+ TD_FROM_REAR_DISPLAY_NONE + record.order_students
+			//授業詳細情報テーブルのID
+			+ TD_FROM_REAR_DISPLAY_NONE + record.lesson_key
+			//開始時刻
+			+ TD_FROM_REAR_DISPLAY_NONE + record.start_time
+			//終了時刻
+			+ TD_FROM_REAR_DISPLAY_NONE + record.end_time
+			//ユーザ名
+			+ TD_FROM_REAR + record.user_name
+			//ステージ番号
+			+ TD_FROM_REAR_DISPLAY_NONE + record.stage_no
+			//レベル番号
+			+ TD_FROM_REAR_DISPLAY_NONE + record.level_no
+			//受講情報テーブルのID
+			+ TD_FROM_REAR_DISPLAY_NONE + record.user_classwork_key
+			//ユーザID
+			+ '</td><td class="user_key" style="display : none">' + record.user_key
+			//所持ポイント
+			+ TD_FROM_REAR+ record.get_point
+			//授業(コース)名
+			+ TD_FROM_REAR + record.lesson_name
+			//使用ポイントを入力するテキストボックス
+			+ '</td><td class="use_point"><input type="number" min="0" name="use_point" onkeydown="return controllInputChar(event);" value="0"></td>'
+			+ '<td style="" colspan="">' + record.user_classwork_cost
+			+ TD_FROM_REAR_DISPLAY_NONE+ record.school_key + '</td></tr></table>');
+	
+	//作成したDOMを返す
+	return retDom;
+}
+
+/* 
+ * 関数名:creaetLecturePermitData
+ * 概要  :受講承認用データを作成する
+ * 引数  :Object record : 受講承認データ1レコード分 
+ * 返却値  :object : 受講承認データ
+ * 作成者:T.Masuda
+ * 作成日:2016.03.19
+ */
+function creaetLecturePermitData(record) {
+	//返却用のDOMを作成する
+	var obj =
+			{
+				//受講人数
+				order_students : record.order_students
+				//授業詳細情報テーブルのID
+				,lesson_key : record.lesson_key
+				//開始時刻
+				 ,start_time : record.start_time
+				//終了時刻
+				 ,end_time : record.end_time
+				//ユーザ名
+				 ,user_name : record.user_name
+				//ステージ番号
+				 ,stage_no : record.stage_no
+				//レベル番号
+				 ,level_no : record.level_no
+				//受講情報テーブルのID
+				 ,user_classwork_key : record.user_classwork_key
+				//ユーザID
+				 ,user_key : record.user_key
+				//所持ポイント
+				 ,get_point : record.get_point
+				//授業(コース)名
+				 ,lesson_name : record.lesson_name
+				//使用ポイントを入力するテキストボックス
+				 ,use_point : 0
+				 ,user_classwork_cost : record.user_classwork_cost
+				 ,school_key : record.school_key
+			};
+	
+	//作成したDOMを返す
+	return obj;
+}
+
+/* 
+ * 関数名:creaetSellCommodityPermitRecord
+ * 概要  :商品購入承認用レコードのDOMを作成する
+ * 引数  :Object record : 受講承認データ1レコード分 
+ * 返却値  :なし
+ * 作成者:T.Masuda
+ * 作成日:2016.03.19
+ */
+function creaetSellCommodityPermitRecord(record) {
+	var seqNum = $('.sellCommodityPermitInfoTable tr:not(:first)').length + 1;
+	//返却用のDOMを作成する
+	var retDom =
+		//行の連番
+		$('<table><tr><td class="No">' 
+				//ユーザ名
+				+ '</td><td style="" colspan="">' + record.user_name
+				//獲得ポイント
+				+ '</td><td style="" colspan="">' + record.get_point
+				//商品キー
+				+ '</td><td class="commodity_key" style="display : none" colspan=""><input type="hidden" name="commodity_key" value="' + COMMODITY_NOT_SELECTED_KEY_2 + '">'
+				//ユーザID
+				+ '</td><td style="" colspan="">' + record.user_key
+				//商品名 未選択状態で
+				+ '</td><td class="content" style="" colspan="">' + COMMODITY_NOT_SELECTED
+				//個数
+				+ '</td><td class="sell_number" style="" colspan="">' + DEFAULT_COMMODITY_SELL_NUMBER
+				//単価
+				+ '</td><td class="price" style="" colspan="">' + 0
+				//使用ポイント
+				+ '</td><td class="use_point" style="" colspan="">' + 0
+				//合計金額
+				+ '</td><td class="pay_price" style="" colspan="">' + 0
+				+ '</td><td class="commodity_sell_key" style="" colspan="">' + ''
+				+ '</td></tr></table>');	
+
+	//作成したDOMを返す
+	return retDom;
+}
+
+/* 
+ * 関数名:creaetSellCommodityPermitData
+ * 概要  :商品購入承認データを作成する
+ * 引数  :Object record : 商品購入承認データ1レコード分 
+ * 返却値  :object : 購入承認データ
+ * 作成者:T.Masuda
+ * 作成日:2016.03.19
+ */
+function creaetSellCommodityPermitData(record) {
+	//返却用のオブジェクトを作成する
+	var obj =
+		{
+			//列の内訳 連番 ユーザ名 所持ポイント 商品ID ユーザID 商品名 数量 単価 使用ポイント 支払額
+			'user_name' : record.user_name
+			,'get_point' : record.get_point
+			,'commodity_key' : COMMODITY_NOT_SELECTED_KEY_2
+			,'user_key' : record.user_key
+			,'content' : COMMODITY_NOT_SELECTED
+			,'sell_number' : DEFAULT_COMMODITY_SELL_NUMBER
+			,'price' : 0
+			,'use_point' : 0
+			,'pay_price' : 0
+		};
+	
+	//作成したDOMを返す
+	return obj;
+}
+
+/* 
+ * 関数名:createRecordFromDom
+ * 概要  :ユーザ一覧の行DOMから販売承認用データを作る
+ * 引数  :element record : 商品購入承認データ1レコード分 
+ * 返却値  :object : 購入承認データ
+ * 作成者:T.Masuda
+ * 作成日:2016.03.19
+ */
+function createRecordFromDom(record){
+	//返却するオブジェクトを用意する
+	var dataObj = {
+		//ユーザ名
+		user_name : $('td', record).filter('.user_name').text()
+		//ユーザID
+		,user_key : $('td', record).filter('.id').text()
+		//所持ポイント
+		,get_point : $('td', record).filter('.get_point').text()
+	}
+	
+	return dataObj;	//作成したデータを返す
+}
+
+
+/*
+ * 関数名:doubleClickToLogin
+ * 引数  :string targetParent : コールバック登録対象の祖先要素
+ * 戻り値:なし
+ * 概要  :指定した要素の子孫のユーザデータを持つtrをダブルクリックして、対象ユーザでログインするイベントコールバック登録
+ * 作成日:2016.04.02
+ * 作成者:T.Masuda
+ */
+function doubleClickToLogin (targetParent){
+	//対象の子孫の行データをダブルクリックしたら
+	$(targetParent).on('doubletap','tbody tr',function(event){
+		//対象のユーザでログインする
+		loginInsteadOfMember($('.id', this).text());
+	});
+}
+
+/*
+ * 関数名:deleteRecords
+ * 引数  :string targetTable : コールバック登録対象の祖先要素
+ *      :string targetClass : コールバック登録対象の祖先要素
+ *      :Object queryObj    : 削除用クエリが入ったオブジェクト
+ *      :function callback  : 処理後のコールバック
+ *      :Array createTagData : createTagの処理対象テーブルデータ
+ *      :String noColumn    : 連番列名
+ * 戻り値:なし
+ * 概要  :指定した行データをDBレコード共に削除する
+ * 作成日:2016.04.09
+ * 作成者:T.Masuda
+ */
+function deleteRecords (targetTable, targetClass, queryObj, callback, createTagData, noColumn){
+	var processedRecords = 0;	//処理済みレコード数のカウント
+
+	//承認済みとなって削除するべきデータのインデックスの配列
+	var deleteList = [];
+	var resultMessage = '';	//処理結果を伝えるメッセージ
+	
+	//削除失敗時に例外で以降の処理を中断させるため、try-catch構文を使う
+	try {
+		//対象のテーブルの行を走査する
+		$('tr', $(targetTable)).each(function(i){
+			//対象の行であれば
+			if($(this).attr('class') && $(targetClass, $(targetTable)).index(this) != -1) {
+				var isSuccess = true;	//処理成否結果。DBアクセスがない場合はずっとtrue
+				
+				if(queryObj) {
+					
+					//送信用のオブジェクトを生成する
+					var sendObj = {
+							//クエリ
+							db_setQuery : queryObj[KEY_DB_SETQUERY]
+					//削除対象のID。行データから抽出する
+					,id : { value : $(this).children('.id').text()}
+					};
+					
+					//レコード削除のクエリを発行する
+					isSuccess = commonFuncs.sendSimpleQuery(sendObj, EMPTY_STRING, URL_SAVE_JSON_DATA_PHP);
+				}
+				
+				//成功したら
+				if (isSuccess) {
+					//削除に成功した行を削除する
+					$(this).remove();
+					//承認を終えたデータのインデックスをリストに追加する
+					deleteList.push(i);
+				//失敗したら
+				} else {
+					//対象のレコードの会員名の取得を試行する
+					var userName = $(this).children('.user_name').text();
+					//エラーメッセージを作成する。名前が取得できた場合は名前を載せる
+					var errorMessage = commonFuncs.checkEmpty(userName) ? 'このレコードの削除に失敗しました。処理を中断します。 : ' + userName : 'レコードの削除に失敗しました。処理を中断します。';
+					//処理を中断する
+					throw new Error(errorMessage);
+				}
+				
+				processedRecords++;	//処理済み数をカウントアップする
+			
+			}
+		});
+	//例外発生時
+	} catch (e) {
+		//エラーメッセージをセットする
+		resultMessage = e + '\n' + processedRecords + '件のレコードを削除しました。';
+	//最後の処理
+	} finally {
+		//コールバックが指定されていたら
+		if(callback){
+			//処理後のコールバックを実行する
+			callback();
+		}
+		
+		//連番列が入力されていれば
+		if(noColumn) {
+			//連番を振り直す
+			commonFuncs.insertSequenceNo(targetTable, noColumn);
+		}
+		
+		//処理対象のレコードがcreateTagと連動したデータであったら
+		if(createTagData){
+			//削除済みのデータを削除する
+			for (var i = 0; i < deleteList.length; i++) {
+				//テーブル用JSONをクリアする
+				createTagData.splice(deleteList[i] - i, 1);
+			}
+		}
+	}
+	
+	//エラーメッセージがセットされていなければ処理結果メッセージを処理件数を伝える内容にする
+	resultMessage = resultMessage == EMPTY_STRING ? processedRecords + '件のレコードを削除が完了しました。' : resultMessage;
+	//処理結果を通知する
+	alert(resultMessage);
+}
+
+/*
+ * 関数名:askExecuteDelete
+ * 引数  :string message : ダイアログに出すメッセージ
+ *      :function func : 削除の関数
+ * 戻り値:なし
+ * 概要  :削除実行前にダイアログを出して実行するかの確認を取る
+ * 作成日:2016.04.09
+ * 作成者:T.Masuda
+ */
+function askExecuteDelete (message, func){
+	//設定オブジェクトを作る
+	var settingObj = commonFuncs.getDefaultArgumentObject();
+	//オブジェクトにメッセージ、コールバック関数をセットする
+	settingObj.data.message = message;
+	//無名関数として引数の関数eval関数にかけるコードをコールバックにセットする
+	settingObj.data.callback = function(){ eval(func); this.instance.destroy();};
+	
+	//確認ダイアログのクラスインスタンスを生成する
+	var confirmDialog = new dialogEx(CONFIRM_DIALOG_PATH,settingObj);
+	
+	//openイベントのコールバック関数をセットする
+	confirmDialog.run();	//ダイアログを開く	
+}
+
+/*
+ * 関数名:executeDeleteRecord
+ * 引数  :string or Element target: クリックイベント登録先の要素
+ *      :string message : ダイアログに出すメッセージ
+ *      :string targetRecord : 処理対象のレコードのセレクタ
+ *      :function func : 削除の関数
+ * 戻り値:なし
+ * 概要  :指定した要素をクリックしてレコード削除を行う
+ * 作成日:2016.04.09
+ * 作成者:T.Masuda
+ */
+function executeDeleteRecord (target, message, targetRecord, func){
+	//対象をクリックしたら
+	$(target).on(CLICK, function(){
+		//対象がなければ
+		if($(targetRecord).length == 0) {
+			//警告を出す
+			alert(MESSAGE_CHOOSE_TARGET);
+			return false;	//処理を行わない
+		}
+		
+		//ダイアログを呼び出して確認を取った上で削除を行う
+		askExecuteDelete(message, func);
+	});
+}
+
+/*
+ * 関数名:popupSearchDialog
+ * 引数  :string or Element target: クリックイベント登録先の要素
+ * 戻り値:なし
+ * 概要  :検索ダイアログを表示する
+ * 作成日:2016.04.09
+ * 作成者:T.Masuda
+ */
+function popupSearchDialog (){
+	//ダイアログ作成用のオブジェクトのひな形を生成する
+	var argumentObj = commonFuncs.getDefaultArgumentObject();
+	//タイトルを設定する
+	argumentObj.config.title = TEXT_USER_SEARCH;
+	//検索用ダイアログのクラスインスタンスを生成する
+	var searchDialog = new dialogEx(PATH_USER_SEARCH_DIALOG, argumentObj);
+	//ユーザ検索ダイアログを表示する
+	searchDialog.run();
+}
+
+/*
+ * 関数名:setPopupSearchDialog
+ * 引数  :string or Element target: クリックイベント登録先の要素
+ * 戻り値:なし
+ * 概要  :検索ダイアログを表示する関数をボタン等の要素のクリックコールバックに登録する
+ * 作成日:2016.04.09
+ * 作成者:T.Masuda
+ */
+function setPopupSearchDialog (target){
+	//対象をクリックしたら
+	$(target).on(CLICK, function(){
+		popupSearchDialog();	//検索ダイアログを表示する
+	});
+}
+
+/*
+ * 関数名:deleteAfterReloadMailMagaTable
+ * 引数  :なし
+ * 戻り値:なし
+ * 概要  :メルマガの削除実行後の処理関数
+ * 作成日:2016.04.09
+ * 作成者:T.Masuda
+ */
+function deleteAfterReloadMailMagaTable(){
+	//テーブルをリロードする
+	$('#mailMagaAndAnnounce')[0].create_tag.loadTableData('mailMagaTable', 1, 4, 1, MAILMAGA_TABLE_SHOW_NUMBER, '.mailMagaTableOutside', 'afterReloadMailMagaTable', '$("#mailMagaAndAnnounce")[0].');
+} 
+
+/*
+ * 関数名:popupMailMagaDialog
+ * 引数  :なし
+ * 戻り値:なし
+ * 概要  :メルマガ編集ダイアログを表示する
+ * 作成日:2016.04.10
+ * 作成者:T.Masuda
+ */
+function popupMailMagaDialog (){
+	//ダイアログ作成用のオブジェクトのひな形を生成する
+	var argumentObj = commonFuncs.getDefaultArgumentObject();
+	//タイトルを設定する
+	argumentObj.config.title = TEXT_MAIL_MAGA_DIALOG;
+	//メルマガ編集ダイアログのクラスインスタンスを生成する
+	var mailMagaDialog = new dialogEx(PATH_MAILMAGA_DIALOG, argumentObj);
+	//メルマガ編集ダイアログを表示する
+	mailMagaDialog.run();
+}
+
+/*
+ * 関数名:setPopupMailMagaDialog
+ * 引数  :string target: クリックイベント登録先の要素
+ * 戻り値:なし
+ * 概要  :メルマガ編集を表示する関数をボタン等の要素のクリックコールバックに登録する
+ * 作成日:2016.04.10
+ * 作成者:T.Masuda
+ */
+function setPopupMailMagaDialog (target){
+	//対象をクリックしたら
+	$(target).on(CLICK, function(){
+		//選択されているメルマガが0個か1個の場合は
+		if($('#mailMagaAndAnnounce .selectRecord').length <= 1){
+			popupMailMagaDialog();	//メルマガ編集ダイアログを表示する
+		//それ以上選択している場合は
+		} else {
+			//新規の場合は1個までしか選べないという警告を出す
+			alert(MESSAGE_CHOOSE_A_MELMAGA);
+		}
+	});
+}
+
+/*
+ * 関数名:resizeMailMagaDialogTitleInput
+ * 引数  :なし
+ * 戻り値:なし
+ * 概要  :メルマガダイアログのタイトル編集テキストボックスをラベルサイズに合わせてリサイズする
+ * 作成日:2016.05.01
+ * 作成者:T.Masuda
+ */
+function resizeMailMagaDialogTitleInput() {
+	//ラベルの幅を取得する
+	var labelWidth = $(".messageTitleLabel").outerWidth(true);
+	//ラベルの親要素の幅を取得する
+	var parentWidth = $(".messageTitleLabel").parent().outerWidth(true);
+	//テキストボックスを持つ要素をリサイズする。それぞれの幅は四捨五入となっているため、念のため1px分引いておく
+	$(".messageTitleTextboxArea").width(parentWidth - labelWidth - 1);
+}
+
